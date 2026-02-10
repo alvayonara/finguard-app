@@ -14,12 +14,12 @@ class AuthRepository {
   });
 
   Future<UserModel?> getSavedUser() async {
-    final id = await localStorage.getUserId();
+    final userUid = await localStorage.getUserId();
     final anonymousId = await localStorage.getAnonymousId();
-    if (id == null || anonymousId == null) {
+    if (userUid == null || anonymousId == null) {
       return null;
     }
-    return UserModel(userId: id, anonymousId: anonymousId);
+    return UserModel(userUid: userUid, anonymousId: anonymousId);
   }
 
   Future<UserModel> createAnonymousUser() async {
@@ -29,7 +29,7 @@ class AuthRepository {
     }
     final anonymousId = _uuid.v4();
     final user = await authRemoteDatasource.createAnonymous(anonymousId);
-    await localStorage.saveUser(user.anonymousId, user.userId);
+    await localStorage.saveUser(user.anonymousId, user.userUid);
     return user;
   }
 }
