@@ -8,35 +8,31 @@ class OnboardingDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(title: const Text("FinGuard")),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.account_balance_wallet, size: 80),
-              const SizedBox(height: 24),
-              Text(
-                "Welcome to FinGuard!",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "Start by connecting your account to get personalized financial insights.",
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text("Connect Account"),
-              ),
-            ],
-          ),
+    return ListView(
+      padding: const EdgeInsets.all(24),
+      children: [
+        const SizedBox(height: 80),
+        const Icon(Icons.auto_graph, size: 80, color: Colors.blueAccent),
+        const SizedBox(height: 24),
+        const Text(
+          "Start Tracking Your Finances",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
-      ),
+        const SizedBox(height: 16),
+        const Text(
+          "Add a few transactions to activate financial health analysis.",
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 32),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          onPressed: () {},
+          child: const Text("Add First Transaction"),
+        ),
+      ],
     );
   }
 }

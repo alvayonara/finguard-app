@@ -1,3 +1,4 @@
+import 'package:finguard_app/core/theme/app_theme.dart';
 import 'package:finguard_app/features/dashboard/data/dashboard_repository.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,12 @@ class FinguardApp extends StatelessWidget {
               DashboardViewmodel(dashboardRepository: dashboardRepository),
         ),
       ],
-      child: MaterialApp(title: 'Finguard', home: SplashScreen()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Finguard',
+        theme: AppTheme.light(),
+        home: const SplashScreen(),
+      ),
     );
   }
 }

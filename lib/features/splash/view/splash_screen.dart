@@ -1,7 +1,7 @@
+import 'package:finguard_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../auth/viewmodel/auth_viewmodel.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
