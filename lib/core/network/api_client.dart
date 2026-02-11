@@ -1,18 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class ApiClient {
-  static const baseUrl = "http://localhost:8080";
-
-  Future<Map<String, dynamic>> post(
-    String path,
-    Map<String, dynamic> body,
-  ) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl$path'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
-    return jsonDecode(response.body);
-  }
+  final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: "http://localhost:8080",
+      connectTimeout: const Duration(seconds: 5),
+    ),
+  );
 }
