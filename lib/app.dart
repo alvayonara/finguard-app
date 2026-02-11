@@ -1,12 +1,13 @@
+import 'package:finguard_app/features/dashboard/data/dashboard_repository.dart';
+import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/network/api_client.dart';
 import 'core/storage/local_storage.dart';
-import 'data/datasources/auth_remote_datasource.dart';
-import 'data/repositories/auth_repository.dart';
-import 'presentation/viewmodels/auth_viewmodel.dart';
-import 'presentation/views/splash_page.dart';
+import 'features/auth/viewmodel/auth_viewmodel.dart';
+import 'features/splash/view/splash_screen.dart';
+import 'features/auth/data/auth_repository.dart';
 
 class FinguardApp extends StatelessWidget {
   const FinguardApp({super.key});
@@ -15,17 +16,19 @@ class FinguardApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final apiClient = ApiClient();
     final localStorage = LocalStorage();
-    final remote = AuthRemoteDatasource(apiClient: apiClient);
-    final authRepository = AuthRepository(
-      authRemoteDatasource: remote,
-      localStorage: localStorage,
-    );
+    final dashboardRepository = DashboardRepository(apiClient: apiClient);
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthViewmodel(authRepository)),
+        ChangeNotifierProvider(
+          create: (_) => AuthViewmodel(AuthRepository(apiClient), localStorage),
+        ),
+        ChangeNotifierProvider(
+          create: (_) =>
+              DashboardViewmodel(dashboardRepository: dashboardRepository),
+        ),
       ],
-      child: MaterialApp(title: 'Finguard', home: SplashPage()),
+      child: MaterialApp(title: 'Finguard', home: SplashScreen()),
     );
   }
 }
