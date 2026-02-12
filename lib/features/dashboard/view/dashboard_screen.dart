@@ -7,8 +7,7 @@ import 'onboarding_dashboard.dart';
 import 'active_dashboard.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final String userUid;
-  const DashboardScreen({super.key, required this.userUid});
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -19,7 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<DashboardViewmodel>().loadDashboard(widget.userUid);
+      context.read<DashboardViewmodel>().loadDashboard();
     });
   }
 
@@ -56,7 +55,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () => vm.loadDashboard(widget.userUid),
+                  onPressed: () => vm.loadDashboard(),
                   child: const Text("Retry"),
                 ),
               ],
@@ -72,11 +71,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => vm.loadDashboard(widget.userUid),
-        child: data.state == "ONBOARDING"
-            ? OnboardingDashboard(data: data)
-            : ActiveDashboard(data: data),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () => vm.loadDashboard(),
+          child: data.state == "ONBOARDING"
+              ? OnboardingDashboard(data: data)
+              : ActiveDashboard(data: data),
+        ),
       ),
     );
   }

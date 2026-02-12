@@ -11,12 +11,12 @@ class DashboardViewmodel extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<void> loadDashboard(String userUid) async {
+  Future<void> loadDashboard() async {
     try {
       isLoading = true;
       notifyListeners();
 
-      dashboardData = await dashboardRepository.fetchDashboard(userUid);
+      dashboardData = await dashboardRepository.fetchDashboard();
     } catch (e) {
       error = e.toString();
     } finally {

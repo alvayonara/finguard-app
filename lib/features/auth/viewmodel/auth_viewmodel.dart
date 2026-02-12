@@ -1,32 +1,55 @@
-import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard_app/features/user/data/model/user_preference.dart';
+import 'package:finguard_app/features/user/data/user_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard_app/core/app_settings.dart';
 import '../data/auth_repository.dart';
 
 class AuthViewmodel extends ChangeNotifier {
   final AuthRepository authRepository;
+  final UserRepository userRepository;
   final LocalStorage localStorage;
+  final AppSettings appSettings;
 
-  AuthViewmodel(this.authRepository, this.localStorage);
+  AuthViewmodel(
+    this.authRepository,
+    this.userRepository,
+    this.localStorage,
+    this.appSettings,
+  );
 
   bool isLoading = false;
 
-  Future<String> initUser() async {
+  Future<void> bootstrap() async {
     isLoading = true;
     notifyListeners();
+    try {
+      await _initUser();
+      final pref = await userRepository.getPreferences();
+      _applyPreferences(pref);
+    } catch (e) {
+      debugPrint("Bootstrap error: $e");
+      _applyPreferences(const UserPreference(language: 'en', currency: 'USD'));
+    }
+    isLoading = false;
+    notifyListeners();
+  }
 
+  Future<void> _initUser() async {
     final existingId = await localStorage.getUserUid();
     if (existingId != null) {
-      isLoading = false;
-      return existingId;
+      return;
     }
-
     final res = await authRepository.createAnonymous();
     await localStorage.saveAnonymous(res.anonymousId);
     await localStorage.saveUserUid(res.userUid);
+  }
 
-    isLoading = false;
-    notifyListeners();
+  void _applyPreferences(UserPreference pref) {
+    appSettings.setLocale(Locale(pref.language));
+    appSettings.setCurrency(pref.currency);
 
-    return res.userUid;
+    localStorage.saveLanguage(pref.language);
+    localStorage.saveCurrency(pref.currency);
   }
 }

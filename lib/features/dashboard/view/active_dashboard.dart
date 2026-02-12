@@ -1,5 +1,8 @@
+import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ActiveDashboard extends StatelessWidget {
   final DashboardResponse data;
@@ -8,17 +11,18 @@ class ActiveDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final risk = data.financialHealth;
-    final month = data.monthSummary;
+    final settings = context.watch<AppSettings>();
+    final financialHealth = data.financialHealth;
+    final monthSummary = data.monthSummary;
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        if (risk != null)
+        if (financialHealth != null)
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: _gradient(risk.level),
+              gradient: _gradient(financialHealth.level),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -37,7 +41,7 @@ class ActiveDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  risk.level,
+                  financialHealth.level,
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -46,7 +50,7 @@ class ActiveDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  risk.topInsight,
+                  financialHealth.topInsight,
                   style: const TextStyle(color: Colors.white),
                 ),
               ],
@@ -70,9 +74,19 @@ class ActiveDashboard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _row("Income", month?.totalIncome ?? 0, Colors.green),
+              _row(
+                "Income",
+                monthSummary?.totalIncome ?? 0,
+                Colors.green,
+                settings,
+              ),
               const SizedBox(height: 12),
-              _row("Expense", month?.totalExpense ?? 0, Colors.red),
+              _row(
+                "Expense",
+                monthSummary?.totalExpense ?? 0,
+                Colors.red,
+                settings,
+              ),
             ],
           ),
         ),
@@ -85,8 +99,14 @@ class ActiveDashboard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        ...data.recentTransactions.map(
-          (tx) => Container(
+        ...data.recentTransactions.map((tx) {
+          final formattedAmount = CurrencyFormatter.format(
+            amount: tx.amount,
+            currencyCode: settings.currency,
+            locale: settings.locale.languageCode,
+          );
+
+          return Container(
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -116,13 +136,13 @@ class ActiveDashboard extends StatelessWidget {
                   ],
                 ),
                 Text(
-                  tx.amount.toString(),
+                  formattedAmount,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -144,13 +164,18 @@ class ActiveDashboard extends StatelessWidget {
     }
   }
 
-  Widget _row(String label, double value, Color color) {
+  Widget _row(String label, double value, Color color, AppSettings settings) {
+    final formatted = CurrencyFormatter.format(
+      amount: value,
+      currencyCode: settings.currency,
+      locale: settings.locale.languageCode,
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label),
         Text(
-          value.toStringAsFixed(0),
+          formatted,
           style: TextStyle(color: color, fontWeight: FontWeight.bold),
         ),
       ],

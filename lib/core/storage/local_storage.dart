@@ -3,7 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorage {
   static const _anonKey = "anonymous_id";
   static const _userUidKey = "user_uid";
+  static const _languageKey = "language";
+  static const _currencyKey = "currency";
 
+  // setter
   Future<void> saveAnonymous(String anonId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_anonKey, anonId);
@@ -14,6 +17,17 @@ class LocalStorage {
     await prefs.setString(_userUidKey, uid);
   }
 
+  Future<void> saveLanguage(String language) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_languageKey, language);
+  }
+
+  Future<void> saveCurrency(String currency) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_currencyKey, currency);
+  }
+
+  // getter
   Future<String?> getUserUid() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userUidKey);
@@ -22,5 +36,15 @@ class LocalStorage {
   Future<String?> getAnonymousId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_anonKey);
+  }
+
+  Future<String?> getLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_languageKey);
+  }
+
+  Future<String?> getCurrency() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_currencyKey);
   }
 }

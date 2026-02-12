@@ -1,39 +1,89 @@
-import 'package:finguard_app/core/theme/app_theme.dart';
-import 'package:finguard_app/features/dashboard/data/dashboard_repository.dart';
+import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'core/app_settings.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/local_storage.dart';
-import 'features/auth/viewmodel/auth_viewmodel.dart';
-import 'features/splash/view/splash_screen.dart';
 import 'features/auth/data/auth_repository.dart';
+import 'features/auth/viewmodel/auth_viewmodel.dart';
+import 'features/user/data/user_repository.dart';
+import 'features/dashboard/data/dashboard_repository.dart';
+import 'features/splash/view/splash_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class FinguardApp extends StatelessWidget {
   const FinguardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final apiClient = ApiClient();
-    final localStorage = LocalStorage();
-    final dashboardRepository = DashboardRepository(apiClient: apiClient);
-
+    final settings = AppSettings();
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthViewmodel(AuthRepository(apiClient), localStorage),
+        /// Core
+        Provider(create: (_) => LocalStorage()),
+        Provider(create: (context) => ApiClient(context.read<LocalStorage>())),
+
+        /// Repositories
+        Provider(
+          create: (context) => AuthRepository(context.read<ApiClient>()),
         ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              DashboardViewmodel(dashboardRepository: dashboardRepository),
+        Provider(
+          create: (context) =>
+              UserRepository(apiClient: context.read<ApiClient>()),
+        ),
+        Provider(
+          create: (context) =>
+              DashboardRepository(apiClient: context.read<ApiClient>()),
+        ),
+
+        /// Global App Settings
+        ChangeNotifierProvider(create: (_) => settings),
+
+        /// Auth ViewModel
+        ChangeNotifierProxyProvider4<
+          AuthRepository,
+          UserRepository,
+          LocalStorage,
+          AppSettings,
+          AuthViewmodel
+        >(
+          create: (context) => AuthViewmodel(
+            context.read<AuthRepository>(),
+            context.read<UserRepository>(),
+            context.read<LocalStorage>(),
+            context.read<AppSettings>(),
+          ),
+          update: (context, authRepo, userRepo, storage, settings, previous) =>
+              previous ?? AuthViewmodel(authRepo, userRepo, storage, settings),
+        ),
+
+        /// Dashboard ViewModel
+        ChangeNotifierProxyProvider<DashboardRepository, DashboardViewmodel>(
+          create: (context) => DashboardViewmodel(
+            dashboardRepository: context.read<DashboardRepository>(),
+          ),
+          update: (context, repo, previous) =>
+              previous ?? DashboardViewmodel(dashboardRepository: repo),
         ),
       ],
+
       child: MaterialApp(
+        locale: settings.locale,
+        supportedLocales: const [Locale('en'), Locale('id')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         debugShowCheckedModeBanner: false,
         title: 'Finguard',
-        theme: AppTheme.light(),
-        home: const SplashScreen(),
+        theme: ThemeData(useMaterial3: true),
+        initialRoute: '/',
+        routes: {
+          '/': (_) => const SplashScreen(),
+          '/dashboard': (_) => const DashboardScreen(),
+        },
       ),
     );
   }
