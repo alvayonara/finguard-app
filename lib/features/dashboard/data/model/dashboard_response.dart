@@ -35,6 +35,7 @@ class FinancialHealth {
   final String color;
   final String topInsightKey;
   final String recommendationKey;
+  final String? lastDetectedAt;
 
   FinancialHealth({
     required this.level,
@@ -42,6 +43,7 @@ class FinancialHealth {
     required this.color,
     required this.topInsightKey,
     required this.recommendationKey,
+    required this.lastDetectedAt,
   });
 
   factory FinancialHealth.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class FinancialHealth {
       color: json['color'] ?? "",
       topInsightKey: json['topInsightKey'] ?? "",
       recommendationKey: json['recommendationKey'] ?? "",
+      lastDetectedAt: json['lastDetectedAt'], // nullable
     );
   }
 }

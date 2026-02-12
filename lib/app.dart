@@ -1,5 +1,7 @@
 import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard_app/features/risk/data/risk_repository.dart';
+import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:finguard_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,10 @@ class FinguardApp extends StatelessWidget {
           create: (context) =>
               DashboardRepository(apiClient: context.read<ApiClient>()),
         ),
+        Provider(
+          create: (context) =>
+              RiskRepository(apiClient: context.read<ApiClient>()),
+        ),
 
         /// Global App Settings
         ChangeNotifierProvider(create: (_) => settings),
@@ -66,6 +72,11 @@ class FinguardApp extends StatelessWidget {
           ),
           update: (context, repo, previous) =>
               previous ?? DashboardViewmodel(dashboardRepository: repo),
+        ),
+        ChangeNotifierProxyProvider<RiskRepository, RiskTrendViewmodel>(
+          create: (context) =>
+              RiskTrendViewmodel(context.read<RiskRepository>()),
+          update: (_, repo, previous) => previous ?? RiskTrendViewmodel(repo),
         ),
       ],
 
