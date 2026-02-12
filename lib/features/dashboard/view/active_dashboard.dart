@@ -19,9 +19,6 @@ class ActiveDashboard extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        /// ===============================
-        /// FINANCIAL HEALTH CARD
-        /// ===============================
         if (financialHealth != null)
           Container(
             padding: const EdgeInsets.all(20),
@@ -56,7 +53,6 @@ class ActiveDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
-                /// Insight (Localized)
                 Text(
                   InsightResolver.resolveInsight(
                     context,
@@ -70,7 +66,6 @@ class ActiveDashboard extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                /// Recommendation Box
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -108,9 +103,6 @@ class ActiveDashboard extends StatelessWidget {
 
         const SizedBox(height: 24),
 
-        /// ===============================
-        /// MONTH SUMMARY CARD
-        /// ===============================
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -145,9 +137,6 @@ class ActiveDashboard extends StatelessWidget {
 
         const SizedBox(height: 24),
 
-        /// ===============================
-        /// RECENT TRANSACTIONS
-        /// ===============================
         const Text(
           "Recent Transactions",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -218,7 +207,6 @@ class ActiveDashboard extends StatelessWidget {
     );
   }
 
-  /// Gradient based on risk level
   LinearGradient _gradient(String level) {
     switch (level) {
       case "HIGH":
