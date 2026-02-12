@@ -2,7 +2,7 @@ import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
-import 'package:finguard_app/features/risk/view/risk_trend_card.dart';
+import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,137 +47,143 @@ class ActiveDashboard extends StatelessWidget {
   // ===================================================
   // HERO
   // ===================================================
-
   Widget _buildFinancialHero(BuildContext context, FinancialHealth health) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: health.score.toDouble()),
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeOutCubic,
-      builder: (context, animatedScore, _) {
-        return Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            gradient: _gradient(health.level),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 28,
-                offset: const Offset(0, 14),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Financial Health",
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
-                      fontSize: 13,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                  _miniTrendIcon(health),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              /// Level + Score
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    health.level,
-                    style: const TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    "${animatedScore.toInt()}/100",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              /// Insight
-              Text(
-                InsightResolver.resolveInsight(context, health.topInsightKey),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  height: 1.3,
-                ),
-              ),
-
-              if (health.lastDetectedAt != null &&
-                  health.lastDetectedAt!.isNotEmpty) ...[
-                const SizedBox(height: 6),
-                Text(
-                  "Updated ${health.lastDetectedAt}",
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 12,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, '/risk-detail');
+      },
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: health.score.toDouble()),
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeOutCubic,
+        builder: (context, animatedScore, child) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: _gradient(health.level),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.18),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
                 ),
               ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Header + Arrow indicator
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Financial Health",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 13,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
 
-              if (health.recommendationKey.isNotEmpty) ...[
-                const SizedBox(height: 18),
+                const SizedBox(height: 14),
 
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.16),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.lightbulb_outline,
-                        size: 18,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      health.level,
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          InsightResolver.resolveRecommendation(
-                            context,
-                            health.recommendationKey,
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            height: 1.3,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "${animatedScore.toInt()}/100",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white.withOpacity(0.85),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                Text(
+                  InsightResolver.resolveInsight(context, health.topInsightKey),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+
+                const SizedBox(height: 6),
+
+                if (health.lastDetectedAt != null &&
+                    health.lastDetectedAt!.isNotEmpty)
+                  Text(
+                    "Updated ${health.lastDetectedAt}",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                  ),
+
+                const SizedBox(height: 16),
+
+                if (health.recommendationKey.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.lightbulb_outline,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            InsightResolver.resolveRecommendation(
+                              context,
+                              health.recommendationKey,
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
               ],
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 

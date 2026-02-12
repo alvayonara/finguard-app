@@ -1,6 +1,7 @@
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'dashboard_shimmer.dart';
@@ -47,16 +48,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await vm.loadDashboard();
-            await context.read<RiskTrendViewmodel>().load();
-          },
-          child: data.state == "ONBOARDING"
-              ? OnboardingDashboard(data: data)
-              : ActiveDashboard(data: data),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await vm.loadDashboard();
+              await context.read<RiskTrendViewmodel>().load();
+            },
+            child: data.state == "ONBOARDING"
+                ? OnboardingDashboard(data: data)
+                : ActiveDashboard(data: data),
+          ),
         ),
       ),
     );

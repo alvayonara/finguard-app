@@ -1,6 +1,8 @@
 import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/data/risk_repository.dart';
+import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
+import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:finguard_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +80,12 @@ class FinguardApp extends StatelessWidget {
               RiskTrendViewmodel(context.read<RiskRepository>()),
           update: (_, repo, previous) => previous ?? RiskTrendViewmodel(repo),
         ),
+
+        // Risk detail ViewModel
+        ChangeNotifierProvider(
+          create: (context) =>
+              RiskDetailViewmodel(repository: context.read<RiskRepository>()),
+        ),
       ],
 
       child: MaterialApp(
@@ -96,6 +104,7 @@ class FinguardApp extends StatelessWidget {
         routes: {
           '/': (_) => const SplashScreen(),
           '/dashboard': (_) => const DashboardScreen(),
+          '/risk-detail': (_) => const RiskDetailScreen()
         },
       ),
     );
