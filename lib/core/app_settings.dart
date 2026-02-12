@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class AppSettings extends ChangeNotifier {
-  Locale _locale = const Locale('id');
-  String _currency = 'IDR';
+  Locale _locale = const Locale('en');
+  String _currency = 'USD';
 
   Locale get locale => _locale;
   String get currency => _currency;

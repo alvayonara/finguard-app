@@ -21,8 +21,7 @@ class AuthViewmodel extends ChangeNotifier {
   bool isLoading = false;
 
   Future<void> bootstrap() async {
-    isLoading = true;
-    notifyListeners();
+    _setLoading(true);
     try {
       await _initUser();
       final pref = await userRepository.getPreferences();
@@ -31,8 +30,7 @@ class AuthViewmodel extends ChangeNotifier {
       debugPrint("Bootstrap error: $e");
       _applyPreferences(const UserPreference(language: 'en', currency: 'USD'));
     }
-    isLoading = false;
-    notifyListeners();
+    _setLoading(false);
   }
 
   Future<void> _initUser() async {
@@ -51,5 +49,10 @@ class AuthViewmodel extends ChangeNotifier {
 
     localStorage.saveLanguage(pref.language);
     localStorage.saveCurrency(pref.currency);
+  }
+
+  void _setLoading(bool value) {
+    isLoading = value;
+    notifyListeners();
   }
 }

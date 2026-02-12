@@ -33,15 +33,15 @@ class FinancialHealth {
   final String level;
   final int score;
   final String color;
-  final String topInsight;
-  final String recommendation;
+  final String topInsightKey;
+  final String recommendationKey;
 
   FinancialHealth({
     required this.level,
     required this.score,
     required this.color,
-    required this.topInsight,
-    required this.recommendation,
+    required this.topInsightKey,
+    required this.recommendationKey,
   });
 
   factory FinancialHealth.fromJson(Map<String, dynamic> json) {
@@ -49,8 +49,8 @@ class FinancialHealth {
       level: json['level'] ?? "",
       score: json['score'] ?? 0,
       color: json['color'] ?? "",
-      topInsight: json['topInsight'] ?? "",
-      recommendation: json['recommendation'] ?? "",
+      topInsightKey: json['topInsightKey'] ?? "",
+      recommendationKey: json['recommendationKey'] ?? "",
     );
   }
 }

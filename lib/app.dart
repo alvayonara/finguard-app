@@ -1,5 +1,6 @@
 import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/app_settings.dart';
@@ -72,6 +73,7 @@ class FinguardApp extends StatelessWidget {
         locale: settings.locale,
         supportedLocales: const [Locale('en'), Locale('id')],
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

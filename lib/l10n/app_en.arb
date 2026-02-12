@@ -1,0 +1,10 @@
+{
+  "insightNegativeCashFlow": "Your expenses this month are higher than your income.",
+  "insightExpenseSpike": "Your spending is much higher than usual.",
+  "insightGeneric": "Unusual financial activity detected.",
+  "insightStable": "Your financial condition is stable this week.",
+
+  "recNegativeCashflow": "Reduce non-essential expenses this month.",
+  "recExpenseSpike": "Avoid large spending for the next few days.",
+  "recStable": "Maintain your current spending pattern."
+}
