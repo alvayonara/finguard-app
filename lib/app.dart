@@ -5,6 +5,7 @@ import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:finguard_app/l10n/app_localizations.dart';
+import 'package:finguard_app/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/app_settings.dart';
@@ -103,7 +104,7 @@ class FinguardApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (_) => const SplashScreen(),
-          '/dashboard': (_) => const DashboardScreen(),
+          '/home': (_) => const MainNavigationScreen(),
           '/risk-detail': (_) => const RiskDetailScreen()
         },
       ),
