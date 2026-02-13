@@ -18,67 +18,66 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _showOnboarding = false;
-  bool _isCheckingOnboarding = true;
+  bool _checking = true;
 
   @override
   void initState() {
     super.initState();
-    _checkOnboarding();
-    Future.microtask(() {
-      context.read<DashboardViewmodel>().loadDashboard();
-      context.read<RiskTrendViewmodel>().load();
-    });
+    _init();
   }
 
-  Future<void> _checkOnboarding() async {
-    final localStorage = LocalStorage();
-    final isCompleted = await localStorage.isOnboardingCompleted();
+  Future<void> _init() async {
+    final storage = LocalStorage();
+    final completed = await storage.isOnboardingCompleted();
+
     if (mounted) {
       setState(() {
-        _showOnboarding = !isCompleted;
-        _isCheckingOnboarding = false;
+        _showOnboarding = !completed;
+        _checking = false;
       });
+    }
+
+    if (completed) {
+      _loadData();
     }
   }
 
+  Future<void> _loadData() async {
+    await context.read<DashboardViewmodel>().loadDashboard();
+    await context.read<RiskTrendViewmodel>().load();
+  }
+
   Future<void> _completeOnboarding() async {
-    final localStorage = LocalStorage();
-    await localStorage.markOnboardingCompleted();
+    await LocalStorage().markOnboardingCompleted();
+
     if (mounted) {
       setState(() {
         _showOnboarding = false;
       });
     }
+
+    await _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isCheckingOnboarding) {
+    if (_checking) {
       return const DashboardShimmer();
     }
 
     if (_showOnboarding) {
-      return OnboardingDashboard(onComplete: _completeOnboarding);
+      return OnboardingFlowScreen();
     }
 
     final vm = context.watch<DashboardViewmodel>();
+
     if (vm.isLoading) {
       return const DashboardShimmer();
     }
 
     if (vm.error != null) {
       return Scaffold(
-        body: Center(
-          child: Text(vm.error!),
-        ),
-      );
-    }
-
-    final data = vm.dashboardData;
-
-    if (data == null) {
-      return const Scaffold(
-        body: Center(child: Text("No data available")),
+        body: Center(child: Text(vm.error!)),
       );
     }
 
@@ -87,11 +86,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Scaffold(
         body: SafeArea(
           child: RefreshIndicator(
-            onRefresh: () async {
-              await vm.loadDashboard();
-              await context.read<RiskTrendViewmodel>().load();
-            },
-            child: ActiveDashboard(data: data),
+            onRefresh: _loadData,
+            child: ActiveDashboard(data: vm.dashboardData!),
           ),
         ),
       ),

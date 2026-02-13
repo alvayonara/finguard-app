@@ -1,3 +1,4 @@
+import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
 import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
 import 'package:finguard_app/features/transaction/data/transaction_repository.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,20 @@ class TransactionViewModel extends ChangeNotifier {
   bool isLoading = false;
 
   TransactionViewModel(this.repository);
+
+  Future<void> createTransaction({
+    required CreateTransactionRequest request,
+  }) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      await repository.createTransaction(request);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> updateTransaction({
     required int id,

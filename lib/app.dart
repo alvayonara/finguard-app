@@ -1,5 +1,6 @@
 import 'package:finguard_app/features/category/data/category_repository.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/data/risk_repository.dart';
 import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
@@ -129,13 +130,54 @@ class FinguardApp extends StatelessWidget {
         theme: ThemeData(useMaterial3: true),
         initialRoute: '/',
         routes: {
-          '/': (_) => const SplashScreen(),
-          '/home': (_) => const MainNavigationScreen(),
+          '/': (_) => const _RootDecider(),
+          '/main': (_) => const MainNavigationScreen(),
           '/risk-detail': (_) => const RiskDetailScreen(),
           '/transaction-detail': (_) => const TransactionDetailScreen(),
           // '/categories': (_) => const CategoryScreen(),
         },
       ),
     );
+  }
+}
+
+class _RootDecider extends StatefulWidget {
+  const _RootDecider({super.key});
+
+  @override
+  State<_RootDecider> createState() => _RootDeciderState();
+}
+
+class _RootDeciderState extends State<_RootDecider> {
+  bool? isOnboardingCompleted;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    final storage = context.read<LocalStorage>();
+    final completed = await storage.isOnboardingCompleted();
+
+    if (mounted) {
+      setState(() {
+        isOnboardingCompleted = completed;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isOnboardingCompleted == null) {
+      return const SplashScreen();
+    }
+
+    if (!isOnboardingCompleted!) {
+      return const OnboardingFlowScreen();
+    }
+
+    return const MainNavigationScreen();
   }
 }

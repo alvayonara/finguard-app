@@ -1,12 +1,12 @@
 import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
 
-class UpdateTransactionRequest {
+class CreateTransactionRequest {
   final String type;
   final double amount;
   final int categoryId;
   final String occurredAt;
 
-  UpdateTransactionRequest({
+  CreateTransactionRequest({
     required this.type,
     required this.amount,
     required this.categoryId,
