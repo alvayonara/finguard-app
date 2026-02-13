@@ -1,9 +1,13 @@
-import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
+import 'package:finguard_app/features/category/data/category_repository.dart';
+import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/data/risk_repository.dart';
 import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard_app/features/transaction/data/transaction_repository.dart';
+import 'package:finguard_app/features/transaction/view/transaction_detail_screen.dart';
+import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finguard_app/l10n/app_localizations.dart';
 import 'package:finguard_app/main_navigation.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +30,11 @@ class FinguardApp extends StatelessWidget {
     final settings = AppSettings();
     return MultiProvider(
       providers: [
-        /// Core
+        // Core
         Provider(create: (_) => LocalStorage()),
         Provider(create: (context) => ApiClient(context.read<LocalStorage>())),
 
-        /// Repositories
+        // Repositories
         Provider(
           create: (context) => AuthRepository(context.read<ApiClient>()),
         ),
@@ -46,11 +50,17 @@ class FinguardApp extends StatelessWidget {
           create: (context) =>
               RiskRepository(apiClient: context.read<ApiClient>()),
         ),
+        Provider(
+          create: (context) => CategoryRepository(context.read<ApiClient>()),
+        ),
+        Provider(
+          create: (context) => TransactionRepository(context.read<ApiClient>()),
+        ),
 
-        /// Global App Settings
+        // Global App Settings
         ChangeNotifierProvider(create: (_) => settings),
 
-        /// Auth ViewModel
+        // Auth ViewModel
         ChangeNotifierProxyProvider4<
           AuthRepository,
           UserRepository,
@@ -68,7 +78,7 @@ class FinguardApp extends StatelessWidget {
               previous ?? AuthViewmodel(authRepo, userRepo, storage, settings),
         ),
 
-        /// Dashboard ViewModel
+        // Dashboard ViewModel
         ChangeNotifierProxyProvider<DashboardRepository, DashboardViewmodel>(
           create: (context) => DashboardViewmodel(
             dashboardRepository: context.read<DashboardRepository>(),
@@ -86,6 +96,22 @@ class FinguardApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) =>
               RiskDetailViewmodel(repository: context.read<RiskRepository>()),
+        ),
+
+        // Category ViewModel
+        ChangeNotifierProxyProvider<CategoryRepository, CategoryViewModel>(
+          create: (context) =>
+              CategoryViewModel(context.read<CategoryRepository>()),
+          update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
+        ),
+
+        ChangeNotifierProxyProvider<
+          TransactionRepository,
+          TransactionViewModel
+        >(
+          create: (context) =>
+              TransactionViewModel(context.read<TransactionRepository>()),
+          update: (_, repo, previous) => previous ?? TransactionViewModel(repo),
         ),
       ],
 
@@ -105,7 +131,9 @@ class FinguardApp extends StatelessWidget {
         routes: {
           '/': (_) => const SplashScreen(),
           '/home': (_) => const MainNavigationScreen(),
-          '/risk-detail': (_) => const RiskDetailScreen()
+          '/risk-detail': (_) => const RiskDetailScreen(),
+          '/transaction-detail': (_) => const TransactionDetailScreen(),
+          // '/categories': (_) => const CategoryScreen(),
         },
       ),
     );

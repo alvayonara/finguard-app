@@ -5,6 +5,7 @@ class LocalStorage {
   static const _userUidKey = "user_uid";
   static const _languageKey = "language";
   static const _currencyKey = "currency";
+  static const _onboardingCompletedKey = "onboarding_completed";
 
   // setter
   Future<void> saveAnonymous(String anonId) async {
@@ -46,5 +47,15 @@ class LocalStorage {
   Future<String?> getCurrency() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_currencyKey);
+  }
+
+  Future<bool> isOnboardingCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_onboardingCompletedKey) ?? false;
+  }
+
+  Future<void> markOnboardingCompleted() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingCompletedKey, true);
   }
 }

@@ -20,8 +20,7 @@ class DashboardResponse {
       monthSummary: json['monthSummary'] != null
           ? MonthSummary.fromJson(json['monthSummary'])
           : null,
-      recentTransactions:
-          (json['recentTransactions'] as List?)
+      recentTransactions: (json['recentTransactions'] as List?)
               ?.map((e) => RecentTransactionItem.fromJson(e))
               .toList() ??
           [],
@@ -53,7 +52,7 @@ class FinancialHealth {
       color: json['color'] ?? "",
       topInsightKey: json['topInsightKey'] ?? "",
       recommendationKey: json['recommendationKey'] ?? "",
-      lastDetectedAt: json['lastDetectedAt'], // nullable
+      lastDetectedAt: json['lastDetectedAt'],
     );
   }
 }
@@ -79,22 +78,28 @@ class MonthSummary {
 }
 
 class RecentTransactionItem {
+  final int id;             
   final String type;
   final double amount;
+  final int categoryId;     
   final String category;
   final String occurredAt;
 
   RecentTransactionItem({
+    required this.id,
     required this.type,
     required this.amount,
+    required this.categoryId,
     required this.category,
     required this.occurredAt,
   });
 
   factory RecentTransactionItem.fromJson(Map<String, dynamic> json) {
     return RecentTransactionItem(
+      id: json['id'],
       type: json['type'] ?? "",
       amount: (json['amount'] ?? 0).toDouble(),
+      categoryId: json['categoryId'],
       category: json['category'] ?? "",
       occurredAt: json['occurredAt'] ?? "",
     );

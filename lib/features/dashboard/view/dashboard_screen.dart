@@ -1,3 +1,4 @@
+import 'package:finguard_app/core/storage/local_storage.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +17,50 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  bool _showOnboarding = false;
+  bool _isCheckingOnboarding = true;
+
   @override
   void initState() {
     super.initState();
+    _checkOnboarding();
     Future.microtask(() {
       context.read<DashboardViewmodel>().loadDashboard();
       context.read<RiskTrendViewmodel>().load();
     });
   }
 
+  Future<void> _checkOnboarding() async {
+    final localStorage = LocalStorage();
+    final isCompleted = await localStorage.isOnboardingCompleted();
+    if (mounted) {
+      setState(() {
+        _showOnboarding = !isCompleted;
+        _isCheckingOnboarding = false;
+      });
+    }
+  }
+
+  Future<void> _completeOnboarding() async {
+    final localStorage = LocalStorage();
+    await localStorage.markOnboardingCompleted();
+    if (mounted) {
+      setState(() {
+        _showOnboarding = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isCheckingOnboarding) {
+      return const DashboardShimmer();
+    }
+
+    if (_showOnboarding) {
+      return OnboardingDashboard(onComplete: _completeOnboarding);
+    }
+
     final vm = context.watch<DashboardViewmodel>();
     if (vm.isLoading) {
       return const DashboardShimmer();
@@ -57,9 +91,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               await vm.loadDashboard();
               await context.read<RiskTrendViewmodel>().load();
             },
-            child: data.state == "ONBOARDING"
-                ? OnboardingDashboard(data: data)
-                : ActiveDashboard(data: data),
+            child: ActiveDashboard(data: data),
           ),
         ),
       ),

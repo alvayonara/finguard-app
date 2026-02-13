@@ -2,8 +2,10 @@ import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
+import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -318,10 +320,6 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
     );
   }
 
-  // =========================================================
-  // RECENT TX
-  // =========================================================
-
   Widget _buildRecentTransactions(
     DashboardResponse data,
     AppSettings settings,
@@ -399,51 +397,77 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
 
                     return Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 14,
-                          ),
-                          child: Row(
-                            children: [
-                              /// ICON
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: iconColor.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  iconData,
-                                  size: 18,
-                                  color: iconColor,
-                                ),
-                              ),
+                        GestureDetector(
+                          onTap: () {
+                            final model = TransactionModel(
+                              id: tx.id,
+                              type: tx.type,
+                              amount: tx.amount,
+                              categoryId: tx.categoryId,
+                              categoryName: tx.category,
+                              occurredAt: tx.occurredAt,
+                            );
 
-                              const SizedBox(width: 12),
-
-                              /// CATEGORY
-                              Expanded(
-                                child: Text(
-                                  tx.category,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
+                            Navigator.pushNamed(
+                              context,
+                              '/transaction-detail',
+                              arguments: model,
+                            ).then((result) {
+                              if (result == true) {
+                                context
+                                    .read<DashboardViewmodel>()
+                                    .loadDashboard();
+                              }
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                /// ICON
+                                Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: iconColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    iconData,
+                                    size: 18,
+                                    color: iconColor,
                                   ),
                                 ),
-                              ),
 
-                              /// AMOUNT
-                              Text(
-                                "${isExpense ? '-' : '+'} $formatted",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: isExpense ? Colors.red : Colors.green,
+                                const SizedBox(width: 12),
+
+                                /// CATEGORY
+                                Expanded(
+                                  child: Text(
+                                    tx.category,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ],
+
+                                /// AMOUNT
+                                Text(
+                                  "${isExpense ? '-' : '+'} $formatted",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: isExpense
+                                        ? Colors.red
+                                        : Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
 

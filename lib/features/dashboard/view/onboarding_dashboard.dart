@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import '../data/model/dashboard_response.dart';
 
 class OnboardingDashboard extends StatelessWidget {
-  final DashboardResponse data;
+  final VoidCallback onComplete;
 
-  const OnboardingDashboard({super.key, required this.data});
+  const OnboardingDashboard({super.key, required this.onComplete});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +28,8 @@ class OnboardingDashboard extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          onPressed: () {},
-          child: const Text("Add First Transaction"),
+          onPressed: onComplete,
+          child: const Text("Get Started"),
         ),
       ],
     );
