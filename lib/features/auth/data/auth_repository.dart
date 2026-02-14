@@ -14,8 +14,8 @@ class AuthRepository {
       "/v1/users/anonymous",
       data: {"anonymousId": resolvedAnonymousId},
     );
-    return AuthResponse.fromJson(response.data).copyWith(
-      anonymousId: resolvedAnonymousId,
-    );
+    return AuthResponse.fromJson(
+      response.data,
+    ).copyWith(anonymousId: resolvedAnonymousId);
   }
 }

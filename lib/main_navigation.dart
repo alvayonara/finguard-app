@@ -1,7 +1,10 @@
 import 'dart:ui';
+import 'package:alice/alice.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:finguard_app/features/activity/view/activity_screen.dart';
 import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
+import 'package:provider/provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -13,11 +16,42 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _index = 0;
 
-  final List<Widget> _screens = const [
-    DashboardScreen(),
-    Placeholder(),
-    Placeholder(),
-    Placeholder(),
+  Widget _buildProfileScreen() {
+    final alice = context.read<Alice>();
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Profile Screen'),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => alice.showInspector(),
+              icon: const Icon(Icons.bug_report),
+              label: const Text('API Inspector'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> get _screens => [
+    const DashboardScreen(),
+    const ActivityScreen(),
+    const Placeholder(),
+    _buildProfileScreen(),
   ];
 
   static const Color primaryColor = Color(0xFF5E5CE6);

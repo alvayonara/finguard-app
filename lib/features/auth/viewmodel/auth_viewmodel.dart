@@ -36,11 +36,9 @@ class AuthViewmodel extends ChangeNotifier {
   Future<void> _initUser() async {
     final existingId = await localStorage.getUserUid();
     final existingRefreshToken = await localStorage.getRefreshToken();
-    if (
-      existingId != null &&
-      existingRefreshToken != null &&
-      existingRefreshToken.isNotEmpty
-    ) {
+    if (existingId != null &&
+        existingRefreshToken != null &&
+        existingRefreshToken.isNotEmpty) {
       return;
     }
 

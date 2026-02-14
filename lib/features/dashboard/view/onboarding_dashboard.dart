@@ -1,11 +1,13 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
 import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
 import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finguard_app/main_navigation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +56,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   }
 
   Future<void> _finish() async {
-    final income = double.tryParse(incomeController.text);
+    final cleanText = incomeController.text.replaceAll(',', '');
+    final income = double.tryParse(cleanText);
 
     if (income == null || income <= 0) {
       setState(() => error = "Income can't be empty");
@@ -121,17 +124,13 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 ),
 
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  switchInCurve: Curves.easeOut,
-                  switchOutCurve: Curves.easeIn,
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                  child: _buildStep(),
+                child: IndexedStack(
+                  index: step,
+                  children: [
+                    _intro(),
+                    _login(),
+                    _income(),
+                  ],
                 ),
               ),
 
@@ -142,17 +141,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildStep() {
-    switch (step) {
-      case 0:
-        return _intro();
-      case 1:
-        return _login();
-      default:
-        return _income();
-    }
   }
 
   // =====================================================
@@ -185,7 +173,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   Widget _intro() {
     return Column(
-      key: const ValueKey(0),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
@@ -249,7 +236,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   Widget _login() {
     return Column(
-      key: const ValueKey(1),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 60),
@@ -327,7 +313,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   Widget _income() {
     return SingleChildScrollView(
-      key: const ValueKey(2),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 40,
       ),
@@ -380,8 +365,11 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           TextField(
             focusNode: incomeFocusNode,
             controller: incomeController,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              ThousandsSeparatorInputFormatter(),
+            ],
             decoration: InputDecoration(
               prefixText: "${currencySymbols[selectedCurrency]} ",
               labelText: "Income amount",

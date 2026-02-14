@@ -1,3 +1,4 @@
+import 'package:alice/alice.dart';
 import 'package:dio/dio.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
 import 'dart:async';
@@ -8,9 +9,10 @@ class ApiClient {
 
   final Dio dio;
   final LocalStorage localStorage;
+  final Alice alice;
   Future<void>? _refreshInFlight;
 
-  ApiClient(this.localStorage)
+  ApiClient(this.localStorage, {required this.alice})
     : dio = Dio(
         BaseOptions(
           baseUrl: "http://localhost:8080",
@@ -18,6 +20,9 @@ class ApiClient {
           receiveTimeout: const Duration(seconds: 10),
         ),
       ) {
+    // Add Alice interceptor first
+    dio.interceptors.add(alice.getDioInterceptor());
+    
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -43,7 +48,6 @@ class ApiClient {
               !_isRefreshRequest(requestOptions);
 
           if (!shouldTryRefresh) {
-            print("API ERROR: ${error.response?.data}");
             return handler.next(error);
           }
 
@@ -65,7 +69,7 @@ class ApiClient {
               requestOptions.copyWith(headers: retryHeaders),
             );
             return handler.resolve(retriedResponse);
-          } catch (_) {
+          } catch (e) {
             return handler.next(error);
           }
         },
@@ -118,14 +122,12 @@ class ApiClient {
       final nextRefreshToken = json['refreshToken'] as String?;
       final userUid = json['userUid'] as String?;
 
-      if (
-        nextAccessToken == null ||
-        nextAccessToken.isEmpty ||
-        nextRefreshToken == null ||
-        nextRefreshToken.isEmpty ||
-        userUid == null ||
-        userUid.isEmpty
-      ) {
+      if (nextAccessToken == null ||
+          nextAccessToken.isEmpty ||
+          nextRefreshToken == null ||
+          nextRefreshToken.isEmpty ||
+          userUid == null ||
+          userUid.isEmpty) {
         throw DioException(
           requestOptions: RequestOptions(path: _refreshPath),
           type: DioExceptionType.badResponse,

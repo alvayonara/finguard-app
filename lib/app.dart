@@ -1,3 +1,6 @@
+import 'package:alice/alice.dart';
+import 'package:finguard_app/features/activity/data/activity_repository.dart';
+import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
 import 'package:finguard_app/features/category/data/category_repository.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
@@ -29,11 +32,24 @@ class FinguardApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettings();
+    final navigatorKey = GlobalKey<NavigatorState>();
+    final alice = Alice(
+      showNotification: true,
+      showInspectorOnShake: true,
+      navigatorKey: navigatorKey,
+    );
+    
     return MultiProvider(
       providers: [
         // Core
         Provider(create: (_) => LocalStorage()),
-        Provider(create: (context) => ApiClient(context.read<LocalStorage>())),
+        Provider(create: (_) => alice),
+        Provider(
+          create: (context) => ApiClient(
+            context.read<LocalStorage>(),
+            alice: alice,
+          ),
+        ),
 
         // Repositories
         Provider(
@@ -56,6 +72,9 @@ class FinguardApp extends StatelessWidget {
         ),
         Provider(
           create: (context) => TransactionRepository(context.read<ApiClient>()),
+        ),
+        Provider(
+          create: (context) => ActivityRepository(context.read<ApiClient>()),
         ),
 
         // Global App Settings
@@ -114,9 +133,17 @@ class FinguardApp extends StatelessWidget {
               TransactionViewModel(context.read<TransactionRepository>()),
           update: (_, repo, previous) => previous ?? TransactionViewModel(repo),
         ),
+
+        ChangeNotifierProxyProvider<ActivityRepository, ActivityViewmodel>(
+          create: (context) =>
+              ActivityViewmodel(activityRepository: context.read<ActivityRepository>()),
+          update: (_, repo, previous) =>
+              previous ?? ActivityViewmodel(activityRepository: repo),
+        ),
       ],
 
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         locale: settings.locale,
         supportedLocales: const [Locale('en'), Locale('id')],
         localizationsDelegates: const [
@@ -150,27 +177,38 @@ class _RootDecider extends StatefulWidget {
 
 class _RootDeciderState extends State<_RootDecider> {
   bool? isOnboardingCompleted;
+  bool isBootstrapping = true;
+  bool _hasInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _check();
+    if (!_hasInitialized) {
+      _hasInitialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initialize();
+      });
+    }
   }
 
-  Future<void> _check() async {
+  Future<void> _initialize() async {
+    final authVM = context.read<AuthViewmodel>();
     final storage = context.read<LocalStorage>();
+
+    await authVM.bootstrap();
     final completed = await storage.isOnboardingCompleted();
 
     if (mounted) {
       setState(() {
         isOnboardingCompleted = completed;
+        isBootstrapping = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isOnboardingCompleted == null) {
+    if (isBootstrapping || isOnboardingCompleted == null) {
       return const SplashScreen();
     }
 
