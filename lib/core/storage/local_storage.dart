@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorage {
   static const _anonKey = "anonymous_id";
   static const _userUidKey = "user_uid";
+  static const _accessTokenKey = "access_token";
+  static const _refreshTokenKey = "refresh_token";
   static const _languageKey = "language";
   static const _currencyKey = "currency";
   static const _onboardingCompletedKey = "onboarding_completed";
@@ -16,6 +18,27 @@ class LocalStorage {
   Future<void> saveUserUid(String uid) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userUidKey, uid);
+  }
+
+  Future<void> saveAccessToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_accessTokenKey, token);
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_refreshTokenKey, token);
+  }
+
+  Future<void> saveAuthSession({
+    required String userUid,
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userUidKey, userUid);
+    await prefs.setString(_accessTokenKey, accessToken);
+    await prefs.setString(_refreshTokenKey, refreshToken);
   }
 
   Future<void> saveLanguage(String language) async {
@@ -32,6 +55,16 @@ class LocalStorage {
   Future<String?> getUserUid() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userUidKey);
+  }
+
+  Future<String?> getAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_accessTokenKey);
+  }
+
+  Future<String?> getRefreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshTokenKey);
   }
 
   Future<String?> getAnonymousId() async {
@@ -57,5 +90,12 @@ class LocalStorage {
   Future<void> markOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_onboardingCompletedKey, true);
+  }
+
+  Future<void> clearAuthSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userUidKey);
+    await prefs.remove(_accessTokenKey);
+    await prefs.remove(_refreshTokenKey);
   }
 }

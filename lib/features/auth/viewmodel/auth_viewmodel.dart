@@ -35,12 +35,29 @@ class AuthViewmodel extends ChangeNotifier {
 
   Future<void> _initUser() async {
     final existingId = await localStorage.getUserUid();
-    if (existingId != null) {
+    final existingRefreshToken = await localStorage.getRefreshToken();
+    if (
+      existingId != null &&
+      existingRefreshToken != null &&
+      existingRefreshToken.isNotEmpty
+    ) {
       return;
     }
-    final res = await authRepository.createAnonymous();
-    await localStorage.saveAnonymous(res.anonymousId);
-    await localStorage.saveUserUid(res.userUid);
+
+    final currentAnonymousId = await localStorage.getAnonymousId();
+    final res = await authRepository.createAnonymous(
+      anonymousId: currentAnonymousId,
+    );
+
+    final resolvedAnonymousId = res.anonymousId;
+    if (resolvedAnonymousId != null && resolvedAnonymousId.isNotEmpty) {
+      await localStorage.saveAnonymous(resolvedAnonymousId);
+    }
+    await localStorage.saveAuthSession(
+      userUid: res.userUid,
+      accessToken: res.accessToken,
+      refreshToken: res.refreshToken,
+    );
   }
 
   void _applyPreferences(UserPreference pref) {

@@ -8,12 +8,14 @@ class AuthRepository {
 
   AuthRepository(this.apiClient);
 
-  Future<AuthResponse> createAnonymous() async {
-    final anonymousId = _uuid.v4();
+  Future<AuthResponse> createAnonymous({String? anonymousId}) async {
+    final resolvedAnonymousId = anonymousId ?? _uuid.v4();
     final response = await apiClient.dio.post(
       "/v1/users/anonymous",
-      data: {"anonymousId": anonymousId},
+      data: {"anonymousId": resolvedAnonymousId},
     );
-    return AuthResponse.fromJson(response.data);
+    return AuthResponse.fromJson(response.data).copyWith(
+      anonymousId: resolvedAnonymousId,
+    );
   }
 }
