@@ -1,11 +1,9 @@
 class DashboardResponse {
-  final String state;
   final FinancialHealth? financialHealth;
   final MonthSummary? monthSummary;
   final List<RecentTransactionItem> recentTransactions;
 
   DashboardResponse({
-    required this.state,
     required this.financialHealth,
     required this.monthSummary,
     required this.recentTransactions,
@@ -13,7 +11,6 @@ class DashboardResponse {
 
   factory DashboardResponse.fromJson(Map<String, dynamic> json) {
     return DashboardResponse(
-      state: json['state'] ?? "ONBOARDING",
       financialHealth: json['financialHealth'] != null
           ? FinancialHealth.fromJson(json['financialHealth'])
           : null,
