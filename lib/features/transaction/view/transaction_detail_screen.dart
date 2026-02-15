@@ -131,7 +131,7 @@ class TransactionDetailScreen extends StatelessWidget {
               _showEditBottomSheet(context, tx);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: const Color(0xFF5E5CE6),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -333,7 +333,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: const Color(0xFF5E5CE6),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),

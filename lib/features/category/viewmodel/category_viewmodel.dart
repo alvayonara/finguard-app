@@ -24,12 +24,13 @@ class CategoryViewModel extends ChangeNotifier {
   Future<CategoryModel?> createCategory({
     required String name,
     required String type,
+    String? icon,
   }) async {
     final created = await repository.create(
       CategoryRequest(
         name: name,
         type: type,
-        icon: "category",
+        icon: icon ?? "📁",
         color: "#9E9E9E",
       ),
     );

@@ -8,6 +8,7 @@ class LocalStorage {
   static const _languageKey = "language";
   static const _currencyKey = "currency";
   static const _onboardingCompletedKey = "onboarding_completed";
+  static const _firstLoginCoachmarkPendingKey = "first_login_coachmark_pending";
 
   Future<void> saveAnonymous(String anonId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -93,6 +94,20 @@ class LocalStorage {
   Future<void> markOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_onboardingCompletedKey, true);
+  }
+
+  Future<void> markFirstLoginCoachmarkPending() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_firstLoginCoachmarkPendingKey, true);
+  }
+
+  Future<bool> consumeFirstLoginCoachmarkPending() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isPending = prefs.getBool(_firstLoginCoachmarkPendingKey) ?? false;
+    if (isPending) {
+      await prefs.setBool(_firstLoginCoachmarkPendingKey, false);
+    }
+    return isPending;
   }
 
   /// Clears authentication session (tokens and userUid)

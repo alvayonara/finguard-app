@@ -84,13 +84,13 @@ class RiskTrendCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? Colors.black : Colors.grey.shade200,
+          color: selected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           "${days}D",
           style: TextStyle(
-            color: selected ? Colors.white : Colors.black,
+            color: selected ? Colors.white : Colors.grey.shade700,
             fontWeight: FontWeight.w600,
           ),
         ),

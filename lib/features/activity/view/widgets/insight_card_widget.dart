@@ -1,4 +1,5 @@
 import 'package:finguard_app/features/activity/data/model/insight_card.dart';
+import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:flutter/material.dart';
 
 class InsightCardWidget extends StatelessWidget {
@@ -9,6 +10,11 @@ class InsightCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final severityColor = _getSeverityColor();
+    final resolvedMessage = InsightResolver.resolveInsight(
+      context,
+      insight.message,
+      riskLevel: insight.insightType,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -47,7 +53,7 @@ class InsightCardWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  insight.message,
+                  resolvedMessage,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -64,11 +70,15 @@ class InsightCardWidget extends StatelessWidget {
   }
 
   Color _getSeverityColor() {
-    return switch (insight.insightType) {
-      'HIGH' => const Color(0xFFFF5F6D),
-      'MEDIUM' => const Color(0xFFFFB347),
-      'LOW' => const Color(0xFF56AB2F),
-      _ => Colors.grey,
-    };
+    switch (insight.insightType) {
+      case 'HIGH':
+        return const Color(0xFFFF5F6D);
+      case 'MEDIUM':
+        return const Color(0xFFFFB347);
+      case 'LOW':
+        return const Color(0xFF56AB2F);
+      default:
+        return Colors.grey;
+    }
   }
 }

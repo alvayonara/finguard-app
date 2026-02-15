@@ -10,12 +10,14 @@ import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:finguard_app/features/transaction/data/transaction_repository.dart';
+import 'package:finguard_app/features/transaction/view/add_transaction_screen.dart';
 import 'package:finguard_app/features/transaction/view/transaction_detail_screen.dart';
 import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finguard_app/l10n/app_localizations.dart';
 import 'package:finguard_app/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'core/ui/app_colors.dart';
 import 'core/app_settings.dart';
 import 'core/network/api_client.dart';
 import 'core/storage/local_storage.dart';
@@ -79,13 +81,8 @@ class FinguardApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => settings),
 
         // Auth ViewModel
-        ChangeNotifierProxyProvider4<
-          AuthRepository,
-          UserRepository,
-          LocalStorage,
-          AppSettings,
-          AuthViewmodel
-        >(
+        ChangeNotifierProxyProvider4<AuthRepository, UserRepository,
+            LocalStorage, AppSettings, AuthViewmodel>(
           create: (context) => AuthViewmodel(
             context.read<AuthRepository>(),
             context.read<UserRepository>(),
@@ -123,10 +120,8 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
         ),
 
-        ChangeNotifierProxyProvider<
-          TransactionRepository,
-          TransactionViewModel
-        >(
+        ChangeNotifierProxyProvider<TransactionRepository,
+            TransactionViewModel>(
           create: (context) =>
               TransactionViewModel(context.read<TransactionRepository>()),
           update: (_, repo, previous) => previous ?? TransactionViewModel(repo),
@@ -140,7 +135,6 @@ class FinguardApp extends StatelessWidget {
               previous ?? ActivityViewmodel(activityRepository: repo),
         ),
       ],
-
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: settings.locale,
@@ -153,13 +147,38 @@ class FinguardApp extends StatelessWidget {
         ],
         debugShowCheckedModeBanner: false,
         title: 'Finguard',
-        theme: ThemeData(useMaterial3: true),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AppColors.primary,
+          ).copyWith(primary: AppColors.primary),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+          ),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+          ),
+        ),
         initialRoute: '/',
         routes: {
           '/': (_) => const _RootDecider(),
           '/main': (_) => const MainNavigationScreen(),
           '/risk-detail': (_) => const RiskDetailScreen(),
           '/transaction-detail': (_) => const TransactionDetailScreen(),
+          '/create-transaction': (_) => const AddTransactionScreen(),
           // '/categories': (_) => const CategoryScreen(),
         },
       ),
@@ -168,7 +187,7 @@ class FinguardApp extends StatelessWidget {
 }
 
 class _RootDecider extends StatefulWidget {
-  const _RootDecider({super.key});
+  const _RootDecider();
 
   @override
   State<_RootDecider> createState() => _RootDeciderState();

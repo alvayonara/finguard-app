@@ -38,6 +38,16 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     "SGD": "S\$",
   };
 
+  double? get _incomeValue {
+    final cleanText = incomeController.text.replaceAll(',', '');
+    return double.tryParse(cleanText);
+  }
+
+  bool get _canSubmitIncome {
+    final income = _incomeValue;
+    return !isLoading && income != null && income > 0;
+  }
+
   void _next() {
     setState(() => step++);
 
@@ -55,8 +65,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   }
 
   Future<void> _finish() async {
-    final cleanText = incomeController.text.replaceAll(',', '');
-    final income = double.tryParse(cleanText);
+    final income = _incomeValue;
 
     if (income == null || income <= 0) {
       setState(() => error = "Income can't be empty");
@@ -87,6 +96,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       );
 
       await storage.saveCurrency(selectedCurrency);
+      await storage.markFirstLoginCoachmarkPending();
       await storage.markOnboardingCompleted();
       settings.setCurrency(selectedCurrency);
 
@@ -112,6 +122,13 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       });
       debugPrint("Onboarding finish error: $e");
     }
+  }
+
+  @override
+  void dispose() {
+    incomeController.dispose();
+    incomeFocusNode.dispose();
+    super.dispose();
   }
 
   // =====================================================
@@ -142,14 +159,12 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                     icon: const Icon(Icons.arrow_back_ios_new_rounded),
                   ),
                 ),
-
               Expanded(
                 child: IndexedStack(
                   index: step,
                   children: [_intro(), _login(), _income()],
                 ),
               ),
-
               _stepIndicator(),
               const SizedBox(height: 24),
             ],
@@ -175,7 +190,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           height: 8,
           width: isActive ? 20 : 8,
           decoration: BoxDecoration(
-            color: isActive ? Colors.black : Colors.black26,
+            color: isActive ? const Color(0xFF5E5CE6) : const Color(0xFF5E5CE6).withOpacity(0.3),
             borderRadius: BorderRadius.circular(20),
           ),
         );
@@ -192,7 +207,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 40),
-
         Container(
           height: 220,
           width: double.infinity,
@@ -213,16 +227,12 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             fit: BoxFit.contain,
           ),
         ),
-
         const SizedBox(height: 40),
-
         const Text(
           "Welcome to Finguard",
           style: TextStyle(fontSize: 13, color: Colors.grey),
         ),
-
         const SizedBox(height: 14),
-
         const Text(
           "Your Money\nUnder Control.",
           style: TextStyle(
@@ -231,16 +241,12 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             height: 1.2,
           ),
         ),
-
         const SizedBox(height: 18),
-
         const Text(
           "Track spending. Detect risky habits.\nBuild financial clarity.",
           style: TextStyle(fontSize: 15, color: Colors.grey, height: 1.6),
         ),
-
         const SizedBox(height: 80),
-
         _primaryButton("Get Started", _next),
       ],
     );
@@ -255,33 +261,26 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 60),
-
         const Center(
           child: Icon(Icons.lock_outline, size: 90, color: Colors.black),
         ),
-
         const SizedBox(height: 50),
-
         const Text(
           "Save your progress 🔐",
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
         ),
-
         const SizedBox(height: 14),
-
         const Text(
           "Sign in to sync across devices and\nkeep your money data safe.",
           style: TextStyle(color: Colors.grey, height: 1.5),
         ),
-
         const SizedBox(height: 80),
-
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
+              backgroundColor: const Color(0xFF5E5CE6),
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -304,9 +303,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             ),
           ),
         ),
-
         const SizedBox(height: 20),
-
         Center(
           child: GestureDetector(
             onTap: _next,
@@ -336,20 +333,15 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 60),
-
           const Center(
             child: Icon(Icons.trending_up, size: 90, color: Colors.black),
           ),
-
           const SizedBox(height: 50),
-
           const Text(
             "Set your monthly income",
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
           ),
-
           const SizedBox(height: 30),
-
           SizedBox(
             height: 110,
             child: CupertinoPicker(
@@ -377,12 +369,15 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                   .toList(),
             ),
           ),
-
           const SizedBox(height: 24),
-
           TextField(
             focusNode: incomeFocusNode,
             controller: incomeController,
+            onChanged: (_) {
+              setState(() {
+                error = null;
+              });
+            },
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -399,21 +394,16 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
               ),
             ),
           ),
-
           if (error != null) ...[
             const SizedBox(height: 10),
             Text(error!, style: const TextStyle(color: Colors.red)),
           ],
-
           const SizedBox(height: 60),
-
           _primaryButton(
             isLoading ? "Processing..." : "Finish",
-            isLoading ? null : _finish,
+            _canSubmitIncome ? _finish : null,
           ),
-
           const SizedBox(height: 16),
-
           Center(
             child: TextButton(
               onPressed: isLoading ? null : _skipOnboarding,
@@ -453,7 +443,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
+          backgroundColor: const Color(0xFF5E5CE6),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

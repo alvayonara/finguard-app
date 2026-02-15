@@ -1,3 +1,4 @@
+import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/features/activity/data/model/activity_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -67,7 +68,10 @@ class TransactionItemWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
-                      child: Icon(_getIconData(), size: 18, color: iconColor),
+                      child: Text(
+                        CategoryIconMapper.getIcon(transaction.category.icon),
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -121,23 +125,6 @@ class TransactionItemWidget extends StatelessWidget {
     } catch (_) {
       return const Color(0xFF9E9E9E);
     }
-  }
-
-  IconData _getIconData() {
-    final iconMap = {
-      'restaurant': Icons.restaurant,
-      'shopping_bag': Icons.shopping_bag,
-      'attach_money': Icons.attach_money,
-      'directions_car': Icons.directions_car,
-      'movie': Icons.movie,
-      'home': Icons.home,
-      'flight': Icons.flight,
-      'local_hospital': Icons.local_hospital,
-      'school': Icons.school,
-      'fitness_center': Icons.fitness_center,
-    };
-
-    return iconMap[transaction.category.icon] ?? Icons.category;
   }
 
   String _formatTime(DateTime dateTime) {

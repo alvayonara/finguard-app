@@ -75,11 +75,13 @@ class MonthSummary {
 }
 
 class RecentTransactionItem {
-  final int id;             
+  final int id;
   final String type;
   final double amount;
-  final int categoryId;     
+  final int categoryId;
   final String category;
+  final String? categoryIcon;
+  final String? categoryColor;
   final String occurredAt;
 
   RecentTransactionItem({
@@ -88,16 +90,40 @@ class RecentTransactionItem {
     required this.amount,
     required this.categoryId,
     required this.category,
+    required this.categoryIcon,
+    required this.categoryColor,
     required this.occurredAt,
   });
 
   factory RecentTransactionItem.fromJson(Map<String, dynamic> json) {
+    final categoryRaw = json['category'];
+    final categoryObj =
+        categoryRaw is Map<String, dynamic> ? categoryRaw : null;
+
+    final categoryName = categoryObj?['name']?.toString() ??
+        json['categoryName']?.toString() ??
+        (categoryRaw is String ? categoryRaw : '');
+
+    final categoryId = (json['categoryId'] as num?)?.toInt() ??
+        (categoryObj?['id'] as num?)?.toInt() ??
+        0;
+
+    final categoryIcon = categoryObj?['icon']?.toString() ??
+        json['categoryIcon']?.toString() ??
+        json['icon']?.toString();
+
+    final categoryColor = categoryObj?['color']?.toString() ??
+        json['categoryColor']?.toString() ??
+        json['color']?.toString();
+
     return RecentTransactionItem(
       id: json['id'],
       type: json['type'] ?? "",
       amount: (json['amount'] ?? 0).toDouble(),
-      categoryId: json['categoryId'],
-      category: json['category'] ?? "",
+      categoryId: categoryId,
+      category: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
       occurredAt: json['occurredAt'] ?? "",
     );
   }

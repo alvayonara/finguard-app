@@ -1,5 +1,6 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/ui/bounce_wrapper.dart';
+import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
@@ -8,6 +9,7 @@ import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ActiveDashboard extends StatefulWidget {
@@ -26,28 +28,25 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
   Widget build(BuildContext context) {
     final settings = context.watch<AppSettings>();
     final riskTrendVM = context.watch<RiskTrendViewmodel>();
+    final dashboardVM = context.watch<DashboardViewmodel>();
     final summary = widget.data.monthSummary;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       children: [
         if (widget.data.financialHealth != null)
-          _buildFinancialHero(context, widget.data.financialHealth!),
-
+          _buildFinancialHero(
+            context,
+            widget.data.financialHealth!,
+            dashboardVM.isFinancialHealthUpdating,
+          ),
         const SizedBox(height: 20),
-
         _buildNetBalance(summary, settings),
-
         const SizedBox(height: 20),
-
         if (summary != null) _buildIncomeExpense(summary, settings),
-
         const SizedBox(height: 28),
-
         _buildTabChips(),
-
         const SizedBox(height: 20),
-
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 250),
           switchInCurve: Curves.easeOut,
@@ -86,7 +85,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.grey.shade200,
+          color: isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -101,7 +100,11 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
     );
   }
 
-  Widget _buildFinancialHero(BuildContext context, FinancialHealth health) {
+  Widget _buildFinancialHero(
+    BuildContext context,
+    FinancialHealth health,
+    bool isUpdating,
+  ) {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, '/risk-detail'),
       child: TweenAnimationBuilder<double>(
@@ -135,15 +138,41 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                         fontSize: 13,
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
-                      color: Colors.white,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isUpdating) ...[
+                          const SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Text(
+                            "Updating...",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                        ],
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 18),
-
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -166,7 +195,21 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                     ),
                   ],
                 ),
-
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Last detected: ${_formatLastDetectedAt(health.lastDetectedAt)}",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.82),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 if (health.recommendationKey.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Container(
@@ -208,6 +251,13 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
         },
       ),
     );
+  }
+
+  String _formatLastDetectedAt(String? raw) {
+    if (raw == null || raw.isEmpty) return "-";
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return raw;
+    return DateFormat('dd MMM yyyy, HH:mm').format(parsed.toLocal());
   }
 
   Widget _buildNetBalance(MonthSummary? summary, AppSettings settings) {
@@ -355,7 +405,6 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 16),
-
         ...sortedDates.map((date) {
           final txList = grouped[date]!;
 
@@ -373,7 +422,6 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                   ),
                 ),
               ),
-
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -393,8 +441,11 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
 
                     final isExpense = tx.type == "EXPENSE";
 
-                    final iconData = _categoryIcon(tx.category);
-                    final iconColor = _categoryColor(tx.category);
+                    final iconEmoji = CategoryIconMapper.getIcon(
+                      tx.categoryIcon ?? tx.category,
+                    );
+                    final iconColor = _parseCategoryColor(tx.categoryColor) ??
+                        _categoryColor(tx.category);
 
                     return Column(
                       children: [
@@ -436,10 +487,11 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                     color: iconColor.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(
-                                    iconData,
-                                    size: 18,
-                                    color: iconColor,
+                                  child: Center(
+                                    child: Text(
+                                      iconEmoji,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
                                   ),
                                 ),
 
@@ -462,16 +514,14 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: isExpense
-                                        ? Colors.red
-                                        : Colors.green,
+                                    color:
+                                        isExpense ? Colors.red : Colors.green,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-
                         if (index != txList.length - 1)
                           Divider(
                             height: 1,
@@ -483,7 +533,6 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                   }).toList(),
                 ),
               ),
-
               const SizedBox(height: 20),
             ],
           );
@@ -540,23 +589,6 @@ String _monthName(int month) {
   return months[month];
 }
 
-IconData _categoryIcon(String category) {
-  switch (category.toUpperCase()) {
-    case "FOOD":
-      return Icons.restaurant_rounded;
-    case "SHOPPING":
-      return Icons.shopping_bag_rounded;
-    case "TRANSPORT":
-      return Icons.directions_car_rounded;
-    case "SALARY":
-      return Icons.attach_money_rounded;
-    case "ENTERTAINMENT":
-      return Icons.movie_rounded;
-    default:
-      return Icons.category_rounded;
-  }
-}
-
 Color _categoryColor(String category) {
   switch (category.toUpperCase()) {
     case "FOOD":
@@ -572,4 +604,15 @@ Color _categoryColor(String category) {
     default:
       return Colors.grey;
   }
+}
+
+Color? _parseCategoryColor(String? colorCode) {
+  if (colorCode == null || colorCode.isEmpty) return null;
+  final normalized =
+      colorCode.startsWith('#') ? colorCode.substring(1) : colorCode;
+  if (normalized.length != 6) return null;
+
+  final hex = int.tryParse(normalized, radix: 16);
+  if (hex == null) return null;
+  return Color(0xFF000000 | hex);
 }

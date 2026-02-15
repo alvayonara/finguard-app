@@ -1,5 +1,6 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/ui/bounce_wrapper.dart';
+import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/features/activity/data/model/activity_item.dart';
 import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
@@ -133,10 +134,9 @@ class ActivityGroupCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
-                  child: Icon(
-                    _getIconData(tx.category.icon),
-                    size: 18,
-                    color: iconColor,
+                  child: Text(
+                    CategoryIconMapper.getIcon(tx.category.icon),
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
               ),
@@ -261,23 +261,6 @@ class ActivityGroupCard extends StatelessWidget {
     } catch (_) {
       return const Color(0xFF9E9E9E);
     }
-  }
-
-  IconData _getIconData(String icon) {
-    final iconMap = {
-      'restaurant': Icons.restaurant,
-      'shopping_bag': Icons.shopping_bag,
-      'attach_money': Icons.attach_money,
-      'directions_car': Icons.directions_car,
-      'movie': Icons.movie,
-      'home': Icons.home,
-      'flight': Icons.flight,
-      'local_hospital': Icons.local_hospital,
-      'school': Icons.school,
-      'fitness_center': Icons.fitness_center,
-    };
-
-    return iconMap[icon] ?? Icons.category;
   }
 
   Color _getRiskColor(String level) {

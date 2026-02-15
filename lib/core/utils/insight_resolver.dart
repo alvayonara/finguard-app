@@ -8,22 +8,24 @@ class InsightResolver {
     String? riskLevel,
   }) {
     final loc = AppLocalizations.of(context)!;
+    final normalized = key?.trim();
+    final upper = normalized?.toUpperCase();
 
-    switch (key) {
+    switch (upper) {
       case "NEGATIVE_CASH_FLOW":
-      case "negative_cash_flow":
+      case "INSIGHT_NEGATIVE_CASH_FLOW":
         return loc.insightNegativeCashFlow;
       case "EXPENSE_SPIKE":
-      case "expense_spike":
+      case "INSIGHT_EXPENSE_SPIKE":
         return loc.insightExpenseSpike;
       case "BUDGET_EXCEEDED":
-      case "budget_exceeded":
+      case "INSIGHT_BUDGET_EXCEEDED":
         return loc.insightBudgetExceeded;
       case "SPENDING_SPIKE":
-      case "spending_spike":
+      case "INSIGHT_SPENDING_SPIKE":
         return loc.insightSpendingSpike;
       case "STABLE":
-      case "stable":
+      case "INSIGHT_STABLE":
         return loc.insightStable;
       default:
         // Fallback based on risk level
@@ -36,6 +38,10 @@ class InsightResolver {
             case "HIGH":
               return loc.insightHighRisk;
           }
+        }
+        // Keep unknown text as-is instead of forcing "stable".
+        if (normalized != null && normalized.isNotEmpty) {
+          return normalized;
         }
         return loc.insightStable;
     }
