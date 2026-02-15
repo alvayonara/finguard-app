@@ -221,17 +221,18 @@ class RiskTrendCard extends StatelessWidget {
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(
               leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
             ),
             lineTouchData: LineTouchData(enabled: false),
             lineBarsData: [
               LineChartBarData(
-                spots: [
-                  const FlSpot(0, 50),
-                  const FlSpot(1, 50),
-                ],
+                spots: [const FlSpot(0, 50), const FlSpot(1, 50)],
                 isCurved: true,
                 barWidth: 4,
                 color: Colors.grey.shade300,

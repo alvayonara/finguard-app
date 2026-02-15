@@ -74,7 +74,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       final storage = LocalStorage();
 
       final now = DateTime.now();
-      final formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      final formattedDate =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
       await txVM.createTransaction(
         request: CreateTransactionRequest(

@@ -78,9 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (vm.error != null) {
-      return Scaffold(
-        body: Center(child: Text(vm.error!)),
-      );
+      return Scaffold(body: Center(child: Text(vm.error!)));
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

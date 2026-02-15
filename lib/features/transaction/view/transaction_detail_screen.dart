@@ -13,8 +13,7 @@ class TransactionDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tx =
-        ModalRoute.of(context)!.settings.arguments as TransactionModel;
+    final tx = ModalRoute.of(context)!.settings.arguments as TransactionModel;
 
     final settings = context.watch<AppSettings>();
 
@@ -59,8 +58,7 @@ class TransactionDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAmountHero(
-      String formatted, bool isExpense, String category) {
+  Widget _buildAmountHero(String formatted, bool isExpense, String category) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 36),
       decoration: BoxDecoration(
@@ -180,7 +178,9 @@ class TransactionDetailScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Transaction'),
-        content: const Text('Are you sure you want to delete this transaction?'),
+        content: const Text(
+          'Are you sure you want to delete this transaction?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -203,8 +203,7 @@ class _EditTransactionForm extends StatefulWidget {
   const _EditTransactionForm({required this.tx});
 
   @override
-  State<_EditTransactionForm> createState() =>
-      _EditTransactionFormState();
+  State<_EditTransactionForm> createState() => _EditTransactionFormState();
 }
 
 class _EditTransactionFormState extends State<_EditTransactionForm> {
@@ -215,8 +214,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
   @override
   void initState() {
     super.initState();
-    amountController =
-        TextEditingController(text: widget.tx.amount.toString());
+    amountController = TextEditingController(text: widget.tx.amount.toString());
     amountFocusNode = FocusNode();
 
     selectedCategoryId = widget.tx.categoryId;
@@ -264,8 +262,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
             controller: amountController,
             focusNode: amountFocusNode,
             autofocus: true,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: "Amount",
               filled: true,
@@ -284,8 +281,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
             const CircularProgressIndicator()
           else
             DropdownButtonFormField<int>(
-              value: categories
-                      .any((c) => c.id == selectedCategoryId)
+              value: categories.any((c) => c.id == selectedCategoryId)
                   ? selectedCategoryId
                   : null,
               decoration: InputDecoration(
@@ -299,10 +295,8 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
               ),
               items: categories
                   .map(
-                    (c) => DropdownMenuItem<int>(
-                      value: c.id,
-                      child: Text(c.name),
-                    ),
+                    (c) =>
+                        DropdownMenuItem<int>(value: c.id, child: Text(c.name)),
                   )
                   .toList(),
               onChanged: (value) {
@@ -344,9 +338,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: txVM.isLoading
-                  ? const CircularProgressIndicator(
-                      color: Colors.white,
-                    )
+                  ? const CircularProgressIndicator(color: Colors.white)
                   : const Text("Save"),
             ),
           ),

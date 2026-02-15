@@ -416,7 +416,9 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                             );
 
                             if (result == true && context.mounted) {
-                              context.read<DashboardViewmodel>().loadDashboard();
+                              context
+                                  .read<DashboardViewmodel>()
+                                  .loadDashboard();
                             }
                           },
                           child: Padding(

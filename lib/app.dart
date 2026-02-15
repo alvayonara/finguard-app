@@ -195,12 +195,12 @@ class _RootDeciderState extends State<_RootDecider> {
     final storage = context.read<LocalStorage>();
 
     await authVM.bootstrap();
-    
+
     // Wait for bootstrap to complete
     while (!authVM.isBootstrapComplete) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
-    
+
     final completed = await storage.isOnboardingCompleted();
 
     if (mounted) {

@@ -30,7 +30,9 @@ class AuthViewmodel extends ChangeNotifier {
       isBootstrapComplete = true;
     } catch (e) {
       debugPrint("Bootstrap error: $e");
-      await _applyPreferences(const UserPreference(language: 'en', currency: 'USD'));
+      await _applyPreferences(
+        const UserPreference(language: 'en', currency: 'USD'),
+      );
       isBootstrapComplete = true;
     }
     _setLoading(false);

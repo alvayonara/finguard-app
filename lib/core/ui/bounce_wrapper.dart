@@ -4,11 +4,7 @@ class BounceWrapper extends StatefulWidget {
   final Widget child;
   final VoidCallback onTap;
 
-  const BounceWrapper({
-    super.key,
-    required this.child,
-    required this.onTap,
-  });
+  const BounceWrapper({super.key, required this.child, required this.onTap});
 
   @override
   State<BounceWrapper> createState() => _BounceWrapperState();
@@ -30,12 +26,7 @@ class _BounceWrapperState extends State<BounceWrapper>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 0.95,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -67,10 +58,7 @@ class _BounceWrapperState extends State<BounceWrapper>
       child: AnimatedBuilder(
         animation: _scaleAnimation,
         builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
+          return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
         child: widget.child,
       ),
