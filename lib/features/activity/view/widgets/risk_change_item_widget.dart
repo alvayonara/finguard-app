@@ -114,7 +114,7 @@ class RiskChangeItemWidget extends StatelessWidget {
 
   Widget _buildRiskBadge(String level) {
     final color = _getRiskColor(level);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(

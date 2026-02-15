@@ -67,11 +67,7 @@ class TransactionItemWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
-                      child: Icon(
-                        _getIconData(),
-                        size: 18,
-                        color: iconColor,
-                      ),
+                      child: Icon(_getIconData(), size: 18, color: iconColor),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -119,9 +115,7 @@ class TransactionItemWidget extends StatelessWidget {
     try {
       final colorStr = transaction.category.color;
       if (colorStr.startsWith('#')) {
-        return Color(
-          int.parse(colorStr.substring(1), radix: 16) + 0xFF000000,
-        );
+        return Color(int.parse(colorStr.substring(1), radix: 16) + 0xFF000000);
       }
       return const Color(0xFF9E9E9E);
     } catch (_) {

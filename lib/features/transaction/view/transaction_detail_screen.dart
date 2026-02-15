@@ -134,6 +134,7 @@ class TransactionDetailScreen extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: const Text("Edit"),
@@ -146,11 +147,19 @@ class TransactionDetailScreen extends StatelessWidget {
             onPressed: vm.isLoading
                 ? null
                 : () async {
-                    await vm.deleteTransaction(tx.id);
-                    if (context.mounted) {
-                      Navigator.pop(context, true);
+                    final confirmed = await _showDeleteConfirmation(context);
+                    if (confirmed == true && context.mounted) {
+                      await vm.deleteTransaction(tx.id);
+                      if (context.mounted) {
+                        Navigator.pop(context, true);
+                      }
                     }
                   },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF5E5CE6),
+              side: const BorderSide(color: Color(0xFF5E5CE6)),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
             child: const Text("Delete"),
           ),
         ),
@@ -163,6 +172,27 @@ class TransactionDetailScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       builder: (_) => _EditTransactionForm(tx: tx),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmation(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Transaction'),
+        content: const Text('Are you sure you want to delete this transaction?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -179,6 +209,7 @@ class _EditTransactionForm extends StatefulWidget {
 
 class _EditTransactionFormState extends State<_EditTransactionForm> {
   late TextEditingController amountController;
+  late FocusNode amountFocusNode;
   int? selectedCategoryId;
 
   @override
@@ -186,12 +217,21 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     super.initState();
     amountController =
         TextEditingController(text: widget.tx.amount.toString());
+    amountFocusNode = FocusNode();
 
     selectedCategoryId = widget.tx.categoryId;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryViewModel>().load();
+      amountFocusNode.requestFocus();
     });
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    amountFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -222,6 +262,8 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
           /// AMOUNT
           TextField(
             controller: amountController,
+            focusNode: amountFocusNode,
+            autofocus: true,
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
@@ -298,6 +340,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: txVM.isLoading

@@ -15,8 +15,7 @@ class OnboardingFlowScreen extends StatefulWidget {
   const OnboardingFlowScreen({super.key});
 
   @override
-  State<OnboardingFlowScreen> createState() =>
-      _OnboardingFlowScreenState();
+  State<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
 }
 
 class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
@@ -69,28 +68,48 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       error = null;
     });
 
-    final txVM = context.read<TransactionViewModel>();
-    final settings = context.read<AppSettings>();
-    final storage = LocalStorage();
+    try {
+      final txVM = context.read<TransactionViewModel>();
+      final settings = context.read<AppSettings>();
+      final storage = LocalStorage();
 
-    await txVM.createTransaction(
-      request: CreateTransactionRequest(
-        type: TransactionTypeEnum.INCOME.name,
-        amount: income,
-        categoryId: 1,
-        occurredAt: DateTime.now().toIso8601String(),
-      ),
-    );
+      final now = DateTime.now();
+      final formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-    await storage.saveCurrency(selectedCurrency);
-    await storage.markOnboardingCompleted();
-    settings.setCurrency(selectedCurrency);
-
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        (route) => false,
+      await txVM.createTransaction(
+        request: CreateTransactionRequest(
+          type: TransactionTypeEnum.INCOME.name,
+          amount: income,
+          categoryId: 1,
+          occurredAt: formattedDate,
+        ),
       );
+
+      await storage.saveCurrency(selectedCurrency);
+      await storage.markOnboardingCompleted();
+      settings.setCurrency(selectedCurrency);
+
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        final errorMsg = e.toString();
+        if (errorMsg.contains('401')) {
+          error = "Authentication error. Please restart the app.";
+        } else if (errorMsg.contains('404')) {
+          error = "Service not available. Please skip onboarding for now.";
+        } else if (errorMsg.contains('400')) {
+          error = "Invalid data. Please check your income amount.";
+        } else {
+          error = "Failed to save income. Please try again.";
+        }
+      });
+      debugPrint("Onboarding finish error: $e");
     }
   }
 
@@ -126,11 +145,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
               Expanded(
                 child: IndexedStack(
                   index: step,
-                  children: [
-                    _intro(),
-                    _login(),
-                    _income(),
-                  ],
+                  children: [_intro(), _login(), _income()],
                 ),
               ),
 
@@ -347,15 +362,17 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 });
               },
               children: currencies
-                  .map((c) => Center(
-                        child: Text(
-                          c,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  .map(
+                    (c) => Center(
+                      child: Text(
+                        c,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ))
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -393,9 +410,40 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             isLoading ? "Processing..." : "Finish",
             isLoading ? null : _finish,
           ),
+
+          const SizedBox(height: 16),
+
+          Center(
+            child: TextButton(
+              onPressed: isLoading ? null : _skipOnboarding,
+              child: const Text(
+                "Skip this step",
+                style: TextStyle(
+                  color: Colors.black54,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _skipOnboarding() async {
+    final settings = context.read<AppSettings>();
+    final storage = LocalStorage();
+
+    await storage.saveCurrency(selectedCurrency);
+    await storage.markOnboardingCompleted();
+    settings.setCurrency(selectedCurrency);
+
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        (route) => false,
+      );
+    }
   }
 
   Widget _primaryButton(String label, VoidCallback? onPressed) {

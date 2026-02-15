@@ -21,9 +21,9 @@ class RiskTrendCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) return _buildShimmer();
-    if (data.isEmpty) return _buildEmpty();
 
     final chartData = _safeData(data);
+    final isEmpty = data.isEmpty;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -49,7 +49,7 @@ class RiskTrendCard extends StatelessWidget {
                 "Risk Trend",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              _trendIcon(),
+              isEmpty ? const SizedBox.shrink() : _trendIcon(),
             ],
           ),
           const SizedBox(height: 12),
@@ -65,7 +65,12 @@ class RiskTrendCard extends StatelessWidget {
 
           const SizedBox(height: 20),
 
-          SizedBox(height: 220, child: LineChart(_buildChart(chartData))),
+          SizedBox(
+            height: 220,
+            child: isEmpty
+                ? _buildEmptyChart()
+                : LineChart(_buildChart(chartData)),
+          ),
         ],
       ),
     );
@@ -205,19 +210,55 @@ class RiskTrendCard extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: const Center(
-        child: Text(
-          "Not enough data yet",
-          style: TextStyle(color: Colors.grey),
+  Widget _buildEmptyChart() {
+    return Stack(
+      children: [
+        LineChart(
+          LineChartData(
+            minY: 0,
+            maxY: 100,
+            gridData: FlGridData(show: true, drawVerticalLine: false),
+            borderData: FlBorderData(show: false),
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            ),
+            lineTouchData: LineTouchData(enabled: false),
+            lineBarsData: [
+              LineChartBarData(
+                spots: [
+                  const FlSpot(0, 50),
+                  const FlSpot(1, 50),
+                ],
+                isCurved: true,
+                barWidth: 4,
+                color: Colors.grey.shade300,
+                dotData: FlDotData(show: false),
+              ),
+            ],
+          ),
         ),
-      ),
+        Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: const Text(
+              "No data yet",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

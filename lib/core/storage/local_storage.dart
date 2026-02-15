@@ -36,9 +36,13 @@ class LocalStorage {
     required String refreshToken,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userUidKey, userUid);
-    await prefs.setString(_accessTokenKey, accessToken);
-    await prefs.setString(_refreshTokenKey, refreshToken);
+    await Future.wait([
+      prefs.setString(_userUidKey, userUid),
+      prefs.setString(_accessTokenKey, accessToken),
+      prefs.setString(_refreshTokenKey, refreshToken),
+    ]);
+    // Ensure all values are committed
+    await prefs.reload();
   }
 
   Future<void> saveLanguage(String language) async {

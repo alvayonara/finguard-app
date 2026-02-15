@@ -87,10 +87,10 @@ class ActivityViewmodel extends ChangeNotifier {
     for (final entry in grouped.entries) {
       final label = entry.key;
       final items = entry.value;
-      
+
       // Add header
       result.add(ActivityDateHeader(label, items.first.displayDate));
-      
+
       // Add all items for this date (they will be rendered in a single card)
       result.addAll(items);
     }

@@ -38,17 +38,15 @@ class FinguardApp extends StatelessWidget {
       showInspectorOnShake: true,
       navigatorKey: navigatorKey,
     );
-    
+
     return MultiProvider(
       providers: [
         // Core
         Provider(create: (_) => LocalStorage()),
         Provider(create: (_) => alice),
         Provider(
-          create: (context) => ApiClient(
-            context.read<LocalStorage>(),
-            alice: alice,
-          ),
+          create: (context) =>
+              ApiClient(context.read<LocalStorage>(), alice: alice),
         ),
 
         // Repositories
@@ -135,8 +133,9 @@ class FinguardApp extends StatelessWidget {
         ),
 
         ChangeNotifierProxyProvider<ActivityRepository, ActivityViewmodel>(
-          create: (context) =>
-              ActivityViewmodel(activityRepository: context.read<ActivityRepository>()),
+          create: (context) => ActivityViewmodel(
+            activityRepository: context.read<ActivityRepository>(),
+          ),
           update: (_, repo, previous) =>
               previous ?? ActivityViewmodel(activityRepository: repo),
         ),
@@ -196,6 +195,12 @@ class _RootDeciderState extends State<_RootDecider> {
     final storage = context.read<LocalStorage>();
 
     await authVM.bootstrap();
+    
+    // Wait for bootstrap to complete
+    while (!authVM.isBootstrapComplete) {
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+    
     final completed = await storage.isOnboardingCompleted();
 
     if (mounted) {

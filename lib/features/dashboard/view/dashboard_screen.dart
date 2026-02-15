@@ -43,8 +43,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    await context.read<DashboardViewmodel>().loadDashboard();
-    await context.read<RiskTrendViewmodel>().load();
+    if (mounted) {
+      await context.read<DashboardViewmodel>().loadDashboard();
+      await context.read<RiskTrendViewmodel>().load();
+    }
   }
 
   Future<void> _completeOnboarding() async {

@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class InsightCardWidget extends StatelessWidget {
   final InsightCard insight;
 
-  const InsightCardWidget({
-    super.key,
-    required this.insight,
-  });
+  const InsightCardWidget({super.key, required this.insight});
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +16,7 @@ class InsightCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: severityColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: severityColor.withOpacity(0.25),
-          width: 1,
-        ),
+        border: Border.all(color: severityColor.withOpacity(0.25), width: 1),
       ),
       child: Row(
         children: [

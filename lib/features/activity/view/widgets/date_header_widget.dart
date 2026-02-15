@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class DateHeaderWidget extends StatelessWidget {
   final ActivityDateHeader header;
 
-  const DateHeaderWidget({
-    super.key,
-    required this.header,
-  });
+  const DateHeaderWidget({super.key, required this.header});
 
   @override
   Widget build(BuildContext context) {

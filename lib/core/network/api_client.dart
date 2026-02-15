@@ -22,7 +22,7 @@ class ApiClient {
       ) {
     // Add Alice interceptor first
     dio.interceptors.add(alice.getDioInterceptor());
-    
+
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {

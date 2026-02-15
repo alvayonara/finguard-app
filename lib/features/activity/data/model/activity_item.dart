@@ -77,4 +77,3 @@ class ActivityRiskChange extends ActivityItem {
     );
   }
 }
-

@@ -12,9 +12,7 @@ class ActivityRepository {
     int? cursorId,
     int limit = 20,
   }) async {
-    final queryParams = <String, dynamic>{
-      'limit': limit,
-    };
+    final queryParams = <String, dynamic>{'limit': limit};
 
     if (cursorTime != null) {
       queryParams['cursorTime'] = cursorTime;

@@ -23,6 +23,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
     _scrollController.addListener(_onScroll);
     Future.microtask(() async {
+      if (!mounted) return;
       try {
         await context.read<ActivityViewmodel>().loadActivities(refresh: true);
       } catch (e) {
@@ -61,9 +62,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(),
-              Expanded(
-                child: _buildBody(vm),
-              ),
+              Expanded(child: _buildBody(vm)),
             ],
           ),
         ),
@@ -88,10 +87,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           const SizedBox(height: 2),
           Text(
             'This month overview',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -100,9 +96,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
   Widget _buildBody(ActivityViewmodel vm) {
     if (vm.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (vm.error != null) {
@@ -130,10 +124,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               const SizedBox(height: 8),
               Text(
                 _getErrorMessage(vm.error!),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -163,11 +154,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.receipt_long_rounded,
-              size: 64,
-              color: Colors.grey[300],
-            ),
+            Icon(Icons.receipt_long_rounded, size: 64, color: Colors.grey[300]),
             const SizedBox(height: 16),
             Text(
               'No activity yet',
@@ -181,10 +168,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             Text(
               'Your transactions and updates\nwill appear here',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
           ],
         ),
@@ -217,13 +201,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
           if (timelineIndex < vm.items.length) {
             final item = vm.items[timelineIndex];
-            
+
             // If it's a date header, collect all items for this date group
             if (item is ActivityDateHeader) {
               final groupItems = _collectGroupItems(vm.items, timelineIndex);
-              final isLastGroup = _isLastGroup(vm.items, timelineIndex, groupItems.length);
+              final isLastGroup = _isLastGroup(
+                vm.items,
+                timelineIndex,
+                groupItems.length,
+              );
               final settings = context.watch<AppSettings>();
-              
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -246,9 +234,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 
-  List<ActivityItem> _collectGroupItems(List<ActivityItem> items, int headerIndex) {
+  List<ActivityItem> _collectGroupItems(
+    List<ActivityItem> items,
+    int headerIndex,
+  ) {
     final groupItems = <ActivityItem>[];
-    
+
     // Start from the item after the header
     for (int i = headerIndex + 1; i < items.length; i++) {
       final item = items[i];
@@ -258,7 +249,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
       }
       groupItems.add(item);
     }
-    
+
     return groupItems;
   }
 
@@ -266,14 +257,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
     // Check if this is the last group by seeing if there's another header after this group
     final nextIndex = headerIndex + groupSize + 1;
     if (nextIndex >= items.length) return true;
-    
+
     // Check if there's another date header after this group
     for (int i = nextIndex; i < items.length; i++) {
       if (items[i] is ActivityDateHeader) {
         return false;
       }
     }
-    
+
     return true;
   }
 

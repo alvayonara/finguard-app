@@ -1,8 +1,12 @@
 import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/ui/bounce_wrapper.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/features/activity/data/model/activity_item.dart';
+import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ActivityGroupCard extends StatelessWidget {
   final List<ActivityItem> items;
@@ -94,62 +98,80 @@ class ActivityGroupCard extends StatelessWidget {
     final isIncome = tx.type == 'INCOME';
     final iconColor = _getCategoryColor(tx.category.color);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Icon(
-                _getIconData(tx.category.icon),
-                size: 18,
-                color: iconColor,
+    return Builder(
+      builder: (context) => BounceWrapper(
+        onTap: () async {
+          final transactionModel = TransactionModel(
+            id: tx.id,
+            type: tx.type,
+            amount: tx.amount,
+            categoryId: tx.category.id,
+            categoryName: tx.category.name,
+            occurredAt: DateFormat('yyyy-MM-dd').format(tx.occurredAt),
+          );
+
+          final result = await Navigator.pushNamed(
+            context,
+            '/transaction-detail',
+            arguments: transactionModel,
+          );
+
+          if (result == true && context.mounted) {
+            // Refresh activity list when transaction is deleted/updated
+            context.read<ActivityViewmodel>().loadActivities(refresh: true);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Icon(
+                    _getIconData(tx.category.icon),
+                    size: 18,
+                    color: iconColor,
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tx.category.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
-                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      tx.category.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatTime(tx.timestamp),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  _formatTime(tx.timestamp),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
+              ),
+              Text(
+                '${isIncome ? '+' : '-'}${CurrencyFormatter.format(amount: tx.amount, currencyCode: settings.currency, locale: settings.locale.languageCode)}',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: isIncome ? Colors.green : Colors.red,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Text(
-            '${isIncome ? '+' : '-'}${CurrencyFormatter.format(
-              amount: tx.amount,
-              currencyCode: settings.currency,
-              locale: settings.locale.languageCode,
-            )}',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: isIncome ? Colors.green : Colors.red,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -212,7 +234,7 @@ class ActivityGroupCard extends StatelessWidget {
 
   Widget _buildRiskBadge(String level) {
     final color = _getRiskColor(level);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
@@ -233,9 +255,7 @@ class ActivityGroupCard extends StatelessWidget {
   Color _getCategoryColor(String colorStr) {
     try {
       if (colorStr.startsWith('#')) {
-        return Color(
-          int.parse(colorStr.substring(1), radix: 16) + 0xFF000000,
-        );
+        return Color(int.parse(colorStr.substring(1), radix: 16) + 0xFF000000);
       }
       return const Color(0xFF9E9E9E);
     } catch (_) {

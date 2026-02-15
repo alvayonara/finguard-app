@@ -38,7 +38,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
               ),
             ),
           ],
@@ -54,7 +57,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     _buildProfileScreen(),
   ];
 
-  static const Color primaryColor = Color(0xFF5E5CE6);
+  static const Color primaryColor = Colors.black;
   static const Color backgroundColor = Color(0xFFF5F6FA);
 
   @override
@@ -126,13 +129,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
-            colors: [Color(0xFF7B7CFF), Color(0xFF5E5CE6)],
+            colors: [Color(0xFF2C2C2C), Color(0xFF000000)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF5E5CE6).withOpacity(0.45),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 28,
               offset: const Offset(0, 12),
             ),

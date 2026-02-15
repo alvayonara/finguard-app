@@ -1,4 +1,5 @@
 import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/ui/bounce_wrapper.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
@@ -69,7 +70,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
   Widget _buildTabChips() {
     return Row(
       children: [
-        _chip("Activity", 0),
+        _chip("Transactions", 0),
         const SizedBox(width: 10),
         _chip("Risk Trend", 1),
       ],
@@ -350,7 +351,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Activity",
+          "Transactions",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 16),
@@ -397,8 +398,8 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
 
                     return Column(
                       children: [
-                        GestureDetector(
-                          onTap: () {
+                        BounceWrapper(
+                          onTap: () async {
                             final model = TransactionModel(
                               id: tx.id,
                               type: tx.type,
@@ -408,17 +409,15 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                               occurredAt: tx.occurredAt,
                             );
 
-                            Navigator.pushNamed(
+                            final result = await Navigator.pushNamed(
                               context,
                               '/transaction-detail',
                               arguments: model,
-                            ).then((result) {
-                              if (result == true) {
-                                context
-                                    .read<DashboardViewmodel>()
-                                    .loadDashboard();
-                              }
-                            });
+                            );
+
+                            if (result == true && context.mounted) {
+                              context.read<DashboardViewmodel>().loadDashboard();
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
