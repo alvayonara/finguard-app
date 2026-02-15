@@ -172,10 +172,11 @@ class ApiClient {
 
     try {
       final currentAnonymousId = await localStorage.getAnonymousId();
-      final resolvedAnonymousId = (currentAnonymousId != null && currentAnonymousId.isNotEmpty)
+      final resolvedAnonymousId =
+          (currentAnonymousId != null && currentAnonymousId.isNotEmpty)
           ? currentAnonymousId
           : const Uuid().v4();
-      
+
       final authDio = Dio(
         BaseOptions(
           baseUrl: dio.options.baseUrl,

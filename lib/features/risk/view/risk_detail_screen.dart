@@ -208,8 +208,10 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
   // =========================================================
 
   Widget _buildRecommendation(BuildContext context, String recommendationKey) {
-    final recommendation =
-        InsightResolver.resolveRecommendation(context, recommendationKey);
+    final recommendation = InsightResolver.resolveRecommendation(
+      context,
+      recommendationKey,
+    );
 
     if (recommendation.isEmpty) return const SizedBox.shrink();
 
@@ -334,10 +336,7 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _formatTimestamp(insight.detectedAt),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -527,11 +526,7 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.timeline,
-                      color: Colors.grey.shade700,
-                      size: 20,
-                    ),
+                    Icon(Icons.timeline, color: Colors.grey.shade700, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -604,9 +599,14 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
   }
 
   String _formatSignalType(String signalType) {
-    return signalType.replaceAll('_', ' ').toLowerCase().split(' ').map((word) {
-      return word[0].toUpperCase() + word.substring(1);
-    }).join(' ');
+    return signalType
+        .replaceAll('_', ' ')
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join(' ');
   }
 
   String _formatTimestamp(String timestamp) {

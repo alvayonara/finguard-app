@@ -3,7 +3,10 @@ import 'package:finguard_app/l10n/app_localizations.dart';
 
 class InsightResolver {
   static String resolveInsight(
-      BuildContext context, String? key, {String? riskLevel}) {
+    BuildContext context,
+    String? key, {
+    String? riskLevel,
+  }) {
     final loc = AppLocalizations.of(context)!;
 
     switch (key) {
@@ -38,8 +41,7 @@ class InsightResolver {
     }
   }
 
-  static String resolveRecommendation(
-      BuildContext context, String? key) {
+  static String resolveRecommendation(BuildContext context, String? key) {
     final loc = AppLocalizations.of(context)!;
 
     switch (key) {
