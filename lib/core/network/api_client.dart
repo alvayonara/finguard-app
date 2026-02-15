@@ -1,6 +1,7 @@
 import 'package:alice/alice.dart';
 import 'package:dio/dio.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:async';
 
 class ApiClient {
@@ -11,6 +12,7 @@ class ApiClient {
   final LocalStorage localStorage;
   final Alice alice;
   Future<void>? _refreshInFlight;
+  Future<void>? _reauthInFlight;
 
   ApiClient(this.localStorage, {required this.alice})
     : dio = Dio(
@@ -20,7 +22,6 @@ class ApiClient {
           receiveTimeout: const Duration(seconds: 10),
         ),
       ) {
-    // Add Alice interceptor first
     dio.interceptors.add(alice.getDioInterceptor());
 
     dio.interceptors.add(
@@ -147,11 +148,68 @@ class ApiClient {
 
       completer.complete();
     } catch (error) {
-      await localStorage.clearAuthSession();
+      // Try to recreate anonymous user as fallback
+      try {
+        await _recreateAnonymousUser();
+        completer.complete();
+      } catch (reauthError) {
+        await localStorage.clearAuthSession();
+        completer.completeError(error);
+        rethrow;
+      }
+    } finally {
+      _refreshInFlight = null;
+    }
+  }
+
+  Future<void> _recreateAnonymousUser() async {
+    if (_reauthInFlight != null) {
+      return _reauthInFlight;
+    }
+
+    final completer = Completer<void>();
+    _reauthInFlight = completer.future;
+
+    try {
+      final currentAnonymousId = await localStorage.getAnonymousId();
+      final resolvedAnonymousId = (currentAnonymousId != null && currentAnonymousId.isNotEmpty)
+          ? currentAnonymousId
+          : const Uuid().v4();
+      
+      final authDio = Dio(
+        BaseOptions(
+          baseUrl: dio.options.baseUrl,
+          connectTimeout: dio.options.connectTimeout,
+          receiveTimeout: dio.options.receiveTimeout,
+        ),
+      );
+
+      final response = await authDio.post(
+        '/v1/users/anonymous',
+        data: {'anonymousId': resolvedAnonymousId},
+      );
+
+      final json = response.data as Map<String, dynamic>;
+      final userUid = json['userUid'] as String;
+      final accessToken = json['accessToken'] as String;
+      final refreshToken = json['refreshToken'] as String;
+      final anonymousId = json['anonymousId'] as String?;
+
+      final finalAnonymousId = anonymousId ?? resolvedAnonymousId;
+      await localStorage.saveAnonymous(finalAnonymousId);
+
+      await localStorage.saveAuthSession(
+        userUid: userUid,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+
+      completer.complete();
+    } catch (error) {
       completer.completeError(error);
       rethrow;
     } finally {
-      _refreshInFlight = null;
+      _reauthInFlight = null;
     }
   }
 }

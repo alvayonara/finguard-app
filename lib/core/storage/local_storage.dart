@@ -9,10 +9,10 @@ class LocalStorage {
   static const _currencyKey = "currency";
   static const _onboardingCompletedKey = "onboarding_completed";
 
-  // setter
   Future<void> saveAnonymous(String anonId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_anonKey, anonId);
+    await prefs.reload();
   }
 
   Future<void> saveUserUid(String uid) async {
@@ -41,7 +41,6 @@ class LocalStorage {
       prefs.setString(_accessTokenKey, accessToken),
       prefs.setString(_refreshTokenKey, refreshToken),
     ]);
-    // Ensure all values are committed
     await prefs.reload();
   }
 
@@ -96,10 +95,13 @@ class LocalStorage {
     await prefs.setBool(_onboardingCompletedKey, true);
   }
 
+  /// Clears authentication session (tokens and userUid)
+  /// IMPORTANT: Does NOT clear anonymousId - this preserves user data
   Future<void> clearAuthSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userUidKey);
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
+    // NOTE: anonymousId is intentionally NOT removed to preserve user data
   }
 }

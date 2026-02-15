@@ -75,4 +75,13 @@ class AuthViewmodel extends ChangeNotifier {
     isLoading = value;
     notifyListeners();
   }
+
+  Future<void> reauthenticate() async {
+    try {
+      await localStorage.clearAuthSession();
+      await _initUser();
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
