@@ -15,16 +15,31 @@ class AppLocalizationsId extends AppLocalizations {
   String get insightExpenseSpike => 'Pengeluaran kamu jauh lebih besar dari rata-rata biasanya.';
 
   @override
-  String get insightGeneric => 'Terdeteksi aktivitas keuangan yang tidak biasa.';
+  String get insightBudgetExceeded => 'Kamu telah melampaui batas anggaran.';
+
+  @override
+  String get insightSpendingSpike => 'Pengeluaran kamu meningkat signifikan.';
 
   @override
   String get insightStable => 'Kondisi keuangan kamu stabil minggu ini.';
+
+  @override
+  String get insightLowRisk => 'Kondisi keuangan kamu sehat. Pertahankan!';
+
+  @override
+  String get insightMediumRisk => 'Keuangan kamu perlu perhatian.';
+
+  @override
+  String get insightHighRisk => 'Tindakan segera diperlukan untuk keuangan kamu.';
 
   @override
   String get recNegativeCashflow => 'Kurangi pengeluaran non-esensial bulan ini.';
 
   @override
   String get recExpenseSpike => 'Tahan pengeluaran besar beberapa hari ke depan.';
+
+  @override
+  String get recBudgetExceeded => 'Tinjau anggaran dan sesuaikan pengeluaran.';
 
   @override
   String get recStable => 'Pertahankan pola pengeluaran kamu saat ini.';

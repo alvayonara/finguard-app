@@ -1,9 +1,12 @@
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/risk/data/model/risk_detail_response.dart';
+import 'package:finguard_app/features/risk/data/model/risk_insight.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
+import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class RiskDetailScreen extends StatefulWidget {
   const RiskDetailScreen({super.key});
@@ -60,6 +63,14 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
                 children: [
                   _buildPremiumHeader(context, data),
                   const SizedBox(height: 28),
+                  if (data.recommendationKey.isNotEmpty)
+                    _buildRecommendation(context, data.recommendationKey),
+                  if (data.recommendationKey.isNotEmpty)
+                    const SizedBox(height: 28),
+                  _buildRiskTrend(vm),
+                  const SizedBox(height: 28),
+                  if (vm.insights.isNotEmpty) _buildInsights(vm.insights),
+                  if (vm.insights.isNotEmpty) const SizedBox(height: 28),
                   _buildSeverityBreakdown(data),
                   const SizedBox(height: 28),
                   _buildActiveSignalSummaries(data),
@@ -115,7 +126,11 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  InsightResolver.resolveInsight(context, data.topInsightKey),
+                  InsightResolver.resolveInsight(
+                    context,
+                    data.topInsightKey,
+                    riskLevel: data.currentLevel,
+                  ),
                   style: const TextStyle(color: Colors.white, fontSize: 13),
                 ),
                 const SizedBox(height: 6),
@@ -181,6 +196,150 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
               fontSize: 26,
               fontWeight: FontWeight.bold,
               color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // RECOMMENDATION SECTION
+  // =========================================================
+
+  Widget _buildRecommendation(BuildContext context, String recommendationKey) {
+    final recommendation =
+        InsightResolver.resolveRecommendation(context, recommendationKey);
+
+    if (recommendation.isEmpty) return const SizedBox.shrink();
+
+    return _card(
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xFF5E5CE6).withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.lightbulb_outline,
+              color: Color(0xFF5E5CE6),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Recommendation",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  recommendation,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // RISK TREND SECTION
+  // =========================================================
+
+  Widget _buildRiskTrend(RiskDetailViewmodel vm) {
+    return RiskTrendCard(
+      data: vm.trendData,
+      isLoading: false,
+      selectedDays: 7,
+      onRangeChanged: (days) {},
+      trendDirection: vm.getTrendDirection(),
+    );
+  }
+
+  // =========================================================
+  // INSIGHTS SECTION
+  // =========================================================
+
+  Widget _buildInsights(List<RiskInsight> insights) {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Insights & Alerts",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          ...insights.map((insight) => _insightItem(insight)),
+        ],
+      ),
+    );
+  }
+
+  Widget _insightItem(RiskInsight insight) {
+    Color severityColor = Colors.grey;
+    IconData severityIcon = Icons.info_outline;
+
+    if (insight.severity == "HIGH") {
+      severityColor = Colors.red;
+      severityIcon = Icons.warning;
+    } else if (insight.severity == "MEDIUM") {
+      severityColor = Colors.orange;
+      severityIcon = Icons.error_outline;
+    } else if (insight.severity == "LOW") {
+      severityColor = Colors.green;
+      severityIcon = Icons.check_circle_outline;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: severityColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: severityColor.withOpacity(0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(severityIcon, color: severityColor, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  insight.message,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _formatTimestamp(insight.detectedAt),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -257,27 +416,69 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...data.activeSignalSummaries.map(
-            (s) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  _severityDot(s.severity),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      s.signalType,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
+          if (data.activeSignalSummaries.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  "No active signals",
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ),
+            )
+          else
+            ...data.activeSignalSummaries.map(
+              (s) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _severityDot(s.severity),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _formatSignalType(s.signalType),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Last detected: ${_formatTimestamp(s.lastDetectedAt)}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    "${s.occurrences}x",
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _severityColor(s.severity).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        "${s.occurrences}x",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _severityColor(s.severity),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -310,20 +511,125 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...data.recentLevelChanges.map(
-            (e) => ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.timeline),
-              title: Text("${e.oldLevel} → ${e.newLevel}"),
-              subtitle: Text(e.occurredAt),
+          if (data.recentLevelChanges.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Text(
+                  "No level changes yet",
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+              ),
+            )
+          else
+            ...data.recentLevelChanges.map(
+              (e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.timeline,
+                      color: Colors.grey.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              _levelBadge(e.oldLevel),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              _levelBadge(e.newLevel),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _formatTimestamp(e.occurredAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
 
+  Widget _levelBadge(String level) {
+    Color color = Colors.grey;
+    if (level == "HIGH") color = Colors.red;
+    if (level == "MEDIUM") color = Colors.orange;
+    if (level == "LOW") color = Colors.green;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        level,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
   // =========================================================
+
+  Color _severityColor(String severity) {
+    if (severity == "HIGH") return Colors.red;
+    if (severity == "MEDIUM") return Colors.orange;
+    if (severity == "LOW") return Colors.green;
+    return Colors.grey;
+  }
+
+  String _formatSignalType(String signalType) {
+    return signalType.replaceAll('_', ' ').toLowerCase().split(' ').map((word) {
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
+  }
+
+  String _formatTimestamp(String timestamp) {
+    try {
+      final dt = DateTime.parse(timestamp);
+      final now = DateTime.now();
+      final diff = now.difference(dt);
+
+      if (diff.inDays > 7) {
+        return DateFormat('MMM dd, yyyy').format(dt);
+      } else if (diff.inDays > 0) {
+        return '${diff.inDays}d ago';
+      } else if (diff.inHours > 0) {
+        return '${diff.inHours}h ago';
+      } else if (diff.inMinutes > 0) {
+        return '${diff.inMinutes}m ago';
+      } else {
+        return 'Just now';
+      }
+    } catch (e) {
+      return timestamp;
+    }
+  }
 
   Widget _card({required Widget child}) {
     return Container(

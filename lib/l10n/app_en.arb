@@ -1,10 +1,15 @@
 {
   "insightNegativeCashFlow": "Your expenses this month are higher than your income.",
   "insightExpenseSpike": "Your spending is much higher than usual.",
-  "insightGeneric": "Unusual financial activity detected.",
+  "insightBudgetExceeded": "You have exceeded your budget limits.",
+  "insightSpendingSpike": "Your spending has increased significantly.",
   "insightStable": "Your financial condition is stable this week.",
+  "insightLowRisk": "Your finances are healthy. Keep it up!",
+  "insightMediumRisk": "Your finances need attention.",
+  "insightHighRisk": "Immediate action needed for your finances.",
 
   "recNegativeCashflow": "Reduce non-essential expenses this month.",
   "recExpenseSpike": "Avoid large spending for the next few days.",
+  "recBudgetExceeded": "Review your budget and adjust spending.",
   "recStable": "Maintain your current spending pattern."
 }

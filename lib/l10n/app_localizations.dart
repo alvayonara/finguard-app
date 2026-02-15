@@ -107,17 +107,41 @@ abstract class AppLocalizations {
   /// **'Your spending is much higher than usual.'**
   String get insightExpenseSpike;
 
-  /// No description provided for @insightGeneric.
+  /// No description provided for @insightBudgetExceeded.
   ///
   /// In en, this message translates to:
-  /// **'Unusual financial activity detected.'**
-  String get insightGeneric;
+  /// **'You have exceeded your budget limits.'**
+  String get insightBudgetExceeded;
+
+  /// No description provided for @insightSpendingSpike.
+  ///
+  /// In en, this message translates to:
+  /// **'Your spending has increased significantly.'**
+  String get insightSpendingSpike;
 
   /// No description provided for @insightStable.
   ///
   /// In en, this message translates to:
   /// **'Your financial condition is stable this week.'**
   String get insightStable;
+
+  /// No description provided for @insightLowRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Your finances are healthy. Keep it up!'**
+  String get insightLowRisk;
+
+  /// No description provided for @insightMediumRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Your finances need attention.'**
+  String get insightMediumRisk;
+
+  /// No description provided for @insightHighRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate action needed for your finances.'**
+  String get insightHighRisk;
 
   /// No description provided for @recNegativeCashflow.
   ///
@@ -130,6 +154,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Avoid large spending for the next few days.'**
   String get recExpenseSpike;
+
+  /// No description provided for @recBudgetExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your budget and adjust spending.'**
+  String get recBudgetExceeded;
 
   /// No description provided for @recStable.
   ///

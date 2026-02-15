@@ -15,16 +15,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightExpenseSpike => 'Your spending is much higher than usual.';
 
   @override
-  String get insightGeneric => 'Unusual financial activity detected.';
+  String get insightBudgetExceeded => 'You have exceeded your budget limits.';
+
+  @override
+  String get insightSpendingSpike => 'Your spending has increased significantly.';
 
   @override
   String get insightStable => 'Your financial condition is stable this week.';
+
+  @override
+  String get insightLowRisk => 'Your finances are healthy. Keep it up!';
+
+  @override
+  String get insightMediumRisk => 'Your finances need attention.';
+
+  @override
+  String get insightHighRisk => 'Immediate action needed for your finances.';
 
   @override
   String get recNegativeCashflow => 'Reduce non-essential expenses this month.';
 
   @override
   String get recExpenseSpike => 'Avoid large spending for the next few days.';
+
+  @override
+  String get recBudgetExceeded => 'Review your budget and adjust spending.';
 
   @override
   String get recStable => 'Maintain your current spending pattern.';

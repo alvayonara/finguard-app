@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:finguard_app/core/network/api_client.dart';
 import 'package:finguard_app/features/risk/data/model/risk_detail_response.dart';
+import 'package:finguard_app/features/risk/data/model/risk_insight.dart';
 import 'package:finguard_app/features/risk/data/model/risk_trend_item.dart';
 
 class RiskRepository {
@@ -21,5 +20,11 @@ class RiskRepository {
   Future<RiskDetailResponse> getDetail() async {
     final response = await apiClient.dio.get("/v1/risk/detail");
     return RiskDetailResponse.fromJson(response.data);
+  }
+
+  Future<List<RiskInsight>> getInsights() async {
+    final response = await apiClient.dio.get("/v1/risk/insights");
+    final List<dynamic> insights = response.data ?? [];
+    return insights.map((e) => RiskInsight.fromJson(e)).toList();
   }
 }
