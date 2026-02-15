@@ -184,8 +184,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       ),
       child: Row(
         children: [
-          Expanded(child: _typeButton("EXPENSE", "Expense", Icons.arrow_upward)),
-          Expanded(child: _typeButton("INCOME", "Income", Icons.arrow_downward)),
+          Expanded(
+              child: _typeButton("EXPENSE", "Expense", Icons.arrow_upward)),
+          Expanded(
+              child: _typeButton("INCOME", "Income", Icons.arrow_downward)),
         ],
       ),
     );
@@ -208,9 +210,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isExpense
-                  ? const Color(0xFFFF3B30)
-                  : const Color(0xFF34C759))
+              ? (isExpense ? const Color(0xFFFF3B30) : const Color(0xFF34C759))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -282,7 +282,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: TextField(
                   controller: _amountController,
                   focusNode: _amountFocus,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   style: const TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
@@ -294,8 +296,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     contentPadding: EdgeInsets.zero,
                   ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    ThousandsSeparatorInputFormatter(),
+                    ThousandsSeparatorInputFormatter(allowDecimal: true),
                   ],
                 ),
               ),
@@ -362,7 +363,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
+            Icon(Icons.arrow_forward_ios,
+                size: 16, color: Colors.grey.shade400),
           ],
         ),
       ),
@@ -396,7 +398,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               label: const Text("Add"),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFF5E5CE6),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               ),
             ),
           ],
@@ -427,7 +430,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.category_outlined, size: 48, color: Colors.grey.shade400),
+            Icon(Icons.category_outlined,
+                size: 48, color: Colors.grey.shade400),
             const SizedBox(height: 12),
             Text(
               "No categories available",
@@ -469,9 +473,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected
-                    ? const Color(0xFF5E5CE6)
-                    : Colors.grey.shade200,
+                color:
+                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -650,7 +653,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 6,
                         mainAxisSpacing: 8,
                         crossAxisSpacing: 8,

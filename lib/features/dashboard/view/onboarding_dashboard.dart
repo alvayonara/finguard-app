@@ -190,7 +190,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           height: 8,
           width: isActive ? 20 : 8,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF5E5CE6) : const Color(0xFF5E5CE6).withOpacity(0.3),
+            color: isActive
+                ? const Color(0xFF5E5CE6)
+                : const Color(0xFF5E5CE6).withOpacity(0.3),
             borderRadius: BorderRadius.circular(20),
           ),
         );
@@ -378,10 +380,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 error = null;
               });
             },
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              ThousandsSeparatorInputFormatter(),
+              ThousandsSeparatorInputFormatter(allowDecimal: true),
             ],
             decoration: InputDecoration(
               prefixText: "${currencySymbols[selectedCurrency]} ",

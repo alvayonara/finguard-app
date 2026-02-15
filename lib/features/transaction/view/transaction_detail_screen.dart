@@ -1,4 +1,5 @@
 import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
@@ -214,7 +215,12 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
   @override
   void initState() {
     super.initState();
-    amountController = TextEditingController(text: widget.tx.amount.toString());
+    amountController = TextEditingController(
+      text: ThousandsSeparatorInputFormatter.formatAmountFixed(
+        widget.tx.amount,
+        decimalDigits: 2,
+      ),
+    );
     amountFocusNode = FocusNode();
 
     selectedCategoryId = widget.tx.categoryId;
@@ -237,9 +243,8 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final txVM = context.watch<TransactionViewModel>();
     final categoryVM = context.watch<CategoryViewModel>();
 
-    final categories = categoryVM.categories
-        .where((c) => c.type == widget.tx.type)
-        .toList();
+    final categories =
+        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
 
     return Padding(
       padding: EdgeInsets.only(
@@ -263,6 +268,9 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
             focusNode: amountFocusNode,
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              ThousandsSeparatorInputFormatter(allowDecimal: true),
+            ],
             decoration: InputDecoration(
               labelText: "Amount",
               filled: true,
@@ -315,9 +323,23 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
               onPressed: txVM.isLoading
                   ? null
                   : () async {
+                      final cleanAmount = amountController.text.replaceAll(
+                        ',',
+                        '',
+                      );
+                      final parsedAmount = double.tryParse(cleanAmount);
+                      if (parsedAmount == null || parsedAmount <= 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please enter a valid amount"),
+                          ),
+                        );
+                        return;
+                      }
+
                       final request = UpdateTransactionRequest(
                         type: widget.tx.type,
-                        amount: double.parse(amountController.text),
+                        amount: parsedAmount,
                         categoryId: selectedCategoryId!,
                         occurredAt: widget.tx.occurredAt,
                       );

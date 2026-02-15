@@ -5,11 +5,12 @@ class CurrencyFormatter {
     required double amount,
     required String currencyCode,
     required String locale,
+    int decimalDigits = 2,
   }) {
     final formatter = NumberFormat.currency(
       locale: locale,
       symbol: _symbol(currencyCode),
-      decimalDigits: 0,
+      decimalDigits: decimalDigits,
     );
 
     return formatter.format(amount);
