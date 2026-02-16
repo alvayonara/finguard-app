@@ -4,6 +4,7 @@ import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
 import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
 import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finguard_app/features/user/data/user_repository.dart';
 import 'package:finguard_app/main_navigation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       final txVM = context.read<TransactionViewModel>();
       final settings = context.read<AppSettings>();
       final storage = LocalStorage();
+      final userRepo = context.read<UserRepository>();
 
       final now = DateTime.now();
       final formattedDate =
@@ -101,6 +103,12 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       await storage.markFirstLoginCoachmarkPending();
       await storage.markOnboardingCompleted();
       settings.setCurrency(selectedCurrency);
+      try {
+        await userRepo.updatePreferences(
+          selectedCurrency,
+          settings.locale.languageCode,
+        );
+      } catch (_) {}
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -487,10 +495,17 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   Future<void> _skipOnboarding() async {
     final settings = context.read<AppSettings>();
     final storage = LocalStorage();
+    final userRepo = context.read<UserRepository>();
 
     await storage.saveCurrency(selectedCurrency);
     await storage.markOnboardingCompleted();
     settings.setCurrency(selectedCurrency);
+    try {
+      await userRepo.updatePreferences(
+        selectedCurrency,
+        settings.locale.languageCode,
+      );
+    } catch (_) {}
 
     if (mounted) {
       Navigator.of(context).pushAndRemoveUntil(

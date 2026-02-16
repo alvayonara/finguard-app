@@ -25,14 +25,16 @@ class AuthViewmodel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _initUser();
-      final pref = await userRepository.getPreferences();
-      await _applyPreferences(pref);
+      final remotePref = await userRepository.getPreferences();
+      final resolvedPref = await _resolvePreferences(remotePref);
+      await _applyPreferences(resolvedPref);
       isBootstrapComplete = true;
     } catch (e) {
       debugPrint("Bootstrap error: $e");
-      await _applyPreferences(
+      final fallback = await _resolvePreferences(
         const UserPreference(language: 'en', currency: 'USD'),
       );
+      await _applyPreferences(fallback);
       isBootstrapComplete = true;
     }
     _setLoading(false);
@@ -69,6 +71,20 @@ class AuthViewmodel extends ChangeNotifier {
 
     await localStorage.saveLanguage(pref.language);
     await localStorage.saveCurrency(pref.currency);
+  }
+
+  Future<UserPreference> _resolvePreferences(UserPreference base) async {
+    final localLanguage = await localStorage.getLanguage();
+    final localCurrency = await localStorage.getCurrency();
+
+    return base.copyWith(
+      language: (localLanguage != null && localLanguage.isNotEmpty)
+          ? localLanguage
+          : null,
+      currency: (localCurrency != null && localCurrency.isNotEmpty)
+          ? localCurrency
+          : null,
+    );
   }
 
   void _setLoading(bool value) {
