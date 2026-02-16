@@ -269,66 +269,71 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   // =====================================================
 
   Widget _login() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 60),
-        const Center(
-          child: Icon(Icons.lock_outline, size: 90, color: Colors.black),
-        ),
-        const SizedBox(height: 50),
-        const Text(
-          "Save your progress 🔐",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 14),
-        const Text(
-          "Sign in to sync across devices and\nkeep your money data safe.",
-          style: TextStyle(color: Colors.grey, height: 1.5),
-        ),
-        const SizedBox(height: 80),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5E5CE6),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset("assets/image/google_logo.svg", height: 20),
-                const SizedBox(width: 12),
-                const Text(
-                  "Sign in with Google",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 60),
+          const Center(
+            child: Icon(Icons.lock_outline, size: 90, color: Colors.black),
+          ),
+          const SizedBox(height: 50),
+          const Text(
+            "Save your progress 🔐",
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 14),
+          const Text(
+            "Sign in to sync across devices and\nkeep your money data safe.",
+            style: TextStyle(color: Colors.grey, height: 1.5),
+          ),
+          const SizedBox(height: 80),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5E5CE6),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Center(
-          child: GestureDetector(
-            onTap: _next,
-            child: const Text(
-              "Continue as guest",
-              style: TextStyle(
-                color: Colors.black54,
-                decoration: TextDecoration.underline,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset("assets/image/google_logo.svg", height: 20),
+                  const SizedBox(width: 12),
+                  const Text(
+                    "Sign in with Google",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+          Center(
+            child: GestureDetector(
+              onTap: _next,
+              child: const Text(
+                "Continue as guest",
+                style: TextStyle(
+                  color: Colors.black54,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
