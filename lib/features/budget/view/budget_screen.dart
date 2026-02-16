@@ -17,14 +17,30 @@ class BudgetScreen extends StatefulWidget {
 }
 
 class _BudgetScreenState extends State<BudgetScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     Future.microtask(() {
       if (!mounted) return;
       context.read<BudgetViewmodel>().loadBudgets();
       context.read<CategoryViewModel>().load();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<BudgetViewmodel>().loadMoreBudgets();
+    }
   }
 
   @override
@@ -211,9 +227,21 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return RefreshIndicator(
       onRefresh: () => vm.loadBudgets(refresh: true),
       child: ListView.builder(
+        controller: _scrollController,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-        itemCount: vm.budgets.length,
+        itemCount: vm.budgets.length + (vm.hasMore ? 1 : 0),
         itemBuilder: (context, index) {
+          if (index == vm.budgets.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: vm.isLoadingMore
+                    ? const CircularProgressIndicator()
+                    : const SizedBox.shrink(),
+              ),
+            );
+          }
+
           final budget = vm.budgets[index];
           final categoryId = budget.categoryId ??
               _resolveCategoryId(

@@ -1,36 +1,49 @@
 import 'package:finguard_app/core/network/api_client.dart';
+import 'package:finguard_app/features/budget/data/model/budget_usage_page_response.dart';
 import 'package:finguard_app/features/budget/data/model/budget_usage_model.dart';
 
 class BudgetRepository {
   final ApiClient apiClient;
   BudgetRepository(this.apiClient);
 
-  Future<List<BudgetUsageModel>> getBudgets({String? month}) async {
+  Future<BudgetUsagePageResponse> getBudgets({
+    String? month,
+    String? cursorTime,
+    int? cursorId,
+    int limit = 10,
+  }) async {
+    final queryParameters = <String, dynamic>{'limit': limit};
+    if (month != null) {
+      queryParameters['month'] = month;
+    }
+    if (cursorTime != null) {
+      queryParameters['cursorTime'] = cursorTime;
+    }
+    if (cursorId != null) {
+      queryParameters['cursorId'] = cursorId;
+    }
+
     final response = await apiClient.dio.get(
       '/v1/budgets',
-      queryParameters: month != null ? {'month': month} : null,
+      queryParameters: queryParameters,
     );
 
     final payload = response.data;
 
     if (payload is List) {
-      return payload
-          .whereType<Map<String, dynamic>>()
-          .map(BudgetUsageModel.fromJson)
-          .toList();
+      return BudgetUsagePageResponse(
+        items: payload
+            .whereType<Map<String, dynamic>>()
+            .map(BudgetUsageModel.fromJson)
+            .toList(),
+      );
     }
 
     if (payload is Map<String, dynamic>) {
-      final list = payload['data'] ?? payload['items'] ?? payload['budgets'];
-      if (list is List) {
-        return list
-            .whereType<Map<String, dynamic>>()
-            .map(BudgetUsageModel.fromJson)
-            .toList();
-      }
+      return BudgetUsagePageResponse.fromJson(payload);
     }
 
-    return const [];
+    return BudgetUsagePageResponse(items: const []);
   }
 
   Future<void> createOrUpdateBudget({
