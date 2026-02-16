@@ -302,7 +302,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     contentPadding: EdgeInsets.zero,
                   ),
                   inputFormatters: [
-                    ThousandsSeparatorInputFormatter(allowDecimal: true),
+                    ThousandsSeparatorInputFormatter(
+                      allowDecimal: true,
+                      maxIntegerDigits: 12,
+                    ),
                   ],
                 ),
               ),

@@ -327,7 +327,10 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  insight.message,
+                  InsightResolver.resolveInsight(
+                    context,
+                    insight.message.isNotEmpty ? insight.message : insight.type,
+                  ),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -599,14 +602,9 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
   }
 
   String _formatSignalType(String signalType) {
-    return signalType
-        .replaceAll('_', ' ')
-        .toLowerCase()
-        .split(' ')
-        .map((word) {
-          return word[0].toUpperCase() + word.substring(1);
-        })
-        .join(' ');
+    return signalType.replaceAll('_', ' ').toLowerCase().split(' ').map((word) {
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
   }
 
   String _formatTimestamp(String timestamp) {

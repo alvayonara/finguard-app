@@ -23,7 +23,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   bool isLoading = false;
   String? error;
 
-  final TextEditingController incomeController = TextEditingController();
+  final TextEditingController incomeController = TextEditingController(
+    text: "0",
+  );
   final FocusNode incomeFocusNode = FocusNode();
 
   String selectedCurrency = "USD";
@@ -372,27 +374,87 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          TextField(
-            focusNode: incomeFocusNode,
-            controller: incomeController,
-            onChanged: (_) {
-              setState(() {
-                error = null;
-              });
-            },
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              ThousandsSeparatorInputFormatter(allowDecimal: true),
-            ],
-            decoration: InputDecoration(
-              prefixText: "${currencySymbols[selectedCurrency]} ",
-              labelText: "Income amount",
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Income amount",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        currencySymbols[selectedCurrency] ?? "",
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF5E5CE6),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        focusNode: incomeFocusNode,
+                        controller: incomeController,
+                        onTap: () {
+                          if (incomeController.text == "0") {
+                            incomeController.selection = TextSelection(
+                              baseOffset: 0,
+                              extentOffset: incomeController.text.length,
+                            );
+                          }
+                        },
+                        onChanged: (_) {
+                          setState(() {
+                            error = null;
+                          });
+                        },
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          ThousandsSeparatorInputFormatter(
+                            allowDecimal: true,
+                            maxIntegerDigits: 12,
+                          ),
+                        ],
+                        style: const TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A1A),
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           if (error != null) ...[

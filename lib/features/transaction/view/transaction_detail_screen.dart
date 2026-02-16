@@ -269,7 +269,10 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              ThousandsSeparatorInputFormatter(allowDecimal: true),
+              ThousandsSeparatorInputFormatter(
+                allowDecimal: true,
+                maxIntegerDigits: 12,
+              ),
             ],
             decoration: InputDecoration(
               labelText: "Amount",

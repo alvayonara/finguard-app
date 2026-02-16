@@ -5,10 +5,12 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
   final NumberFormat _formatter = NumberFormat('#,###');
   final bool allowDecimal;
   final int maxDecimalDigits;
+  final int maxIntegerDigits;
 
   ThousandsSeparatorInputFormatter({
     this.allowDecimal = false,
     this.maxDecimalDigits = 2,
+    this.maxIntegerDigits = 12,
   });
 
   static String formatAmount(double value, {int maxDecimalDigits = 2}) {
@@ -53,6 +55,9 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
       if (numericOnly.isEmpty) {
         return const TextEditingValue();
       }
+      if (numericOnly.length > maxIntegerDigits) {
+        return oldValue;
+      }
 
       final number = int.tryParse(numericOnly);
       if (number == null) {
@@ -83,6 +88,11 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
     final parts = normalized.split('.');
     final integerPartRaw = parts.first;
     var decimalPart = parts.length > 1 ? parts[1] : '';
+
+    if (integerPartRaw.length > maxIntegerDigits) {
+      return oldValue;
+    }
+
     if (decimalPart.length > maxDecimalDigits) {
       decimalPart = decimalPart.substring(0, maxDecimalDigits);
     }
