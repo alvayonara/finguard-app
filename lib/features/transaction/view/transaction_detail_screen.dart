@@ -1,6 +1,9 @@
 import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
+import 'package:finguard_app/features/category/data/model/category_model.dart';
+import 'package:finguard_app/features/category/view/category_picker_screen.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
 import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
@@ -243,9 +246,8 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final txVM = context.watch<TransactionViewModel>();
     final categoryVM = context.watch<CategoryViewModel>();
 
-    final categories = categoryVM.categories
-        .where((c) => c.type == widget.tx.type)
-        .toList();
+    final categories =
+        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
 
     return Padding(
       padding: EdgeInsets.only(
@@ -292,31 +294,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
           if (categoryVM.isLoading)
             const CircularProgressIndicator()
           else
-            DropdownButtonFormField<int>(
-              value: categories.any((c) => c.id == selectedCategoryId)
-                  ? selectedCategoryId
-                  : null,
-              decoration: InputDecoration(
-                labelText: "Category",
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              items: categories
-                  .map(
-                    (c) =>
-                        DropdownMenuItem<int>(value: c.id, child: Text(c.name)),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCategoryId = value;
-                });
-              },
-            ),
+            _buildCategoryPickerField(categories),
 
           const SizedBox(height: 28),
 
@@ -369,6 +347,70 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryPickerField(List<CategoryModel> categories) {
+    CategoryModel? selectedCategory;
+    for (final category in categories) {
+      if (category.id == selectedCategoryId) {
+        selectedCategory = category;
+        break;
+      }
+    }
+
+    return InkWell(
+      onTap: () async {
+        final picked = await Navigator.of(context).push<CategoryModel>(
+          MaterialPageRoute(
+            builder: (_) => CategoryPickerScreen(
+              title: "Select Category",
+              categories: categories,
+              selectedCategoryId: selectedCategoryId,
+            ),
+          ),
+        );
+        if (picked != null) {
+          setState(() {
+            selectedCategoryId = picked.id;
+          });
+        }
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: "Category",
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        child: Row(
+          children: [
+            if (selectedCategory != null) ...[
+              Text(
+                CategoryIconMapper.getIcon(selectedCategory.icon),
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                selectedCategory?.name ?? "Select category",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: selectedCategory == null
+                      ? Colors.grey.shade600
+                      : const Color(0xFF1A1A1A),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
       ),
     );
   }

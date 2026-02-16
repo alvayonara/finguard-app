@@ -1,6 +1,8 @@
 import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/features/category/data/model/category_model.dart';
+import 'package:finguard_app/features/category/view/category_picker_screen.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/budget/view/budget_card.dart';
 import 'package:finguard_app/features/budget/viewmodel/budget_viewmodel.dart';
@@ -349,6 +351,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final amountFocusNode = FocusNode();
     int? selectedCategoryId = initialCategoryId;
     final isEditMode = initialCategoryId != null;
+    bool didAutoFocus = false;
 
     final sheetFuture = showModalBottomSheet(
       context: context,
@@ -359,8 +362,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
           final cleanAmount = amountController.text.replaceAll(',', '');
           final parsedAmount = double.tryParse(cleanAmount);
           String? selectedCategoryName;
+          CategoryModel? selectedCategory;
           for (final category in expenseCategories) {
             if (category.id == selectedCategoryId) {
+              selectedCategory = category;
               selectedCategoryName = category.name;
               break;
             }
@@ -370,11 +375,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
               parsedAmount != null &&
               parsedAmount > 0;
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!amountFocusNode.hasFocus) {
-              amountFocusNode.requestFocus();
-            }
-          });
+          if (!didAutoFocus) {
+            didAutoFocus = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (amountFocusNode.canRequestFocus) {
+                amountFocusNode.requestFocus();
+              }
+            });
+          }
 
           return Container(
             decoration: const BoxDecoration(
@@ -418,28 +426,66 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ),
                   )
                 else
-                  DropdownButtonFormField<int>(
-                    initialValue: selectedCategoryId,
-                    items: expenseCategories
-                        .map(
-                          (category) => DropdownMenuItem<int>(
-                            value: category.id,
-                            child: Text(category.name),
+                  InkWell(
+                    onTap: () async {
+                      final navigator = Navigator.of(context);
+                      amountFocusNode.unfocus();
+                      amountFocusNode.canRequestFocus = false;
+                      await SystemChannels.textInput.invokeMethod<void>(
+                        'TextInput.hide',
+                      );
+                      final picked = await navigator.push<CategoryModel>(
+                        MaterialPageRoute(
+                          builder: (_) => CategoryPickerScreen(
+                            title: "Select Category",
+                            categories: expenseCategories,
+                            selectedCategoryId: selectedCategoryId,
                           ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      setModalState(() {
-                        selectedCategoryId = value;
-                      });
+                        ),
+                      );
+                      if (picked != null) {
+                        setModalState(() {
+                          selectedCategoryId = picked.id;
+                        });
+                      }
+                      amountFocusNode.canRequestFocus = true;
+                      if (amountFocusNode.canRequestFocus) {
+                        amountFocusNode.requestFocus();
+                      }
                     },
-                    decoration: InputDecoration(
-                      labelText: "Category",
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(18),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: "Category",
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          if (selectedCategory != null) ...[
+                            Text(
+                              CategoryIconMapper.getIcon(selectedCategory.icon),
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Expanded(
+                            child: Text(
+                              selectedCategoryName ?? "Select category",
+                              style: TextStyle(
+                                color: selectedCategoryName == null
+                                    ? Colors.grey.shade600
+                                    : const Color(0xFF1A1A1A),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right),
+                        ],
                       ),
                     ),
                   ),
