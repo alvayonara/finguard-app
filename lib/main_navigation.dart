@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:alice/alice.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
 import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard_app/features/budget/view/budget_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:finguard_app/features/activity/view/activity_screen.dart';
@@ -134,11 +135,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   List<Widget> get _screens => [
-        const DashboardScreen(),
-        const ActivityScreen(),
-        const Placeholder(),
-        _buildProfileScreen(),
-      ];
+    const DashboardScreen(),
+    const ActivityScreen(),
+    const BudgetScreen(),
+    _buildProfileScreen(),
+  ];
 
   static const Color primaryColor = Color(0xFF5E5CE6);
   static const Color backgroundColor = Color(0xFFF5F6FA);
@@ -201,8 +202,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     return GestureDetector(
       onTap: () async {
         HapticFeedback.mediumImpact();
-        final created =
-            await Navigator.pushNamed(context, '/create-transaction');
+        final created = await Navigator.pushNamed(
+          context,
+          '/create-transaction',
+        );
         if (created == true && mounted) {
           await _refreshAfterTransactionMutation();
         }

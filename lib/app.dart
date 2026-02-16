@@ -1,6 +1,8 @@
 import 'package:alice/alice.dart';
 import 'package:finguard_app/features/activity/data/activity_repository.dart';
 import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard_app/features/budget/data/budget_repository.dart';
+import 'package:finguard_app/features/budget/viewmodel/budget_viewmodel.dart';
 import 'package:finguard_app/features/category/data/category_repository.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
@@ -76,6 +78,7 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) => ActivityRepository(context.read<ApiClient>()),
         ),
+        Provider(create: (context) => BudgetRepository(context.read<ApiClient>())),
 
         // Global App Settings
         ChangeNotifierProvider(create: (_) => settings),
@@ -141,6 +144,14 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) =>
               previous ?? ActivityViewmodel(activityRepository: repo),
         ),
+
+        ChangeNotifierProxyProvider<BudgetRepository, BudgetViewmodel>(
+          create: (context) => BudgetViewmodel(
+            repository: context.read<BudgetRepository>(),
+          ),
+          update: (_, repo, previous) =>
+              previous ?? BudgetViewmodel(repository: repo),
+        ),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -186,7 +197,6 @@ class FinguardApp extends StatelessWidget {
           '/risk-detail': (_) => const RiskDetailScreen(),
           '/transaction-detail': (_) => const TransactionDetailScreen(),
           '/create-transaction': (_) => const AddTransactionScreen(),
-          // '/categories': (_) => const CategoryScreen(),
         },
       ),
     );
