@@ -24,6 +24,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   CategoryModel? _selectedCategory;
   DateTime _selectedDate = DateTime.now();
 
+  double? get _parsedAmount {
+    final cleanAmount = _amountController.text.replaceAll(',', '');
+    return double.tryParse(cleanAmount);
+  }
+
+  bool get _canSubmit {
+    final amount = _parsedAmount;
+    return amount != null && amount > 0 && _selectedCategory != null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,13 +51,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   void _submit() async {
-    if (_amountController.text.isEmpty) {
-      _showError("Please enter an amount");
-      return;
-    }
-
-    final cleanAmount = _amountController.text.replaceAll(',', '');
-    final amount = double.tryParse(cleanAmount);
+    final amount = _parsedAmount;
     if (amount == null || amount <= 0) {
       _showError("Please enter a valid amount");
       return;
@@ -67,8 +71,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       await context.read<TransactionViewModel>().createTransaction(
-        request: request,
-      );
+            request: request,
+          );
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -290,6 +294,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: TextField(
                   controller: _amountController,
                   focusNode: _amountFocus,
+                  onChanged: (_) => setState(() {}),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -492,9 +497,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected
-                    ? const Color(0xFF5E5CE6)
-                    : Colors.grey.shade200,
+                color:
+                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -533,9 +537,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         category.name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF5E5CE6)
                               : Colors.black,
@@ -574,7 +577,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: transactionVM.isLoading ? null : _submit,
+            onPressed: transactionVM.isLoading || !_canSubmit ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF5E5CE6),
               foregroundColor: Colors.white,
@@ -691,10 +694,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 6,
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 8,
-                          ),
+                        crossAxisCount: 6,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                      ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];
