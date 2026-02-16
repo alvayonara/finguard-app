@@ -21,9 +21,36 @@ class AppSettings extends ChangeNotifier {
   String formatCurrency(double value) {
     final format = NumberFormat.currency(
       locale: _locale.toLanguageTag(),
-      symbol: _currency == 'IDR' ? 'Rp ' : '\$ ',
-      decimalDigits: _currency == 'IDR' ? 0 : 2,
+      symbol: _currencySymbol(_currency),
+      decimalDigits: _decimalDigits(_currency),
     );
     return format.format(value);
+  }
+
+  String _currencySymbol(String code) {
+    switch (code.toUpperCase()) {
+      case 'IDR':
+        return 'Rp ';
+      case 'USD':
+        return '\$ ';
+      case 'JPY':
+        return '¥ ';
+      case 'EUR':
+        return '€ ';
+      case 'SGD':
+        return 'S\$ ';
+      default:
+        return '${code.toUpperCase()} ';
+    }
+  }
+
+  int _decimalDigits(String code) {
+    switch (code.toUpperCase()) {
+      case 'IDR':
+      case 'JPY':
+        return 0;
+      default:
+        return 2;
+    }
   }
 }

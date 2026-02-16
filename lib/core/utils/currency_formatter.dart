@@ -17,13 +17,19 @@ class CurrencyFormatter {
   }
 
   static String _symbol(String code) {
-    switch (code) {
+    switch (code.toUpperCase()) {
       case 'IDR':
         return 'Rp ';
       case 'USD':
         return '\$ ';
+      case 'JPY':
+        return '¥ ';
+      case 'EUR':
+        return '€ ';
+      case 'SGD':
+        return 'S\$ ';
       default:
-        return '';
+        return '${code.toUpperCase()} ';
     }
   }
 }
