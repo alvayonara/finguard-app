@@ -243,8 +243,9 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final txVM = context.watch<TransactionViewModel>();
     final categoryVM = context.watch<CategoryViewModel>();
 
-    final categories =
-        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
+    final categories = categoryVM.categories
+        .where((c) => c.type == widget.tx.type)
+        .toList();
 
     return Padding(
       padding: EdgeInsets.only(

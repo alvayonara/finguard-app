@@ -67,8 +67,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       await context.read<TransactionViewModel>().createTransaction(
-            request: request,
-          );
+        request: request,
+      );
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -191,9 +191,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: Row(
         children: [
           Expanded(
-              child: _typeButton("EXPENSE", "Expense", Icons.arrow_upward)),
+            child: _typeButton("EXPENSE", "Expense", Icons.arrow_upward),
+          ),
           Expanded(
-              child: _typeButton("INCOME", "Income", Icons.arrow_downward)),
+            child: _typeButton("INCOME", "Income", Icons.arrow_downward),
+          ),
         ],
       ),
     );
@@ -372,8 +374,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
-                size: 16, color: Colors.grey.shade400),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey.shade400,
+            ),
           ],
         ),
       ),
@@ -407,8 +412,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               label: const Text("Add"),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFF5E5CE6),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
               ),
             ),
           ],
@@ -439,8 +446,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: Center(
         child: Column(
           children: [
-            Icon(Icons.category_outlined,
-                size: 48, color: Colors.grey.shade400),
+            Icon(
+              Icons.category_outlined,
+              size: 48,
+              color: Colors.grey.shade400,
+            ),
             const SizedBox(height: 12),
             Text(
               "No categories available",
@@ -482,8 +492,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color:
-                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
+                color: isSelected
+                    ? const Color(0xFF5E5CE6)
+                    : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -522,8 +533,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         category.name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF5E5CE6)
                               : Colors.black,
@@ -583,10 +595,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   )
                 : const Text(
                     "Add Transaction",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
           ),
         ),
@@ -682,10 +691,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 6,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];

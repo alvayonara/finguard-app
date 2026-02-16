@@ -176,7 +176,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 ),
               ),
               _stepIndicator(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
+              if (step == 2) _incomeActionBar(),
+              if (step != 2) const SizedBox(height: 24),
             ],
           ),
         ),
@@ -474,11 +476,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             const SizedBox(height: 10),
             Text(error!, style: const TextStyle(color: Colors.red)),
           ],
-          const SizedBox(height: 60),
-          _primaryButton(
-            isLoading ? "Processing..." : "Finish",
-            _canSubmitIncome ? _finish : null,
-          ),
           const SizedBox(height: 16),
           Center(
             child: TextButton(
@@ -493,6 +490,19 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _incomeActionBar() {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 8, 0, 12),
+        child: _primaryButton(
+          isLoading ? "Processing..." : "Finish",
+          _canSubmitIncome ? _finish : null,
+        ),
       ),
     );
   }

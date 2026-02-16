@@ -81,8 +81,13 @@ class FinguardApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => settings),
 
         // Auth ViewModel
-        ChangeNotifierProxyProvider4<AuthRepository, UserRepository,
-            LocalStorage, AppSettings, AuthViewmodel>(
+        ChangeNotifierProxyProvider4<
+          AuthRepository,
+          UserRepository,
+          LocalStorage,
+          AppSettings,
+          AuthViewmodel
+        >(
           create: (context) => AuthViewmodel(
             context.read<AuthRepository>(),
             context.read<UserRepository>(),
@@ -120,8 +125,10 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
         ),
 
-        ChangeNotifierProxyProvider<TransactionRepository,
-            TransactionViewModel>(
+        ChangeNotifierProxyProvider<
+          TransactionRepository,
+          TransactionViewModel
+        >(
           create: (context) =>
               TransactionViewModel(context.read<TransactionRepository>()),
           update: (_, repo, previous) => previous ?? TransactionViewModel(repo),

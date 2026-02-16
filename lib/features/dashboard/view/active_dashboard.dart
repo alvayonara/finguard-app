@@ -514,8 +514,9 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color:
-                                        isExpense ? Colors.red : Colors.green,
+                                    color: isExpense
+                                        ? Colors.red
+                                        : Colors.green,
                                   ),
                                 ),
                               ],

@@ -87,8 +87,9 @@ class DashboardViewmodel extends ChangeNotifier {
       if (latestParsed == null) return false;
 
       final latestUtc = latestParsed.toUtc();
-      final cutoffUtc =
-          mutationTriggeredAt.toUtc().subtract(const Duration(seconds: 5));
+      final cutoffUtc = mutationTriggeredAt.toUtc().subtract(
+        const Duration(seconds: 5),
+      );
       return latestUtc.isAfter(cutoffUtc);
     }
 
