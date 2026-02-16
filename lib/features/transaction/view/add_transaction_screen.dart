@@ -1,7 +1,9 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/utils/category_icon_mapper.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
+import 'package:finguard_app/features/category/data/category_repository.dart';
 import 'package:finguard_app/features/category/data/model/category_model.dart';
+import 'package:finguard_app/features/category/view/category_picker_screen.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
 import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
@@ -491,6 +493,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             HapticFeedback.selectionClick();
             setState(() => _selectedCategory = category);
           },
+          onLongPress: category.isDefault
+              ? null
+              : () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => CategoryPickerScreen(
+                        title: "Manage Categories",
+                        categoryType: _selectedType,
+                        selectedCategoryId: category.id,
+                      ),
+                    ),
+                  ).then((_) {
+                    // Reload categories after returning from picker
+                    context.read<CategoryViewModel>().load();
+                  });
+                },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
@@ -610,10 +628,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final nameController = TextEditingController();
     String? selectedEmoji;
     final availableEmojis = CategoryIconMapper.emojisByType(_selectedType);
+    bool isLoading = false;
+    String? errorMessage;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
@@ -646,7 +667,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: isLoading ? null : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -657,9 +678,50 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
+                    // Error Message
+                    if (errorMessage != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                errorMessage!,
+                                style: TextStyle(
+                                  color: Colors.red.shade700,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 16),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () => setModalState(() => errorMessage = null),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
                     // Name Input
                     TextField(
                       controller: nameController,
+                      enabled: !isLoading,
+                      onChanged: (_) {
+                        if (errorMessage != null) {
+                          setModalState(() => errorMessage = null);
+                        }
+                      },
                       decoration: InputDecoration(
                         labelText: "Category Name",
                         hintText: "e.g., Groceries",
@@ -675,7 +737,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                       ),
                       textCapitalization: TextCapitalization.words,
-                      autofocus: true,
+                      autofocus: false,
                     ),
                     const SizedBox(height: 24),
 
@@ -704,10 +766,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         final isEmojiSelected = selectedEmoji == emoji;
 
                         return GestureDetector(
-                          onTap: () {
-                            setModalState(() => selectedEmoji = emoji);
-                          },
-                          child: Container(
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  setModalState(() => selectedEmoji = emoji);
+                                  if (errorMessage != null) {
+                                    setModalState(() => errorMessage = null);
+                                  }
+                                },
+                          child: Opacity(
+                            opacity: isLoading ? 0.5 : 1.0,
+                            child: Container(
                             decoration: BoxDecoration(
                               color: isEmojiSelected
                                   ? const Color(0xFF5E5CE6).withOpacity(0.1)
@@ -726,6 +795,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                                 style: const TextStyle(fontSize: 28),
                               ),
                             ),
+                          ),
                           ),
                         );
                       },
@@ -751,74 +821,80 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      if (nameController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Please enter a category name"),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        return;
-                      }
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            if (nameController.text.trim().isEmpty) {
+                              setModalState(() {
+                                errorMessage = "Please enter a category name";
+                              });
+                              return;
+                            }
 
-                      if (selectedEmoji == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Please select an icon"),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        return;
-                      }
+                            if (selectedEmoji == null) {
+                              setModalState(() {
+                                errorMessage = "Please select an icon";
+                              });
+                              return;
+                            }
 
-                      try {
-                        final created = await categoryVM.createCategory(
-                          name: nameController.text.trim(),
-                          type: _selectedType,
-                          icon: selectedEmoji!,
-                        );
+                            setModalState(() {
+                              isLoading = true;
+                              errorMessage = null;
+                            });
 
-                        if (mounted) {
-                          Navigator.pop(context);
-                          setState(() => _selectedCategory = created);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                "${created?.name} category created!",
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Error: ${e.toString()}"),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
+                            try {
+                              final created = await categoryVM.createCategory(
+                                name: nameController.text.trim(),
+                                type: _selectedType,
+                                icon: selectedEmoji!,
+                              );
+
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                setState(() => _selectedCategory = created);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "${created?.name} category created!",
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setModalState(() {
+                                isLoading = false;
+                                errorMessage = _formatCategoryError(e);
+                              });
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF5E5CE6),
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey.shade300,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      "Create Category",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Text(
+                            "Create Category",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -827,5 +903,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         ),
       ),
     );
+  }
+
+  String _formatCategoryError(Object error) {
+    if (error is DuplicateCategoryException) {
+      return error.toString();
+    }
+    if (error is CategoryNotFoundException) {
+      return error.toString();
+    }
+
+    // For other exceptions, extract the message
+    final errorStr = error.toString();
+    final cleanError = errorStr.replaceFirst('Exception: ', '');
+    return cleanError.isEmpty ? 'Failed to create category' : cleanError;
   }
 }

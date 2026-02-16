@@ -366,7 +366,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
           MaterialPageRoute(
             builder: (_) => CategoryPickerScreen(
               title: "Select Category",
-              categories: categories,
+              categoryType: widget.tx.type,
               selectedCategoryId: selectedCategoryId,
             ),
           ),

@@ -14,7 +14,11 @@ class CategoryVisualResolver {
     String? iconCode,
     String? colorCode,
   }) {
-    final emoji = CategoryIconMapper.getIcon(iconCode ?? categoryName);
+    final iconToMap = iconCode?.isNotEmpty == true
+        ? iconCode!
+        : categoryName.toLowerCase();
+
+    final emoji = CategoryIconMapper.getIcon(iconToMap);
     final color = _parseColorCode(colorCode) ?? _fallbackColor(categoryName);
     return CategoryVisual(emoji: emoji, color: color);
   }

@@ -3,6 +3,19 @@ import 'package:dio/dio.dart';
 import 'model/category_model.dart';
 import 'model/category_request.dart';
 
+class DuplicateCategoryException implements Exception {
+  final String categoryName;
+  DuplicateCategoryException(this.categoryName);
+
+  @override
+  String toString() => 'Category "$categoryName" already exists';
+}
+
+class CategoryNotFoundException implements Exception {
+  @override
+  String toString() => 'Category not found or unauthorized';
+}
+
 class CategoryRepository {
   final ApiClient apiClient;
 
@@ -22,6 +35,12 @@ class CategoryRepository {
       );
       return CategoryModel.fromJson(response.data);
     } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        throw DuplicateCategoryException(request.name);
+      }
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
+        throw CategoryNotFoundException();
+      }
       throw Exception(_extractMessage(e));
     }
   }
@@ -34,6 +53,12 @@ class CategoryRepository {
       );
       return CategoryModel.fromJson(response.data);
     } on DioException catch (e) {
+      if (e.response?.statusCode == 409) {
+        throw DuplicateCategoryException(request.name);
+      }
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
+        throw CategoryNotFoundException();
+      }
       throw Exception(_extractMessage(e));
     }
   }
@@ -42,6 +67,9 @@ class CategoryRepository {
     try {
       await apiClient.dio.delete("/v1/categories/$id");
     } on DioException catch (e) {
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
+        throw CategoryNotFoundException();
+      }
       throw Exception(_extractMessage(e));
     }
   }

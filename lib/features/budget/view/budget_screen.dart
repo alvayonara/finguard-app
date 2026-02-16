@@ -438,7 +438,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         MaterialPageRoute(
                           builder: (_) => CategoryPickerScreen(
                             title: "Select Category",
-                            categories: expenseCategories,
+                            categoryType: "EXPENSE",
                             selectedCategoryId: selectedCategoryId,
                           ),
                         ),

@@ -1,81 +1,95 @@
 class CategoryIconMapper {
   static String getIcon(String iconCode) {
     final Map<String, String> iconMap = {
-      // Bills & Services
-      'receipt_long': '🧾',
-      'receipt': '🧾',
-      'bills': '📄',
-
-      // Education
-      'school': '🎓',
-      'education': '📚',
-
-      // Entertainment
-      'movie': '🎬',
-      'entertainment': '🎮',
-      'sports': '⚽',
-
-      // Food & Dining
       'restaurant': '🍽️',
       'food': '🍔',
       'fastfood': '🍕',
       'cafe': '☕',
+      'coffee': '☕',
 
-      // Health
-      'local_hospital': '🏥',
-      'health': '💊',
-      'fitness': '💪',
-
-      // Shopping
       'shopping_bag': '🛍️',
       'shopping': '🛍️',
       'shopping_cart': '🛒',
       'store': '🏪',
+      'clothes': '👕',
 
-      // Transport
+      'home': '🏠',
+      'house': '🏠',
+      'bills': '📄',
+      'receipt_long': '🧾',
+      'receipt': '🧾',
+
       'directions_car': '🚗',
-      'transport': '🚌',
       'car': '🚙',
+      'transport': '🚌',
+      'bus': '🚌',
       'subway': '🚇',
       'train': '🚆',
-
-      // Travel
+      'gas': '⛽',
+      'fuel': '⛽',
       'flight': '✈️',
       'travel': '🧳',
       'hotel': '🏨',
 
-      // Income
+      'entertainment': '🎬',
+      'game': '🎮',
+      'gaming': '🎮',
+      'movie': '🎬',
+      'movies': '🎬',
+      'film': '🎬',
+      'cinema': '🎬',
+      'sports': '⚽',
+      'sport': '⚽',
+
+      'school': '🎓',
+      'education': '📚',
+      'book': '📚',
+
+      'local_hospital': '🏥',
+      'hospital': '🏥',
+      'health': '💊',
+      'medicine': '💊',
+      'fitness': '💪',
+      'gym': '💪',
+
+      'phone': '📱',
+      'mobile': '📱',
+
       'work': '💼',
+      'briefcase': '💼',
+      'freelance': '💼',
       'salary': '💵',
+      'attach_money': '💵',
+      'money': '💵',
+      'money_bag': '💰',
+      'moneybag': '💰',
+      'account_balance': '🏦',
+      'bank': '🏦',
       'gift': '🎁',
       'card_giftcard': '🎁',
       'gift_card': '🎁',
-      'attach_money': '💵',
-      'money': '💵',
-      'account_balance': '🏦',
+      'bonus': '🎁',
       'trending_up': '📈',
       'analytics': '📈',
-
-      // Others
-      'category': '📁',
-      'other': '📦',
-      'home': '🏠',
-      'pets': '🐾',
-      'phone': '📱',
-      'briefcase': '💼',
-      'push_pin': '📌',
-      'pushpin': '📌',
-      'pin': '📌',
-      'money_bag': '💰',
-      'moneybag': '💰',
-      'wallet': '👛',
-      'bonus': '🎁',
       'investment': '📈',
       'invest': '📈',
-      'freelance': '💼',
+      'wallet': '👛',
+      'coin': '🪙',
+      'card': '💳',
+      'chart': '📊',
+      'star': '⭐',
 
-      // Default
-      'default': '📌',
+      'other': '📦',
+      'pets': '🐾',
+      'pet': '🐾',
+      'tools': '🔧',
+      'tool': '🔧',
+
+      'category': '📦',
+      'push_pin': '📦',
+      'pushpin': '📦',
+      'pin': '📦',
+      'default': '📦',
     };
 
     final normalized = iconCode.trim();
@@ -83,10 +97,15 @@ class CategoryIconMapper {
       return iconMap['default']!;
     }
 
+    if (_looksLikeEmoji(normalized)) {
+      return normalized;
+    }
+
     final lower = normalized.toLowerCase();
     final normalizedKey = lower.replaceAll(RegExp(r'[\s\-]'), '_');
 
     String? mapped = iconMap[lower] ?? iconMap[normalizedKey];
+
     if (mapped == null &&
         normalized.startsWith(':') &&
         normalized.endsWith(':')) {
@@ -101,14 +120,7 @@ class CategoryIconMapper {
       return mapped;
     }
 
-    // Preserve custom emoji/icons from backend/category creation.
-    if (_looksLikeEmoji(normalized)) {
-      return normalized;
-    }
-
-    // If unknown string comes from backend (e.g. new enum), render raw
-    // instead of forcing push-pin.
-    return normalized;
+    return iconMap['default']!;
   }
 
   static bool _looksLikeEmoji(String value) {
@@ -129,6 +141,7 @@ class CategoryIconMapper {
     '🧾',
     '📊',
     '⭐',
+    '👛',
   ];
 
   static List<String> get expenseEmojis => [
@@ -137,25 +150,30 @@ class CategoryIconMapper {
     '🍕',
     '☕',
     '🛒',
-    '🧾',
+    '🛍️',
     '🏠',
     '🚗',
+    '🚙',
+    '🚌',
     '⛽',
     '🎬',
+    '🎮',
     '✈️',
+    '🧳',
     '🏨',
     '💊',
     '🏥',
     '📱',
     '👕',
     '🎓',
-    '⚡',
-    '🔧',
+    '📚',
+    '⚽',
+    '💪',
     '🐾',
     '📦',
-    '💄',
-    '🎂',
-    '📚',
+    '📄',
+    '🔧',
+    '🏪',
   ];
 
   static List<String> emojisByType(String type) {
