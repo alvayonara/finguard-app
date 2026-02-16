@@ -125,44 +125,50 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         .where((cat) => cat.type == _selectedType)
         .toList();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Add Transaction",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: const Color(0xFFF5F6FA),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  _buildTypeSelector(),
-                  const SizedBox(height: 24),
-                  _buildAmountInput(settings),
-                  const SizedBox(height: 24),
-                  _buildDatePicker(),
-                  const SizedBox(height: 28),
-                  _buildCategorySection(filteredCategories, categoryVM),
-                ],
-              ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F6FA),
+        appBar: AppBar(
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: const Text(
+            "Add Transaction",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            _buildSubmitButton(transactionVM),
-          ],
+          ),
+          centerTitle: true,
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    _buildTypeSelector(),
+                    const SizedBox(height: 24),
+                    _buildAmountInput(settings),
+                    const SizedBox(height: 24),
+                    _buildDatePicker(),
+                    const SizedBox(height: 28),
+                    _buildCategorySection(filteredCategories, categoryVM),
+                  ],
+                ),
+              ),
+              _buildSubmitButton(transactionVM),
+            ],
+          ),
         ),
       ),
     );
@@ -455,7 +461,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         crossAxisCount: 3,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1,
+        childAspectRatio: 0.92,
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -487,29 +493,46 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ]
                   : [],
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  CategoryIconMapper.getIcon(category.icon),
-                  style: TextStyle(
-                    fontSize: isSelected ? 32 : 28,
-                    height: 1,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 40,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        CategoryIconMapper.getIcon(category.icon),
+                        style: TextStyle(
+                          fontSize: isSelected ? 30 : 26,
+                          height: 1,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  category.name,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? const Color(0xFF5E5CE6) : Colors.black,
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        category.name,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isSelected
+                              ? const Color(0xFF5E5CE6)
+                              : Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -571,6 +594,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void _showAddCategoryDialog(CategoryViewModel categoryVM) {
     final nameController = TextEditingController();
     String? selectedEmoji;
+    final availableEmojis = CategoryIconMapper.emojisByType(_selectedType);
 
     showModalBottomSheet(
       context: context,
@@ -659,9 +683,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         mainAxisSpacing: 8,
                         crossAxisSpacing: 8,
                       ),
-                      itemCount: CategoryIconMapper.allEmojis.length,
+                      itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
-                        final emoji = CategoryIconMapper.allEmojis[index];
+                        final emoji = availableEmojis[index];
                         final isEmojiSelected = selectedEmoji == emoji;
 
                         return GestureDetector(

@@ -16,11 +16,18 @@ class CategoryModel {
   });
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
+    final iconValue = (json['icon'] ??
+            json['emoji'] ??
+            json['iconEmoji'] ??
+            json['iconCode'] ??
+            'category')
+        .toString();
+
     return CategoryModel(
       id: json['id'],
       name: json['name'],
       type: json['type'],
-      icon: json['icon'] ?? 'category',
+      icon: iconValue.isEmpty ? 'category' : iconValue,
       color: json['color'] ?? '#9E9E9E',
       isDefault: json['isDefault'] ?? false,
     );

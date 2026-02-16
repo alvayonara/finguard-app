@@ -28,7 +28,8 @@ class CategoryIconMapper {
 
       // Shopping
       'shopping_bag': '🛍️',
-      'shopping': '🛒',
+      'shopping': '🛍️',
+      'shopping_cart': '🛒',
       'store': '🏪',
 
       // Transport
@@ -45,9 +46,15 @@ class CategoryIconMapper {
 
       // Income
       'work': '💼',
-      'salary': '💰',
+      'salary': '💵',
       'gift': '🎁',
+      'card_giftcard': '🎁',
+      'gift_card': '🎁',
+      'attach_money': '💵',
+      'money': '💵',
       'account_balance': '🏦',
+      'trending_up': '📈',
+      'analytics': '📈',
 
       // Others
       'category': '📁',
@@ -55,6 +62,17 @@ class CategoryIconMapper {
       'home': '🏠',
       'pets': '🐾',
       'phone': '📱',
+      'briefcase': '💼',
+      'push_pin': '📌',
+      'pushpin': '📌',
+      'pin': '📌',
+      'money_bag': '💰',
+      'moneybag': '💰',
+      'wallet': '👛',
+      'bonus': '🎁',
+      'investment': '📈',
+      'invest': '📈',
+      'freelance': '💼',
 
       // Default
       'default': '📌',
@@ -65,7 +83,20 @@ class CategoryIconMapper {
       return iconMap['default']!;
     }
 
-    final mapped = iconMap[normalized.toLowerCase()];
+    final lower = normalized.toLowerCase();
+    final normalizedKey = lower.replaceAll(RegExp(r'[\s\-]'), '_');
+
+    String? mapped = iconMap[lower] ?? iconMap[normalizedKey];
+    if (mapped == null &&
+        normalized.startsWith(':') &&
+        normalized.endsWith(':')) {
+      final shortcode = normalized
+          .substring(1, normalized.length - 1)
+          .toLowerCase()
+          .replaceAll(RegExp(r'[\s\-]'), '_');
+      mapped = iconMap[shortcode];
+    }
+
     if (mapped != null) {
       return mapped;
     }
@@ -75,7 +106,9 @@ class CategoryIconMapper {
       return normalized;
     }
 
-    return iconMap['default']!;
+    // If unknown string comes from backend (e.g. new enum), render raw
+    // instead of forcing push-pin.
+    return normalized;
   }
 
   static bool _looksLikeEmoji(String value) {
@@ -84,56 +117,50 @@ class CategoryIconMapper {
     return hasNonAscii && !hasAsciiWordChar;
   }
 
-  static List<String> get allEmojis => [
+  static List<String> get incomeEmojis => [
+        '💼',
+        '💰',
+        '💵',
+        '🏦',
+        '🎁',
+        '📈',
+        '🪙',
+        '💳',
         '🧾',
-        '📄',
-        '🎓',
-        '📚',
-        '🎬',
-        '🎮',
-        '⚽',
+        '📊',
+        '⭐',
+      ];
+
+  static List<String> get expenseEmojis => [
         '🍽️',
         '🍔',
         '🍕',
         '☕',
-        '🏥',
-        '💊',
-        '💪',
-        '🛍️',
         '🛒',
-        '🏪',
-        '🚗',
-        '🚌',
-        '🚙',
-        '🚇',
-        '🚆',
-        '✈️',
-        '🧳',
-        '🏨',
-        '💼',
-        '💰',
-        '🎁',
-        '🏦',
-        '📁',
-        '📦',
+        '🧾',
         '🏠',
-        '🐾',
-        '📱',
-        '⚡',
-        '💳',
-        '🎯',
-        '🎨',
-        '🎵',
-        '📷',
-        '💡',
-        '🔧',
+        '🚗',
         '⛽',
-        '🌳',
+        '🎬',
+        '✈️',
+        '🏨',
+        '💊',
+        '🏥',
+        '📱',
         '👕',
-        '👟',
+        '🎓',
+        '⚡',
+        '🔧',
+        '🐾',
+        '📦',
         '💄',
         '🎂',
-        '🌟',
-        '💎',
+        '📚',
       ];
+
+  static List<String> emojisByType(String type) {
+    return type.toUpperCase() == 'INCOME' ? incomeEmojis : expenseEmojis;
+  }
+
+  static List<String> get allEmojis => [...expenseEmojis, ...incomeEmojis];
 }

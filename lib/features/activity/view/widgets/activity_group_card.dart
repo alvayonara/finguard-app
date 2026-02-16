@@ -1,6 +1,6 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/ui/bounce_wrapper.dart';
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
+import 'package:finguard_app/core/utils/category_visual_resolver.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/features/activity/data/model/activity_item.dart';
 import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
@@ -88,16 +88,22 @@ class ActivityGroupCard extends StatelessWidget {
   }
 
   Widget _buildItem(ActivityItem item) {
-    return switch (item) {
-      ActivityTransaction tx => _buildTransaction(tx),
-      ActivityRiskChange risk => _buildRiskChange(risk),
-      _ => const SizedBox.shrink(),
-    };
+    if (item is ActivityTransaction) {
+      return _buildTransaction(item);
+    }
+    if (item is ActivityRiskChange) {
+      return _buildRiskChange(item);
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildTransaction(ActivityTransaction tx) {
     final isIncome = tx.type == 'INCOME';
-    final iconColor = _getCategoryColor(tx.category.color);
+    final visual = CategoryVisualResolver.resolve(
+      categoryName: tx.category.name,
+      iconCode: tx.category.icon,
+      colorCode: tx.category.color,
+    );
 
     return Builder(
       builder: (context) => BounceWrapper(
@@ -130,12 +136,12 @@ class ActivityGroupCard extends StatelessWidget {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.12),
+                  color: visual.color.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
                   child: Text(
-                    CategoryIconMapper.getIcon(tx.category.icon),
+                    visual.emoji,
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
@@ -252,24 +258,17 @@ class ActivityGroupCard extends StatelessWidget {
     );
   }
 
-  Color _getCategoryColor(String colorStr) {
-    try {
-      if (colorStr.startsWith('#')) {
-        return Color(int.parse(colorStr.substring(1), radix: 16) + 0xFF000000);
-      }
-      return const Color(0xFF9E9E9E);
-    } catch (_) {
-      return const Color(0xFF9E9E9E);
-    }
-  }
-
   Color _getRiskColor(String level) {
-    return switch (level) {
-      'HIGH' => const Color(0xFFFF5F6D),
-      'MEDIUM' => const Color(0xFFFFB347),
-      'LOW' => const Color(0xFF56AB2F),
-      _ => Colors.grey,
-    };
+    switch (level) {
+      case 'HIGH':
+        return const Color(0xFFFF5F6D);
+      case 'MEDIUM':
+        return const Color(0xFFFFB347);
+      case 'LOW':
+        return const Color(0xFF56AB2F);
+      default:
+        return Colors.grey;
+    }
   }
 
   String _formatTime(DateTime dateTime) {

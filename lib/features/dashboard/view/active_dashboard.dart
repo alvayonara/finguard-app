@@ -1,6 +1,6 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/ui/bounce_wrapper.dart';
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
+import 'package:finguard_app/core/utils/category_visual_resolver.dart';
 import 'package:finguard_app/core/utils/currency_formatter.dart';
 import 'package:finguard_app/core/utils/insight_resolver.dart';
 import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
@@ -441,11 +441,11 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
 
                     final isExpense = tx.type == "EXPENSE";
 
-                    final iconEmoji = CategoryIconMapper.getIcon(
-                      tx.categoryIcon ?? tx.category,
+                    final visual = CategoryVisualResolver.resolve(
+                      categoryName: tx.category,
+                      iconCode: tx.categoryIcon,
+                      colorCode: tx.categoryColor,
                     );
-                    final iconColor = _parseCategoryColor(tx.categoryColor) ??
-                        _categoryColor(tx.category);
 
                     return Column(
                       children: [
@@ -484,12 +484,12 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                   width: 36,
                                   height: 36,
                                   decoration: BoxDecoration(
-                                    color: iconColor.withOpacity(0.12),
+                                    color: visual.color.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
                                     child: Text(
-                                      iconEmoji,
+                                      visual.emoji,
                                       style: const TextStyle(fontSize: 18),
                                     ),
                                   ),
@@ -587,32 +587,4 @@ String _monthName(int month) {
     "Dec",
   ];
   return months[month];
-}
-
-Color _categoryColor(String category) {
-  switch (category.toUpperCase()) {
-    case "FOOD":
-      return Colors.orange;
-    case "SHOPPING":
-      return Colors.redAccent;
-    case "TRANSPORT":
-      return Colors.blueAccent;
-    case "SALARY":
-      return Colors.green;
-    case "ENTERTAINMENT":
-      return Colors.purple;
-    default:
-      return Colors.grey;
-  }
-}
-
-Color? _parseCategoryColor(String? colorCode) {
-  if (colorCode == null || colorCode.isEmpty) return null;
-  final normalized =
-      colorCode.startsWith('#') ? colorCode.substring(1) : colorCode;
-  if (normalized.length != 6) return null;
-
-  final hex = int.tryParse(normalized, radix: 16);
-  if (hex == null) return null;
-  return Color(0xFF000000 | hex);
 }
