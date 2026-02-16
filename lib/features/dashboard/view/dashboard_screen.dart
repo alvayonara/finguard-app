@@ -61,6 +61,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
     await _loadData();
   }
 
+  void _showErrorBottomSheet(BuildContext context, String errorMessage) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 32,
+                color: Colors.red.shade400,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              "Connection Error",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Unable to load dashboard data. Please check your connection and try again.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _loadData();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5E5CE6),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  "Retry",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_checking) {
@@ -78,7 +154,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (vm.error != null) {
-      return Scaffold(body: Center(child: Text(vm.error!)));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorBottomSheet(context, vm.error!);
+      });
+      return const DashboardShimmer();
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
