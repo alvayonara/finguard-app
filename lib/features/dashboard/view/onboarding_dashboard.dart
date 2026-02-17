@@ -1,3 +1,10 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
@@ -6,11 +13,7 @@ import 'package:finguard_app/features/transaction/data/model/create_transaction_
 import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:finguard_app/features/user/data/user_repository.dart';
 import 'package:finguard_app/main_navigation.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
+import 'package:finguard_app/features/auth/viewmodel/auth_viewmodel.dart';
 
 class OnboardingFlowScreen extends StatefulWidget {
   const OnboardingFlowScreen({super.key});
@@ -24,15 +27,11 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   bool isLoading = false;
   String? error;
 
-  final TextEditingController incomeController = TextEditingController(
-    text: "0",
-  );
+  final TextEditingController incomeController = TextEditingController(text: "0");
   final FocusNode incomeFocusNode = FocusNode();
 
   String selectedCurrency = "USD";
-
   final List<String> currencies = ["USD", "EUR", "JPY", "SGD", "IDR"];
-
   final Map<String, String> currencySymbols = {
     "USD": "\$",
     "IDR": "Rp",
@@ -53,7 +52,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   void _next() {
     setState(() => step++);
-
     if (step == 2) {
       Future.delayed(const Duration(milliseconds: 250), () {
         incomeFocusNode.requestFocus();
@@ -69,7 +67,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   Future<void> _finish() async {
     final income = _incomeValue;
-
     if (income == null || income <= 0) {
       setState(() => error = "Income can't be empty");
       return;
@@ -134,16 +131,72 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    try {
+      final googleSignIn = GoogleSignIn();
+      final account = await googleSignIn.signIn();
+      if (account == null) {
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken == null) {
+        setState(() {
+          isLoading = false;
+          error = "Google sign-in failed: No idToken.";
+        });
+        return;
+      }
+
+      final authVM = context.read<AuthViewmodel>();
+      final localStorage = context.read<LocalStorage>();
+      final anonymousId = await localStorage.getAnonymousId();
+
+      final authResponse = await authVM.authRepository.loginWithGoogle(
+        idToken: idToken,
+        anonymousId: anonymousId,
+      );
+
+      await localStorage.saveAuthSession(
+        userUid: authResponse.userUid,
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      setState(() {
+        error = "Google sign-in failed. Please try again.";
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     incomeController.dispose();
     incomeFocusNode.dispose();
     super.dispose();
   }
-
-  // =====================================================
-  // BUILD
-  // =====================================================
 
   @override
   Widget build(BuildContext context) {
@@ -296,7 +349,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: isLoading ? null : _handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5E5CE6),
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -309,9 +362,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                 children: [
                   SvgPicture.asset("assets/image/google_logo.svg", height: 20),
                   const SizedBox(width: 12),
-                  const Text(
-                    "Sign in with Google",
-                    style: TextStyle(
+                  Text(
+                    isLoading ? "Signing in..." : "Sign in with Google",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
