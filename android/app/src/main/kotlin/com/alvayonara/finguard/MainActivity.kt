@@ -1,4 +1,4 @@
-package com.example.finguard_app
+package com.alvayonara.finguard
 
 import io.flutter.embedding.android.FlutterActivity
 
