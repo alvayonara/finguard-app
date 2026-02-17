@@ -7,6 +7,7 @@ import 'package:finguard_app/features/category/data/category_repository.dart';
 import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard_app/features/profile/viewmodel/profile_viewmodel.dart';
 import 'package:finguard_app/features/risk/data/risk_repository.dart';
 import 'package:finguard_app/features/risk/view/risk_detail_screen.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
@@ -78,7 +79,9 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) => ActivityRepository(context.read<ApiClient>()),
         ),
-        Provider(create: (context) => BudgetRepository(context.read<ApiClient>())),
+        Provider(
+          create: (context) => BudgetRepository(context.read<ApiClient>()),
+        ),
 
         // Global App Settings
         ChangeNotifierProvider(create: (_) => settings),
@@ -146,11 +149,15 @@ class FinguardApp extends StatelessWidget {
         ),
 
         ChangeNotifierProxyProvider<BudgetRepository, BudgetViewmodel>(
-          create: (context) => BudgetViewmodel(
-            repository: context.read<BudgetRepository>(),
-          ),
+          create: (context) =>
+              BudgetViewmodel(repository: context.read<BudgetRepository>()),
           update: (_, repo, previous) =>
               previous ?? BudgetViewmodel(repository: repo),
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) =>
+              ProfileViewmodel(),
         ),
       ],
       child: MaterialApp(

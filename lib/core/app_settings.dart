@@ -22,7 +22,7 @@ class AppSettings extends ChangeNotifier {
     final format = NumberFormat.currency(
       locale: _locale.toLanguageTag(),
       symbol: _currencySymbol(_currency),
-      decimalDigits: _decimalDigits(_currency),
+      decimalDigits: 2,
     );
     return format.format(value);
   }
@@ -41,16 +41,6 @@ class AppSettings extends ChangeNotifier {
         return 'S\$ ';
       default:
         return '${code.toUpperCase()} ';
-    }
-  }
-
-  int _decimalDigits(String code) {
-    switch (code.toUpperCase()) {
-      case 'IDR':
-      case 'JPY':
-        return 0;
-      default:
-        return 2;
     }
   }
 }
