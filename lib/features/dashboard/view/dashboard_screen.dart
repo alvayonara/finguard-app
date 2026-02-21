@@ -111,7 +111,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: const Text(
                       "Retry",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -125,7 +128,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     } catch (_) {}
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 14,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),

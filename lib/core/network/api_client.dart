@@ -61,7 +61,8 @@ class ApiClient {
           try {
             await _refreshAccessToken();
 
-            final newToken = _cachedAccessToken ?? await localStorage.getAccessToken();
+            final newToken =
+                _cachedAccessToken ?? await localStorage.getAccessToken();
             if (newToken == null || newToken.isEmpty) {
               return handler.next(error);
             }
@@ -72,8 +73,8 @@ class ApiClient {
             retryHeaders['Authorization'] = 'Bearer $newToken';
             retryHeaders[_retryHeader] = true;
 
-            // Ensure X-User-Uid header is present on retried requests
-            final cachedUserUid = _cachedUserUid ?? await localStorage.getUserUid();
+            final cachedUserUid =
+                _cachedUserUid ?? await localStorage.getUserUid();
             if (cachedUserUid != null && cachedUserUid.isNotEmpty) {
               retryHeaders['X-User-Uid'] = cachedUserUid;
             }
