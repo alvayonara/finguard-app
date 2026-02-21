@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:alice/alice.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
 import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
 import 'package:finguard_app/features/budget/view/budget_screen.dart';
@@ -100,7 +99,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
     );
   }
-
 
   List<Widget> get _screens => [
     const DashboardScreen(),

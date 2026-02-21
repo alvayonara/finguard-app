@@ -11,6 +11,7 @@ import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmode
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
 
 class TransactionDetailScreen extends StatelessWidget {
   const TransactionDetailScreen({super.key});
@@ -151,9 +152,29 @@ class TransactionDetailScreen extends StatelessWidget {
                 : () async {
                     final confirmed = await _showDeleteConfirmation(context);
                     if (confirmed == true && context.mounted) {
-                      await vm.deleteTransaction(tx.id);
-                      if (context.mounted) {
-                        Navigator.pop(context, true);
+                      try {
+                        await vm.deleteTransaction(tx.id);
+                        if (context.mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      } catch (e) {
+                        if (e is StateError &&
+                            e.message.contains('Authentication required')) {
+                          if (context.mounted) {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    OnboardingFlowScreen(key: UniqueKey()),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        }
                       }
                     }
                   },
@@ -246,8 +267,9 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final txVM = context.watch<TransactionViewModel>();
     final categoryVM = context.watch<CategoryViewModel>();
 
-    final categories =
-        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
+    final categories = categoryVM.categories
+        .where((c) => c.type == widget.tx.type)
+        .toList();
 
     return Padding(
       padding: EdgeInsets.only(
@@ -265,7 +287,6 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
           ),
           const SizedBox(height: 24),
 
-          /// AMOUNT
           TextField(
             controller: amountController,
             focusNode: amountFocusNode,
@@ -290,7 +311,6 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
 
           const SizedBox(height: 16),
 
-          /// CATEGORY
           if (categoryVM.isLoading)
             const CircularProgressIndicator()
           else
@@ -298,7 +318,6 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
 
           const SizedBox(height: 28),
 
-          /// SAVE
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -326,14 +345,34 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                         occurredAt: widget.tx.occurredAt,
                       );
 
-                      await txVM.updateTransaction(
-                        id: widget.tx.id,
-                        request: request,
-                      );
+                      try {
+                        await txVM.updateTransaction(
+                          id: widget.tx.id,
+                          request: request,
+                        );
 
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        Navigator.pop(context, true);
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          Navigator.pop(context, true);
+                        }
+                      } catch (e) {
+                        if (e is StateError &&
+                            e.message.contains('Authentication required')) {
+                          if (context.mounted) {
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    OnboardingFlowScreen(key: UniqueKey()),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        }
                       }
                     },
               style: ElevatedButton.styleFrom(

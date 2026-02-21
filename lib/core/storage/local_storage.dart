@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalStorage {
-  static const _anonKey = "anonymous_id";
   static const _userUidKey = "user_uid";
   static const _accessTokenKey = "access_token";
   static const _refreshTokenKey = "refresh_token";
@@ -9,12 +8,7 @@ class LocalStorage {
   static const _currencyKey = "currency";
   static const _onboardingCompletedKey = "onboarding_completed";
   static const _firstLoginCoachmarkPendingKey = "first_login_coachmark_pending";
-
-  Future<void> saveAnonymous(String anonId) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_anonKey, anonId);
-    await prefs.reload();
-  }
+  static const _pendingOnboardingStepKey = "pending_onboarding_step";
 
   Future<void> saveUserUid(String uid) async {
     final prefs = await SharedPreferences.getInstance();
@@ -55,7 +49,6 @@ class LocalStorage {
     await prefs.setString(_currencyKey, currency);
   }
 
-  // getter
   Future<String?> getUserUid() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userUidKey);
@@ -69,11 +62,6 @@ class LocalStorage {
   Future<String?> getRefreshToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_refreshTokenKey);
-  }
-
-  Future<String?> getAnonymousId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_anonKey);
   }
 
   Future<String?> getLanguage() async {
@@ -94,11 +82,29 @@ class LocalStorage {
   Future<void> markOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_onboardingCompletedKey, true);
+    await prefs.reload();
   }
 
   Future<void> markFirstLoginCoachmarkPending() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_firstLoginCoachmarkPendingKey, true);
+  }
+
+  Future<void> setPendingOnboardingStep(int step) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_pendingOnboardingStepKey, step);
+    await prefs.reload();
+  }
+
+  Future<int?> getPendingOnboardingStep() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_pendingOnboardingStepKey);
+  }
+
+  Future<void> clearPendingOnboardingStep() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_pendingOnboardingStepKey);
+    await prefs.reload();
   }
 
   Future<bool> consumeFirstLoginCoachmarkPending() async {
@@ -110,13 +116,10 @@ class LocalStorage {
     return isPending;
   }
 
-  /// Clears authentication session (tokens and userUid)
-  /// IMPORTANT: Does NOT clear anonymousId - this preserves user data
   Future<void> clearAuthSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userUidKey);
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
-    // NOTE: anonymousId is intentionally NOT removed to preserve user data
   }
 }

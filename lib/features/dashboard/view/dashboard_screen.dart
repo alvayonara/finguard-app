@@ -1,4 +1,5 @@
 import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:alice/alice.dart';
 import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -49,18 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _completeOnboarding() async {
-    await LocalStorage().markOnboardingCompleted();
-
-    if (mounted) {
-      setState(() {
-        _showOnboarding = false;
-      });
-    }
-
-    await _loadData();
-  }
-
   void _showErrorBottomSheet(BuildContext context, String errorMessage) {
     showModalBottomSheet(
       context: context,
@@ -90,10 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 20),
             const Text(
               "Connection Error",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Text(
@@ -105,31 +91,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 height: 1.4,
               ),
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _loadData();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5E5CE6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _loadData();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5E5CE6),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "Retry",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
                   ),
-                  elevation: 0,
                 ),
-                child: const Text(
-                  "Retry",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(width: 12),
+                OutlinedButton(
+                  onPressed: () {
+                    // Open Alice inspector without dismissing the sheet
+                    try {
+                      final alice = context.read<Alice>();
+                      alice.showInspector();
+                    } catch (_) {}
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
+                  child: const Text('Inspect'),
                 ),
-              ),
+              ],
             ),
           ],
         ),
@@ -144,7 +147,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (_showOnboarding) {
-      return OnboardingFlowScreen();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => OnboardingFlowScreen(key: UniqueKey()),
+          ),
+        );
+      });
+
+      return const DashboardShimmer();
     }
 
     final vm = context.watch<DashboardViewmodel>();

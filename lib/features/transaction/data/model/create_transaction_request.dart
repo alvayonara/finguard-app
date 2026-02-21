@@ -1,5 +1,3 @@
-import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
-
 class CreateTransactionRequest {
   final String type;
   final double amount;

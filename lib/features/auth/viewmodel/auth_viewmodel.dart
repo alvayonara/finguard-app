@@ -25,12 +25,30 @@ class AuthViewmodel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _initUser();
+      final access = await localStorage.getAccessToken();
+      final refresh = await localStorage.getRefreshToken();
+      final uid = await localStorage.getUserUid();
+
+      if (access == null ||
+          access.isEmpty ||
+          refresh == null ||
+          refresh.isEmpty ||
+          uid == null ||
+          uid.isEmpty) {
+        final fallback = await _resolvePreferences(
+          const UserPreference(language: 'en', currency: 'USD'),
+        );
+        await _applyPreferences(fallback);
+        isBootstrapComplete = true;
+        _setLoading(false);
+        return;
+      }
+
       final remotePref = await userRepository.getPreferences();
       final resolvedPref = await _resolvePreferences(remotePref);
       await _applyPreferences(resolvedPref);
       isBootstrapComplete = true;
     } catch (e) {
-      debugPrint("Bootstrap error: $e");
       final fallback = await _resolvePreferences(
         const UserPreference(language: 'en', currency: 'USD'),
       );
@@ -48,21 +66,7 @@ class AuthViewmodel extends ChangeNotifier {
         existingRefreshToken.isNotEmpty) {
       return;
     }
-
-    final currentAnonymousId = await localStorage.getAnonymousId();
-    final res = await authRepository.createAnonymous(
-      anonymousId: currentAnonymousId,
-    );
-
-    final resolvedAnonymousId = res.anonymousId;
-    if (resolvedAnonymousId != null && resolvedAnonymousId.isNotEmpty) {
-      await localStorage.saveAnonymous(resolvedAnonymousId);
-    }
-    await localStorage.saveAuthSession(
-      userUid: res.userUid,
-      accessToken: res.accessToken,
-      refreshToken: res.refreshToken,
-    );
+    return;
   }
 
   Future<void> _applyPreferences(UserPreference pref) async {

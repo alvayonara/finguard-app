@@ -21,4 +21,8 @@ class UserRepository {
       data: {'currency': currency, 'language': language},
     );
   }
+
+  Future<void> completeOnboarding() async {
+    await apiClient.dio.post('/v1/users/onboarding/complete');
+  }
 }

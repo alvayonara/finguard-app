@@ -18,7 +18,5 @@ class ProfileModel {
     required this.preferredLanguage,
     required this.createdAt,
   });
-
-  bool get isAnonymous => role == "ANONYMOUS";
   bool get isPro => plan == "PRO";
 }

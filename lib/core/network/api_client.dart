@@ -1,7 +1,6 @@
 import 'package:alice/alice.dart';
 import 'package:dio/dio.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:async';
 
 class ApiClient {
@@ -12,7 +11,8 @@ class ApiClient {
   final LocalStorage localStorage;
   final Alice alice;
   Future<void>? _refreshInFlight;
-  Future<void>? _reauthInFlight;
+  String? _cachedAccessToken;
+  String? _cachedUserUid;
 
   ApiClient(this.localStorage, {required this.alice})
     : dio = Dio(
@@ -22,6 +22,7 @@ class ApiClient {
           receiveTimeout: const Duration(seconds: 10),
         ),
       ) {
+    unawaited(_loadCachedSession());
     dio.interceptors.add(alice.getDioInterceptor());
 
     dio.interceptors.add(
@@ -29,24 +30,29 @@ class ApiClient {
         onRequest: (options, handler) async {
           options.headers.remove(_retryHeader);
 
-          final accessToken = await localStorage.getAccessToken();
+          final accessToken =
+              _cachedAccessToken ?? await localStorage.getAccessToken();
           if (accessToken != null && accessToken.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $accessToken';
           }
 
-          final userUid = await localStorage.getUserUid();
+          final userUid = _cachedUserUid ?? await localStorage.getUserUid();
           if (userUid != null) {
-            options.headers['X-USER-UID'] = userUid;
+            options.headers['X-User-Uid'] = userUid;
           }
 
           return handler.next(options);
         },
         onError: (error, handler) async {
           final requestOptions = error.requestOptions;
+          final currentRefreshToken = await localStorage.getRefreshToken();
+          final hasRefresh =
+              currentRefreshToken != null && currentRefreshToken.isNotEmpty;
           final shouldTryRefresh =
               error.response?.statusCode == 401 &&
               requestOptions.headers[_retryHeader] != true &&
-              !_isRefreshRequest(requestOptions);
+              !_isRefreshRequest(requestOptions) &&
+              hasRefresh;
 
           if (!shouldTryRefresh) {
             return handler.next(error);
@@ -55,7 +61,7 @@ class ApiClient {
           try {
             await _refreshAccessToken();
 
-            final newToken = await localStorage.getAccessToken();
+            final newToken = _cachedAccessToken ?? await localStorage.getAccessToken();
             if (newToken == null || newToken.isEmpty) {
               return handler.next(error);
             }
@@ -66,16 +72,37 @@ class ApiClient {
             retryHeaders['Authorization'] = 'Bearer $newToken';
             retryHeaders[_retryHeader] = true;
 
+            // Ensure X-User-Uid header is present on retried requests
+            final cachedUserUid = _cachedUserUid ?? await localStorage.getUserUid();
+            if (cachedUserUid != null && cachedUserUid.isNotEmpty) {
+              retryHeaders['X-User-Uid'] = cachedUserUid;
+            }
+
             final retriedResponse = await dio.fetch(
               requestOptions.copyWith(headers: retryHeaders),
             );
             return handler.resolve(retriedResponse);
           } catch (e) {
+            try {
+              await localStorage.clearAuthSession();
+            } catch (_) {}
             return handler.next(error);
           }
         },
       ),
     );
+  }
+
+  Future<void> _loadCachedSession() async {
+    try {
+      _cachedAccessToken = await localStorage.getAccessToken();
+      _cachedUserUid = await localStorage.getUserUid();
+    } catch (_) {}
+  }
+
+  Future<void> refreshCachedSessionFromStorage() async {
+    _cachedAccessToken = await localStorage.getAccessToken();
+    _cachedUserUid = await localStorage.getUserUid();
   }
 
   bool _isRefreshRequest(RequestOptions requestOptions) {
@@ -121,14 +148,14 @@ class ApiClient {
       final json = refreshResponse.data as Map<String, dynamic>;
       final nextAccessToken = json['accessToken'] as String?;
       final nextRefreshToken = json['refreshToken'] as String?;
-      final userUid = json['userUid'] as String?;
+      final nextUserUid = json['userUid'] as String?;
 
       if (nextAccessToken == null ||
           nextAccessToken.isEmpty ||
           nextRefreshToken == null ||
           nextRefreshToken.isEmpty ||
-          userUid == null ||
-          userUid.isEmpty) {
+          nextUserUid == null ||
+          nextUserUid.isEmpty) {
         throw DioException(
           requestOptions: RequestOptions(path: _refreshPath),
           type: DioExceptionType.badResponse,
@@ -141,76 +168,23 @@ class ApiClient {
       }
 
       await localStorage.saveAuthSession(
-        userUid: userUid,
+        userUid: nextUserUid,
         accessToken: nextAccessToken,
         refreshToken: nextRefreshToken,
       );
 
+      _cachedAccessToken = nextAccessToken;
+      _cachedUserUid = nextUserUid;
+
       completer.complete();
     } catch (error) {
-      // Try to recreate anonymous user as fallback
-      try {
-        await _recreateAnonymousUser();
-        completer.complete();
-      } catch (reauthError) {
-        await localStorage.clearAuthSession();
-        completer.completeError(error);
-        rethrow;
-      }
+      await localStorage.clearAuthSession();
+      _cachedAccessToken = null;
+      _cachedUserUid = null;
+      completer.completeError(error);
+      return;
     } finally {
       _refreshInFlight = null;
-    }
-  }
-
-  Future<void> _recreateAnonymousUser() async {
-    if (_reauthInFlight != null) {
-      return _reauthInFlight;
-    }
-
-    final completer = Completer<void>();
-    _reauthInFlight = completer.future;
-
-    try {
-      final currentAnonymousId = await localStorage.getAnonymousId();
-      final resolvedAnonymousId =
-          (currentAnonymousId != null && currentAnonymousId.isNotEmpty)
-          ? currentAnonymousId
-          : const Uuid().v4();
-
-      final authDio = Dio(
-        BaseOptions(
-          baseUrl: dio.options.baseUrl,
-          connectTimeout: dio.options.connectTimeout,
-          receiveTimeout: dio.options.receiveTimeout,
-        ),
-      );
-
-      final response = await authDio.post(
-        '/v1/users/anonymous',
-        data: {'anonymousId': resolvedAnonymousId},
-      );
-
-      final json = response.data as Map<String, dynamic>;
-      final userUid = json['userUid'] as String;
-      final accessToken = json['accessToken'] as String;
-      final refreshToken = json['refreshToken'] as String;
-      final anonymousId = json['anonymousId'] as String?;
-
-      final finalAnonymousId = anonymousId ?? resolvedAnonymousId;
-      await localStorage.saveAnonymous(finalAnonymousId);
-
-      await localStorage.saveAuthSession(
-        userUid: userUid,
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      );
-
-      completer.complete();
-    } catch (error) {
-      completer.completeError(error);
-      rethrow;
-    } finally {
-      _reauthInFlight = null;
     }
   }
 }

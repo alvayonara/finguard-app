@@ -154,7 +154,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          /// Background subtle ring
           Container(
             width: 110,
             height: 110,
@@ -167,7 +166,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
             ),
           ),
 
-          /// Progress ring
           SizedBox(
             width: 110,
             height: 110,
@@ -179,7 +177,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
             ),
           ),
 
-          /// Inner spacing circle (gives breathing space)
           Container(
             width: 78,
             height: 78,
@@ -202,10 +199,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
       ),
     );
   }
-
-  // =========================================================
-  // RECOMMENDATION SECTION
-  // =========================================================
 
   Widget _buildRecommendation(BuildContext context, String recommendationKey) {
     final recommendation = InsightResolver.resolveRecommendation(
@@ -260,10 +253,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
     );
   }
 
-  // =========================================================
-  // RISK TREND SECTION
-  // =========================================================
-
   Widget _buildRiskTrend(RiskDetailViewmodel vm) {
     return RiskTrendCard(
       data: vm.trendData,
@@ -273,10 +262,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
       trendDirection: vm.getTrendDirection(),
     );
   }
-
-  // =========================================================
-  // INSIGHTS SECTION
-  // =========================================================
 
   Widget _buildInsights(List<RiskInsight> insights) {
     return _card(
@@ -349,10 +334,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
     );
   }
 
-  // =========================================================
-  // SEVERITY BREAKDOWN (FROM SUMMARIES)
-  // =========================================================
-
   Widget _buildSeverityBreakdown(RiskDetailResponse data) {
     int high = 0;
     int medium = 0;
@@ -403,10 +384,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
       ),
     );
   }
-
-  // =========================================================
-  // ACTIVE SIGNAL SUMMARIES (GROUPED)
-  // =========================================================
 
   Widget _buildActiveSignalSummaries(RiskDetailResponse data) {
     return _card(
@@ -499,10 +476,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
     );
   }
 
-  // =========================================================
-  // LEVEL HISTORY
-  // =========================================================
-
   Widget _buildHistoryTimeline(RiskDetailResponse data) {
     return _card(
       child: Column(
@@ -591,8 +564,6 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
       ),
     );
   }
-
-  // =========================================================
 
   Color _severityColor(String severity) {
     if (severity == "HIGH") return Colors.red;

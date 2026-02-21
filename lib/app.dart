@@ -46,7 +46,6 @@ class FinguardApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        // Core
         Provider(create: (_) => LocalStorage()),
         Provider(create: (_) => alice),
         Provider(
@@ -54,7 +53,6 @@ class FinguardApp extends StatelessWidget {
               ApiClient(context.read<LocalStorage>(), alice: alice),
         ),
 
-        // Repositories
         Provider(
           create: (context) => AuthRepository(context.read<ApiClient>()),
         ),
@@ -83,10 +81,7 @@ class FinguardApp extends StatelessWidget {
           create: (context) => BudgetRepository(context.read<ApiClient>()),
         ),
 
-        // Global App Settings
         ChangeNotifierProvider(create: (_) => settings),
-
-        // Auth ViewModel
         ChangeNotifierProxyProvider4<
           AuthRepository,
           UserRepository,
@@ -103,8 +98,6 @@ class FinguardApp extends StatelessWidget {
           update: (context, authRepo, userRepo, storage, settings, previous) =>
               previous ?? AuthViewmodel(authRepo, userRepo, storage, settings),
         ),
-
-        // Dashboard ViewModel
         ChangeNotifierProxyProvider<DashboardRepository, DashboardViewmodel>(
           create: (context) => DashboardViewmodel(
             dashboardRepository: context.read<DashboardRepository>(),
@@ -117,27 +110,29 @@ class FinguardApp extends StatelessWidget {
               RiskTrendViewmodel(context.read<RiskRepository>()),
           update: (_, repo, previous) => previous ?? RiskTrendViewmodel(repo),
         ),
-
-        // Risk detail ViewModel
         ChangeNotifierProvider(
           create: (context) =>
               RiskDetailViewmodel(repository: context.read<RiskRepository>()),
         ),
-
-        // Category ViewModel
         ChangeNotifierProxyProvider<CategoryRepository, CategoryViewModel>(
           create: (context) =>
               CategoryViewModel(context.read<CategoryRepository>()),
           update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
         ),
 
-        ChangeNotifierProxyProvider<
+        ChangeNotifierProxyProvider3<
           TransactionRepository,
+          AuthRepository,
+          LocalStorage,
           TransactionViewModel
         >(
-          create: (context) =>
-              TransactionViewModel(context.read<TransactionRepository>()),
-          update: (_, repo, previous) => previous ?? TransactionViewModel(repo),
+          create: (context) => TransactionViewModel(
+            context.read<TransactionRepository>(),
+            context.read<AuthRepository>(),
+            context.read<LocalStorage>(),
+          ),
+          update: (context, repo, authRepo, storage, previous) =>
+              previous ?? TransactionViewModel(repo, authRepo, storage),
         ),
 
         ChangeNotifierProxyProvider<ActivityRepository, ActivityViewmodel>(
@@ -155,10 +150,7 @@ class FinguardApp extends StatelessWidget {
               previous ?? BudgetViewmodel(repository: repo),
         ),
 
-        ChangeNotifierProvider(
-          create: (context) =>
-              ProfileViewmodel(),
-        ),
+        ChangeNotifierProvider(create: (context) => ProfileViewmodel()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -221,6 +213,7 @@ class _RootDeciderState extends State<_RootDecider> {
   bool? isOnboardingCompleted;
   bool isBootstrapping = true;
   bool _hasInitialized = false;
+  int? onboardingInitialStep;
 
   @override
   void initState() {
@@ -245,10 +238,12 @@ class _RootDeciderState extends State<_RootDecider> {
     }
 
     final completed = await storage.isOnboardingCompleted();
+    final pendingStep = await storage.getPendingOnboardingStep();
 
     if (mounted) {
       setState(() {
         isOnboardingCompleted = completed;
+        onboardingInitialStep = pendingStep;
         isBootstrapping = false;
       });
     }
@@ -261,7 +256,7 @@ class _RootDeciderState extends State<_RootDecider> {
     }
 
     if (!isOnboardingCompleted!) {
-      return const OnboardingFlowScreen();
+      return OnboardingFlowScreen(initialStep: onboardingInitialStep ?? 0);
     }
 
     return const MainNavigationScreen();

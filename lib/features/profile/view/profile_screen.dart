@@ -1,4 +1,3 @@
-import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/features/profile/viewmodel/profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildHeader(profile),
         const SizedBox(height: 20),
 
-        if (!profile.isAnonymous && !profile.isPro) _buildUpgradeCard(),
+        if (!profile.isPro) _buildUpgradeCard(),
 
         _sectionCard(
           title: "Preferences",
@@ -60,18 +59,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         const SizedBox(height: 20),
 
-        if (!profile.isAnonymous)
-          _sectionCard(
-            title: "Account",
-            children: [
-              _tile("Email", profile.email ?? "-"),
-              _actionTile("Sign out", Colors.red, () {
-                vm.signOut();
-              }),
-            ],
-          ),
-
-        if (profile.isAnonymous) _buildGuestCard(),
+        _sectionCard(
+          title: "Account",
+          children: [
+            _tile("Email", profile.email ?? "-"),
+            _actionTile("Sign out", Colors.red, () {
+              vm.signOut();
+            }),
+          ],
+        ),
       ],
     );
   }
@@ -96,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             radius: 28,
             backgroundColor: const Color(0xFF5E5CE6),
             child: Text(
-              profile.isAnonymous ? "G" : profile.name?.substring(0, 1) ?? "U",
+              profile.name?.substring(0, 1) ?? "U",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -110,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  profile.isAnonymous ? "Guest Mode" : profile.name ?? "User",
+                  profile.name ?? "User",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -118,9 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  profile.isAnonymous
-                      ? "Stored locally on this device"
-                      : profile.email ?? "",
+                  profile.email ?? "",
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],

@@ -75,13 +75,10 @@ class DashboardViewmodel extends ChangeNotifier {
       return false;
     }
 
-    // Ideal path: compare to known previous value.
     if (previousLastDetectedAt != null && previousLastDetectedAt.isNotEmpty) {
       return latestLastDetectedAt != previousLastDetectedAt;
     }
 
-    // Fallback path when previous value is unavailable:
-    // consider "fresh" only if latest timestamp is near/after mutation time.
     if (mutationTriggeredAt != null) {
       final latestParsed = DateTime.tryParse(latestLastDetectedAt);
       if (latestParsed == null) return false;

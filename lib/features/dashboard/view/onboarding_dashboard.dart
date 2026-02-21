@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,20 +13,25 @@ import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmode
 import 'package:finguard_app/features/user/data/user_repository.dart';
 import 'package:finguard_app/main_navigation.dart';
 import 'package:finguard_app/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:finguard_app/core/network/api_client.dart';
 
 class OnboardingFlowScreen extends StatefulWidget {
-  const OnboardingFlowScreen({super.key});
+  final int initialStep;
+
+  const OnboardingFlowScreen({super.key, this.initialStep = 0});
 
   @override
   State<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
 }
 
 class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
-  int step = 0;
+  late int step;
   bool isLoading = false;
   String? error;
 
-  final TextEditingController incomeController = TextEditingController(text: "0");
+  final TextEditingController incomeController = TextEditingController(
+    text: "0",
+  );
   final FocusNode incomeFocusNode = FocusNode();
 
   String selectedCurrency = "USD";
@@ -107,6 +111,10 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         );
       } catch (_) {}
 
+      try {
+        await userRepo.completeOnboarding();
+      } catch (_) {}
+
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
@@ -127,7 +135,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           error = "Failed to save income. Please try again.";
         }
       });
-      debugPrint("Onboarding finish error: $e");
     }
   }
 
@@ -138,6 +145,10 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     });
 
     try {
+      final authVM = context.read<AuthViewmodel>();
+      final localStorage = context.read<LocalStorage>();
+      final userRepo = context.read<UserRepository>();
+
       final googleSignIn = GoogleSignIn();
       final account = await googleSignIn.signIn();
       if (account == null) {
@@ -157,13 +168,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         return;
       }
 
-      final authVM = context.read<AuthViewmodel>();
-      final localStorage = context.read<LocalStorage>();
-      final anonymousId = await localStorage.getAnonymousId();
-
       final authResponse = await authVM.authRepository.loginWithGoogle(
         idToken: idToken,
-        anonymousId: anonymousId,
       );
 
       await localStorage.saveAuthSession(
@@ -172,6 +178,37 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         refreshToken: authResponse.refreshToken,
       );
 
+      try {
+        await context.read<ApiClient>().refreshCachedSessionFromStorage();
+      } catch (_) {}
+
+      if (!authResponse.onboardingCompleted) {
+        if (!authResponse.initialIncomeSet) {
+          await localStorage.setPendingOnboardingStep(2);
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) =>
+                  OnboardingFlowScreen(key: UniqueKey(), initialStep: 2),
+            ),
+            (route) => false,
+          );
+          return;
+        } else {
+          try {
+            await userRepo.completeOnboarding();
+          } catch (_) {}
+
+          await localStorage.markOnboardingCompleted();
+          if (!mounted) return;
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+            (route) => false,
+          );
+          return;
+        }
+      }
+
+      await localStorage.markOnboardingCompleted();
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
@@ -196,6 +233,29 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     incomeController.dispose();
     incomeFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    step = widget.initialStep;
+    if (step == 0) {
+      Future.microtask(() async {
+        final storage = LocalStorage();
+        final pending = await storage.getPendingOnboardingStep();
+
+        if (pending != null && pending > 0 && mounted) {
+          setState(() => step = pending);
+          await storage.clearPendingOnboardingStep();
+        }
+      });
+    }
+    if (widget.initialStep > 0) {
+      Future.microtask(() async {
+        final storage = LocalStorage();
+        await storage.clearPendingOnboardingStep();
+      });
+    }
   }
 
   @override
@@ -265,10 +325,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     );
   }
 
-  // =====================================================
-  // STEP 1
-  // =====================================================
-
   Widget _intro() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,10 +374,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       ],
     );
   }
-
-  // =====================================================
-  // STEP 2
-  // =====================================================
 
   Widget _login() {
     return SingleChildScrollView(
@@ -376,25 +428,15 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           ),
           const SizedBox(height: 20),
           Center(
-            child: GestureDetector(
-              onTap: _next,
-              child: const Text(
-                "Continue as guest",
-                style: TextStyle(
-                  color: Colors.black54,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+            child: Text(
+              "Sign in is required to continue",
+              style: TextStyle(color: Colors.black54),
             ),
           ),
         ],
       ),
     );
   }
-
-  // =====================================================
-  // STEP 3
-  // =====================================================
 
   Widget _income() {
     return SingleChildScrollView(
@@ -532,13 +574,10 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           const SizedBox(height: 16),
           Center(
             child: TextButton(
-              onPressed: isLoading ? null : _skipOnboarding,
+              onPressed: null,
               child: const Text(
-                "Skip this step",
-                style: TextStyle(
-                  color: Colors.black54,
-                  decoration: TextDecoration.underline,
-                ),
+                "This step is required",
+                style: TextStyle(color: Colors.black54),
               ),
             ),
           ),
@@ -558,29 +597,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _skipOnboarding() async {
-    final settings = context.read<AppSettings>();
-    final storage = LocalStorage();
-    final userRepo = context.read<UserRepository>();
-
-    await storage.saveCurrency(selectedCurrency);
-    await storage.markOnboardingCompleted();
-    settings.setCurrency(selectedCurrency);
-    try {
-      await userRepo.updatePreferences(
-        selectedCurrency,
-        settings.locale.languageCode,
-      );
-    } catch (_) {}
-
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
-        (route) => false,
-      );
-    }
   }
 
   Widget _primaryButton(String label, VoidCallback? onPressed) {

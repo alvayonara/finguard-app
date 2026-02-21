@@ -2,13 +2,17 @@ import 'package:finguard_app/features/transaction/data/model/create_transaction_
 import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
 import 'package:finguard_app/features/transaction/data/transaction_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:finguard_app/features/auth/data/auth_repository.dart';
+import 'package:finguard_app/core/storage/local_storage.dart';
 
 class TransactionViewModel extends ChangeNotifier {
   final TransactionRepository repository;
+  final AuthRepository authRepository;
+  final LocalStorage localStorage;
 
   bool isLoading = false;
 
-  TransactionViewModel(this.repository);
+  TransactionViewModel(this.repository, this.authRepository, this.localStorage);
 
   Future<void> createTransaction({
     required CreateTransactionRequest request,
@@ -16,6 +20,13 @@ class TransactionViewModel extends ChangeNotifier {
     try {
       isLoading = true;
       notifyListeners();
+      final existingId = await localStorage.getUserUid();
+      final existingRefreshToken = await localStorage.getRefreshToken();
+      if (existingId == null ||
+          existingRefreshToken == null ||
+          existingRefreshToken.isEmpty) {
+        throw StateError('Authentication required');
+      }
 
       await repository.createTransaction(request);
     } finally {

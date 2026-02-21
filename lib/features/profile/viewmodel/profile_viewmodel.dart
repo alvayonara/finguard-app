@@ -18,7 +18,7 @@ class ProfileViewmodel extends ChangeNotifier {
         userUid: "USR_123",
         name: "Alva Yonara",
         email: "alva@email.com",
-        role: "ANONYMOUS",
+        role: "USER",
         plan: "FREE",
         preferredCurrency: "USD",
         preferredLanguage: "en",

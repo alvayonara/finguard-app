@@ -201,8 +201,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
           if (timelineIndex < vm.items.length) {
             final item = vm.items[timelineIndex];
-
-            // If it's a date header, collect all items for this date group
             if (item is ActivityDateHeader) {
               final groupItems = _collectGroupItems(vm.items, timelineIndex);
               final isLastGroup = _isLastGroup(
@@ -224,7 +222,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ],
               );
             }
-            // Skip non-header items as they're already included in the group card
             return const SizedBox.shrink();
           }
 
@@ -239,11 +236,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
     int headerIndex,
   ) {
     final groupItems = <ActivityItem>[];
-
-    // Start from the item after the header
     for (int i = headerIndex + 1; i < items.length; i++) {
       final item = items[i];
-      // Stop when we hit the next header
       if (item is ActivityDateHeader) {
         break;
       }
@@ -254,11 +248,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   bool _isLastGroup(List<ActivityItem> items, int headerIndex, int groupSize) {
-    // Check if this is the last group by seeing if there's another header after this group
     final nextIndex = headerIndex + groupSize + 1;
     if (nextIndex >= items.length) return true;
-
-    // Check if there's another date header after this group
     for (int i = nextIndex; i < items.length; i++) {
       if (items[i] is ActivityDateHeader) {
         return false;

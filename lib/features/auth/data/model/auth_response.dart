@@ -3,14 +3,18 @@ class AuthResponse {
   final String refreshToken;
   final String userUid;
   final List<String> roles;
-  final String? anonymousId;
+  final String? plan;
+  final bool onboardingCompleted;
+  final bool initialIncomeSet;
 
   AuthResponse({
     required this.accessToken,
     required this.refreshToken,
     required this.userUid,
     required this.roles,
-    this.anonymousId,
+    this.plan,
+    this.onboardingCompleted = false,
+    this.initialIncomeSet = false,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
@@ -19,6 +23,9 @@ class AuthResponse {
       refreshToken: json['refreshToken'],
       userUid: json['userUid'],
       roles: (json['roles'] as List<dynamic>? ?? []).cast<String>(),
+      plan: json['plan'] as String?,
+      onboardingCompleted: json['onboardingCompleted'] == true,
+      initialIncomeSet: json['initialIncomeSet'] == true,
     );
   }
 
@@ -27,14 +34,18 @@ class AuthResponse {
     String? refreshToken,
     String? userUid,
     List<String>? roles,
-    String? anonymousId,
+    String? plan,
+    bool? onboardingCompleted,
+    bool? initialIncomeSet,
   }) {
     return AuthResponse(
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
       userUid: userUid ?? this.userUid,
       roles: roles ?? this.roles,
-      anonymousId: anonymousId ?? this.anonymousId,
+      plan: plan ?? this.plan,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      initialIncomeSet: initialIncomeSet ?? this.initialIncomeSet,
     );
   }
 }

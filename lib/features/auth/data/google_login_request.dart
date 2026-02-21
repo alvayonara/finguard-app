@@ -1,11 +1,7 @@
 class GoogleLoginRequest {
   final String idToken;
-  final String? anonymousId;
 
-  GoogleLoginRequest({required this.idToken, this.anonymousId});
+  GoogleLoginRequest({required this.idToken});
 
-  Map<String, dynamic> toJson() => {
-        'idToken': idToken,
-        if (anonymousId != null) 'anonymousId': anonymousId,
-      };
+  Map<String, dynamic> toJson() => {'idToken': idToken};
 }

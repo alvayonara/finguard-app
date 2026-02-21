@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -73,13 +74,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       await context.read<TransactionViewModel>().createTransaction(
-            request: request,
-          );
+        request: request,
+      );
 
       if (mounted) {
         Navigator.pop(context, true);
       }
     } catch (e) {
+      if (e is StateError && e.message.contains('Authentication required')) {
+        if (mounted) {
+          // Navigate to onboarding/login flow
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => OnboardingFlowScreen(key: UniqueKey()),
+            ),
+          );
+        }
+        return;
+      }
       if (mounted) {
         _showError(e.toString());
       }
@@ -496,18 +508,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           onLongPress: category.isDefault
               ? null
               : () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => CategoryPickerScreen(
-                        title: "Manage Categories",
-                        categoryType: _selectedType,
-                        selectedCategoryId: category.id,
-                      ),
-                    ),
-                  ).then((_) {
-                    // Reload categories after returning from picker
-                    context.read<CategoryViewModel>().load();
-                  });
+                  Navigator.of(context)
+                      .push(
+                        MaterialPageRoute(
+                          builder: (_) => CategoryPickerScreen(
+                            title: "Manage Categories",
+                            categoryType: _selectedType,
+                            selectedCategoryId: category.id,
+                          ),
+                        ),
+                      )
+                      .then((_) {
+                        // Reload categories after returning from picker
+                        context.read<CategoryViewModel>().load();
+                      });
                 },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -515,8 +529,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color:
-                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
+                color: isSelected
+                    ? const Color(0xFF5E5CE6)
+                    : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -555,8 +570,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         category.name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF5E5CE6)
                               : Colors.black,
@@ -667,7 +683,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: isLoading ? null : () => Navigator.pop(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -689,7 +707,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade700,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -705,7 +727,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                               icon: const Icon(Icons.close, size: 16),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              onPressed: () => setModalState(() => errorMessage = null),
+                              onPressed: () =>
+                                  setModalState(() => errorMessage = null),
                             ),
                           ],
                         ),
@@ -756,10 +779,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 6,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];
@@ -777,25 +800,25 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                           child: Opacity(
                             opacity: isLoading ? 0.5 : 1.0,
                             child: Container(
-                            decoration: BoxDecoration(
-                              color: isEmojiSelected
-                                  ? const Color(0xFF5E5CE6).withOpacity(0.1)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                              decoration: BoxDecoration(
                                 color: isEmojiSelected
-                                    ? const Color(0xFF5E5CE6)
-                                    : Colors.transparent,
-                                width: 2,
+                                    ? const Color(0xFF5E5CE6).withOpacity(0.1)
+                                    : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isEmojiSelected
+                                      ? const Color(0xFF5E5CE6)
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  emoji,
+                                  style: const TextStyle(fontSize: 28),
+                                ),
                               ),
                             ),
-                            child: Center(
-                              child: Text(
-                                emoji,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                            ),
-                          ),
                           ),
                         );
                       },
@@ -885,7 +908,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -912,8 +937,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (error is CategoryNotFoundException) {
       return error.toString();
     }
-
-    // For other exceptions, extract the message
     final errorStr = error.toString();
     final cleanError = errorStr.replaceFirst('Exception: ', '');
     return cleanError.isEmpty ? 'Failed to create category' : cleanError;

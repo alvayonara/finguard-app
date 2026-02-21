@@ -76,22 +76,17 @@ class ActivityViewmodel extends ChangeNotifier {
     final List<ActivityItem> result = [];
     final Map<String, List<ActivityItem>> grouped = {};
 
-    // Group items by date label
     for (final item in activityItems) {
       final group = _getDateGroup(item.displayDate);
       grouped.putIfAbsent(group, () => []);
       grouped[group]!.add(item);
     }
 
-    // Convert to flat list with headers and grouped items
     for (final entry in grouped.entries) {
       final label = entry.key;
       final items = entry.value;
 
-      // Add header
       result.add(ActivityDateHeader(label, items.first.displayDate));
-
-      // Add all items for this date (they will be rendered in a single card)
       result.addAll(items);
     }
 
