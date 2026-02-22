@@ -581,6 +581,8 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                           onTap: () async {
                             final dashboardVM =
                                 context.read<DashboardViewmodel>();
+                            final previousLastDetectedAt = dashboardVM
+                                .dashboardData?.financialHealth?.lastDetectedAt;
                             final model = TransactionModel(
                               id: tx.id,
                               type: tx.type,
@@ -597,7 +599,10 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                             );
 
                             if (!mounted || result != true) return;
-                            await dashboardVM.loadDashboard(showLoading: false);
+                            await dashboardVM.refreshFinancialHealthWithPolling(
+                              previousLastDetectedAt: previousLastDetectedAt,
+                              mutationTriggeredAt: DateTime.now(),
+                            );
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -715,12 +720,17 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
           ElevatedButton(
             onPressed: () async {
               final dashboardVM = context.read<DashboardViewmodel>();
+              final previousLastDetectedAt =
+                  dashboardVM.dashboardData?.financialHealth?.lastDetectedAt;
               final created = await Navigator.pushNamed(
                 context,
                 '/create-transaction',
               );
               if (!mounted || created != true) return;
-              await dashboardVM.loadDashboard(showLoading: false);
+              await dashboardVM.refreshFinancialHealthWithPolling(
+                previousLastDetectedAt: previousLastDetectedAt,
+                mutationTriggeredAt: DateTime.now(),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF5E5CE6),
