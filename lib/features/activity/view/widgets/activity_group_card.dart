@@ -1,10 +1,10 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/ui/bounce_wrapper.dart';
-import 'package:finguard_app/core/utils/category_visual_resolver.dart';
-import 'package:finguard_app/core/utils/currency_formatter.dart';
-import 'package:finguard_app/features/activity/data/model/activity_item.dart';
-import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
-import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/bounce_wrapper.dart';
+import 'package:finguard/core/utils/category_visual_resolver.dart';
+import 'package:finguard/core/utils/currency_formatter.dart';
+import 'package:finguard/features/activity/data/model/activity_item.dart';
+import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard/features/transaction/data/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

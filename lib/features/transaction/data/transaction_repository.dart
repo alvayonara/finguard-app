@@ -1,6 +1,6 @@
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
-import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/transaction/data/model/create_transaction_request.dart';
+import 'package:finguard/features/transaction/data/model/update_transaction_request.dart';
 
 class TransactionRepository {
   final ApiClient apiClient;

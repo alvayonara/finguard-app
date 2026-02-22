@@ -1,18 +1,18 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
-import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
-import 'package:finguard_app/core/utils/currency_formatter.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
-import 'package:finguard_app/features/category/data/model/category_model.dart';
-import 'package:finguard_app/features/category/view/category_picker_screen.dart';
-import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
-import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
-import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
-import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
+import 'package:finguard/core/utils/thousand_separator_formatter.dart';
+import 'package:finguard/core/utils/currency_formatter.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
+import 'package:finguard/features/category/data/model/category_model.dart';
+import 'package:finguard/features/category/view/category_picker_screen.dart';
+import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard/features/transaction/data/model/transaction_model.dart';
+import 'package:finguard/features/transaction/data/model/update_transaction_request.dart';
+import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
+import 'package:finguard/features/dashboard/view/onboarding_dashboard.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
   const TransactionDetailScreen({super.key});
@@ -303,11 +303,13 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final categoryVM = context.watch<CategoryViewModel>();
     final settings = context.watch<AppSettings>();
 
-    final categories =
-        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
+    final categories = categoryVM.categories
+        .where((c) => c.type == widget.tx.type)
+        .toList();
     final cleanAmount = amountController.text.replaceAll(',', '');
     final parsedAmount = double.tryParse(cleanAmount);
-    final canSubmit = !txVM.isLoading &&
+    final canSubmit =
+        !txVM.isLoading &&
         selectedCategoryId != null &&
         parsedAmount != null &&
         parsedAmount > 0;

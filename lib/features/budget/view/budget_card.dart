@@ -1,6 +1,6 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/utils/currency_formatter.dart';
-import 'package:finguard_app/features/budget/data/model/budget_usage_model.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/utils/currency_formatter.dart';
+import 'package:finguard/features/budget/data/model/budget_usage_model.dart';
 import 'package:flutter/material.dart';
 
 class BudgetCard extends StatelessWidget {
@@ -55,10 +55,7 @@ class BudgetCard extends StatelessWidget {
           /// Category
           Text(
             budget.category,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Row(
@@ -126,11 +123,7 @@ class BudgetCard extends StatelessWidget {
               Text(
                 isOver
                     ? "Over budget"
-                    : "Remaining: ${CurrencyFormatter.format(
-                        amount: budget.remaining,
-                        currencyCode: settings.currency,
-                        locale: settings.locale.languageCode,
-                      )}",
+                    : "Remaining: ${CurrencyFormatter.format(amount: budget.remaining, currencyCode: settings.currency, locale: settings.locale.languageCode)}",
                 style: TextStyle(
                   fontSize: 12,
                   color: isOver ? Colors.red : Colors.grey,

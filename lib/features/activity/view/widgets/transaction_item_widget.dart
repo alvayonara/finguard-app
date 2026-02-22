@@ -1,5 +1,5 @@
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
-import 'package:finguard_app/features/activity/data/model/activity_item.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
+import 'package:finguard/features/activity/data/model/activity_item.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

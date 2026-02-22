@@ -1,7 +1,7 @@
-import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard/core/storage/local_storage.dart';
 import 'package:alice/alice.dart';
-import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
-import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

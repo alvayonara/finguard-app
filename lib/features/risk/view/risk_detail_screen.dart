@@ -1,8 +1,8 @@
-import 'package:finguard_app/core/utils/insight_resolver.dart';
-import 'package:finguard_app/features/risk/data/model/risk_detail_response.dart';
-import 'package:finguard_app/features/risk/data/model/risk_insight.dart';
-import 'package:finguard_app/features/risk/viewmodel/risk_detail_viewmodel.dart';
-import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
+import 'package:finguard/core/utils/insight_resolver.dart';
+import 'package:finguard/features/risk/data/model/risk_detail_response.dart';
+import 'package:finguard/features/risk/data/model/risk_insight.dart';
+import 'package:finguard/features/risk/viewmodel/risk_detail_viewmodel.dart';
+import 'package:finguard/features/risk/view/widget/risk_trend_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -573,9 +573,14 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
   }
 
   String _formatSignalType(String signalType) {
-    return signalType.replaceAll('_', ' ').toLowerCase().split(' ').map((word) {
-      return word[0].toUpperCase() + word.substring(1);
-    }).join(' ');
+    return signalType
+        .replaceAll('_', ' ')
+        .toLowerCase()
+        .split(' ')
+        .map((word) {
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join(' ');
   }
 
   String _formatTimestamp(String timestamp) {

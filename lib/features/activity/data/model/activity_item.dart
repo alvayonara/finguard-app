@@ -1,4 +1,4 @@
-import 'package:finguard_app/features/activity/data/model/category_info.dart';
+import 'package:finguard/features/activity/data/model/category_info.dart';
 
 sealed class ActivityItem {
   final DateTime timestamp;

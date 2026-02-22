@@ -1,8 +1,8 @@
-import 'package:finguard_app/features/user/data/model/user_preference.dart';
-import 'package:finguard_app/features/user/data/user_repository.dart';
+import 'package:finguard/features/user/data/model/user_preference.dart';
+import 'package:finguard/features/user/data/user_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:finguard_app/core/storage/local_storage.dart';
-import 'package:finguard_app/core/app_settings.dart';
+import 'package:finguard/core/storage/local_storage.dart';
+import 'package:finguard/core/app_settings.dart';
 import '../data/auth_repository.dart';
 
 class AuthViewmodel extends ChangeNotifier {

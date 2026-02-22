@@ -1,5 +1,5 @@
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/auth/data/model/auth_response.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/auth/data/model/auth_response.dart';
 import 'package:uuid/uuid.dart';
 
 import 'google_login_request.dart';

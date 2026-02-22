@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:finguard_app/app.dart';
+import 'package:finguard/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 

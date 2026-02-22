@@ -1,18 +1,18 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
-import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
-import 'package:finguard_app/features/category/data/category_repository.dart';
-import 'package:finguard_app/features/category/data/model/category_model.dart';
-import 'package:finguard_app/features/category/view/category_picker_screen.dart';
-import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
-import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
-import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
+import 'package:finguard/core/utils/thousand_separator_formatter.dart';
+import 'package:finguard/features/category/data/category_repository.dart';
+import 'package:finguard/features/category/data/model/category_model.dart';
+import 'package:finguard/features/category/view/category_picker_screen.dart';
+import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard/features/transaction/data/model/create_transaction_request.dart';
+import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard_app/features/dashboard/view/onboarding_dashboard.dart';
+import 'package:finguard/features/dashboard/view/onboarding_dashboard.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -75,8 +75,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       await context.read<TransactionViewModel>().createTransaction(
-            request: request,
-          );
+        request: request,
+      );
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -511,18 +511,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               : () {
                   Navigator.of(context)
                       .push(
-                    MaterialPageRoute(
-                      builder: (_) => CategoryPickerScreen(
-                        title: "Manage Categories",
-                        categoryType: _selectedType,
-                        selectedCategoryId: category.id,
-                      ),
-                    ),
-                  )
+                        MaterialPageRoute(
+                          builder: (_) => CategoryPickerScreen(
+                            title: "Manage Categories",
+                            categoryType: _selectedType,
+                            selectedCategoryId: category.id,
+                          ),
+                        ),
+                      )
                       .then((_) {
-                    // Reload categories after returning from picker
-                    context.read<CategoryViewModel>().load();
-                  });
+                        // Reload categories after returning from picker
+                        context.read<CategoryViewModel>().load();
+                      });
                 },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -530,8 +530,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color:
-                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
+                color: isSelected
+                    ? const Color(0xFF5E5CE6)
+                    : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -570,8 +571,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         category.name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF5E5CE6)
                               : Colors.black,
@@ -682,8 +684,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed:
-                          isLoading ? null : () => Navigator.pop(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -777,10 +780,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 6,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];

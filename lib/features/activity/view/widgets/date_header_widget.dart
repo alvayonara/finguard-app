@@ -1,4 +1,4 @@
-import 'package:finguard_app/features/activity/data/model/activity_item.dart';
+import 'package:finguard/features/activity/data/model/activity_item.dart';
 import 'package:flutter/material.dart';
 
 class DateHeaderWidget extends StatelessWidget {

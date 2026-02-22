@@ -1,7 +1,7 @@
-import 'package:finguard_app/features/risk/data/model/risk_detail_response.dart';
-import 'package:finguard_app/features/risk/data/model/risk_insight.dart';
-import 'package:finguard_app/features/risk/data/model/risk_trend_item.dart';
-import 'package:finguard_app/features/risk/data/risk_repository.dart';
+import 'package:finguard/features/risk/data/model/risk_detail_response.dart';
+import 'package:finguard/features/risk/data/model/risk_insight.dart';
+import 'package:finguard/features/risk/data/model/risk_trend_item.dart';
+import 'package:finguard/features/risk/data/risk_repository.dart';
 import 'package:flutter/foundation.dart';
 
 class RiskDetailViewmodel extends ChangeNotifier {

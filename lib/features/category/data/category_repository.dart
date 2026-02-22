@@ -1,4 +1,4 @@
-import 'package:finguard_app/core/network/api_client.dart';
+import 'package:finguard/core/network/api_client.dart';
 import 'package:dio/dio.dart';
 import 'model/category_model.dart';
 import 'model/category_request.dart';

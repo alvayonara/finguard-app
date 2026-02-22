@@ -1,4 +1,4 @@
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
 import 'package:flutter/material.dart';
 
 class CategoryVisual {
@@ -25,8 +25,9 @@ class CategoryVisualResolver {
 
   static Color? _parseColorCode(String? colorCode) {
     if (colorCode == null || colorCode.isEmpty) return null;
-    final normalized =
-        colorCode.startsWith('#') ? colorCode.substring(1) : colorCode;
+    final normalized = colorCode.startsWith('#')
+        ? colorCode.substring(1)
+        : colorCode;
     if (normalized.length != 6) return null;
 
     final hex = int.tryParse(normalized, radix: 16);

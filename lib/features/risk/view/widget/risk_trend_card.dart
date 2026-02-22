@@ -1,4 +1,4 @@
-import 'package:finguard_app/features/risk/data/model/risk_trend_item.dart';
+import 'package:finguard/features/risk/data/model/risk_trend_item.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 

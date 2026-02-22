@@ -1,9 +1,9 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/features/activity/data/model/activity_item.dart';
-import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
-import 'package:finguard_app/features/activity/view/widgets/insight_card_widget.dart';
-import 'package:finguard_app/features/activity/view/widgets/date_header_widget.dart';
-import 'package:finguard_app/features/activity/view/widgets/activity_group_card.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/features/activity/data/model/activity_item.dart';
+import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard/features/activity/view/widgets/insight_card_widget.dart';
+import 'package:finguard/features/activity/view/widgets/date_header_widget.dart';
+import 'package:finguard/features/activity/view/widgets/activity_group_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

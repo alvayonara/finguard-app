@@ -1,6 +1,6 @@
-import 'package:finguard_app/features/activity/data/activity_repository.dart';
-import 'package:finguard_app/features/activity/data/model/activity_item.dart';
-import 'package:finguard_app/features/activity/data/model/insight_card.dart';
+import 'package:finguard/features/activity/data/activity_repository.dart';
+import 'package:finguard/features/activity/data/model/activity_item.dart';
+import 'package:finguard/features/activity/data/model/insight_card.dart';
 import 'package:flutter/material.dart';
 
 class ActivityViewmodel extends ChangeNotifier {

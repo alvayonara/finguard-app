@@ -1,14 +1,14 @@
 import 'dart:ui';
-import 'package:finguard_app/core/storage/local_storage.dart';
-import 'package:finguard_app/features/activity/viewmodel/activity_viewmodel.dart';
-import 'package:finguard_app/features/budget/view/budget_screen.dart';
-import 'package:finguard_app/features/profile/view/profile_screen.dart';
+import 'package:finguard/core/storage/local_storage.dart';
+import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard/features/budget/view/budget_screen.dart';
+import 'package:finguard/features/profile/view/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:finguard_app/features/activity/view/activity_screen.dart';
-import 'package:finguard_app/features/dashboard/view/dashboard_screen.dart';
-import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
-import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard/features/activity/view/activity_screen.dart';
+import 'package:finguard/features/dashboard/view/dashboard_screen.dart';
+import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {

@@ -1,4 +1,4 @@
-import 'package:finguard_app/core/ui/app_colors.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppCard extends StatelessWidget {

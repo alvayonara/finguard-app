@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:finguard_app/l10n/app_localizations.dart';
+import 'package:finguard/l10n/app_localizations.dart';
 
 class InsightResolver {
   static String resolveInsight(

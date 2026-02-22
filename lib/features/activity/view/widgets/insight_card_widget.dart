@@ -1,5 +1,5 @@
-import 'package:finguard_app/features/activity/data/model/insight_card.dart';
-import 'package:finguard_app/core/utils/insight_resolver.dart';
+import 'package:finguard/features/activity/data/model/insight_card.dart';
+import 'package:finguard/core/utils/insight_resolver.dart';
 import 'package:flutter/material.dart';
 
 class InsightCardWidget extends StatelessWidget {

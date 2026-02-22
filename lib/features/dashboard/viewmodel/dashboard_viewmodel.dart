@@ -1,5 +1,5 @@
-import 'package:finguard_app/features/dashboard/data/dashboard_repository.dart';
-import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
+import 'package:finguard/features/dashboard/data/dashboard_repository.dart';
+import 'package:finguard/features/dashboard/data/model/dashboard_response.dart';
 import 'package:flutter/material.dart';
 
 class DashboardViewmodel extends ChangeNotifier {
@@ -18,9 +18,8 @@ class DashboardViewmodel extends ChangeNotifier {
   DateTime get selectedMonth => _selectedMonth;
   int get monthSlideDirection => _monthSlideDirection;
   DateTime get maxSelectableMonth => _monthStart(DateTime.now());
-  DateTime get minSelectableMonth => _monthStart(
-        DateTime(DateTime.now().year, DateTime.now().month - 1, 1),
-      );
+  DateTime get minSelectableMonth =>
+      _monthStart(DateTime(DateTime.now().year, DateTime.now().month - 1, 1));
   bool get canGoPreviousMonth =>
       !_isSameMonth(_selectedMonth, minSelectableMonth);
 
@@ -113,8 +112,8 @@ class DashboardViewmodel extends ChangeNotifier {
 
       final latestUtc = latestParsed.toUtc();
       final cutoffUtc = mutationTriggeredAt.toUtc().subtract(
-            const Duration(seconds: 5),
-          );
+        const Duration(seconds: 5),
+      );
       return latestUtc.isAfter(cutoffUtc);
     }
 

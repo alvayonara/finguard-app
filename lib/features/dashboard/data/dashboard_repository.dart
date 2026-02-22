@@ -1,5 +1,5 @@
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/dashboard/data/model/dashboard_response.dart';
 
 class DashboardRepository {
   final ApiClient apiClient;

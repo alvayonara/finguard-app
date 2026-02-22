@@ -1,4 +1,4 @@
-import 'package:finguard_app/core/ui/app_colors.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class RiskBadge extends StatelessWidget {
@@ -27,10 +27,7 @@ class RiskBadge extends StatelessWidget {
       ),
       child: Text(
         level,
-        style: TextStyle(
-          color: _color(),
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: _color(), fontWeight: FontWeight.bold),
       ),
     );
   }

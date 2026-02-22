@@ -1,7 +1,7 @@
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
-import 'package:finguard_app/features/category/data/category_repository.dart';
-import 'package:finguard_app/features/category/data/model/category_model.dart';
-import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
+import 'package:finguard/features/category/data/category_repository.dart';
+import 'package:finguard/features/category/data/model/category_model.dart';
+import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -72,73 +72,78 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                 final category = categories[index];
                 final isSelected = category.id == widget.selectedCategoryId;
 
-          return InkWell(
-            onTap: () => Navigator.of(context).pop(category),
-            onLongPress: category.isDefault
-                ? null
-                : () => _showCategoryOptions(context, category),
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFF5E5CE6)
-                      : Colors.grey.shade200,
-                  width: isSelected ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
+                return InkWell(
+                  onTap: () => Navigator.of(context).pop(category),
+                  onLongPress: category.isDefault
+                      ? null
+                      : () => _showCategoryOptions(context, category),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5E5CE6).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        CategoryIconMapper.getIcon(category.icon),
-                        style: const TextStyle(fontSize: 22),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF5E5CE6)
+                            : Colors.grey.shade200,
+                        width: isSelected ? 2 : 1,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      category.name,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A1A),
-                      ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: const Color(
+                              0xFF5E5CE6,
+                            ).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              CategoryIconMapper.getIcon(category.icon),
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            category.name,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1A1A1A),
+                            ),
+                          ),
+                        ),
+                        if (!category.isDefault)
+                          Icon(
+                            Icons.more_vert,
+                            color: Colors.grey.shade400,
+                            size: 20,
+                          ),
+                        if (category.isDefault && isSelected)
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: Color(0xFF5E5CE6),
+                          ),
+                        if (!category.isDefault && isSelected)
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: Color(0xFF5E5CE6),
+                          ),
+                      ],
                     ),
                   ),
-                  if (!category.isDefault)
-                    Icon(
-                      Icons.more_vert,
-                      color: Colors.grey.shade400,
-                      size: 20,
-                    ),
-                  if (category.isDefault && isSelected)
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      color: Color(0xFF5E5CE6),
-                    ),
-                  if (!category.isDefault && isSelected)
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      color: Color(0xFF5E5CE6),
-                    ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 
@@ -177,7 +182,10 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text(
                 'Delete Category',
-                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.red),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.red,
+                ),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -233,7 +241,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: isLoading ? null : () => Navigator.pop(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -255,7 +265,11 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade700,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -271,7 +285,8 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                               icon: const Icon(Icons.close, size: 16),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              onPressed: () => setModalState(() => errorMessage = null),
+                              onPressed: () =>
+                                  setModalState(() => errorMessage = null),
                             ),
                           ],
                         ),
@@ -322,10 +337,10 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 6,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];
@@ -424,7 +439,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                                 _reloadCategories();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Category updated successfully'),
+                                    content: Text(
+                                      'Category updated successfully',
+                                    ),
                                     backgroundColor: Colors.green,
                                   ),
                                 );
@@ -451,7 +468,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(
@@ -528,10 +547,15 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
     );
   }
 
-  void _showCreateCategoryDialog(BuildContext context, CategoryViewModel categoryVM) {
+  void _showCreateCategoryDialog(
+    BuildContext context,
+    CategoryViewModel categoryVM,
+  ) {
     final nameController = TextEditingController();
     String? selectedEmoji;
-    final availableEmojis = CategoryIconMapper.emojisByType(widget.categoryType);
+    final availableEmojis = CategoryIconMapper.emojisByType(
+      widget.categoryType,
+    );
     bool isLoading = false;
     String? errorMessage;
 
@@ -571,7 +595,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: isLoading ? null : () => Navigator.pop(context),
+                      onPressed: isLoading
+                          ? null
+                          : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -593,7 +619,11 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade700,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
@@ -609,7 +639,8 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                               icon: const Icon(Icons.close, size: 16),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
-                              onPressed: () => setModalState(() => errorMessage = null),
+                              onPressed: () =>
+                                  setModalState(() => errorMessage = null),
                             ),
                           ],
                         ),
@@ -660,10 +691,10 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 6,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
-                      ),
+                            crossAxisCount: 6,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                          ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];
@@ -759,7 +790,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                                 _reloadCategories();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('Category created successfully'),
+                                    content: Text(
+                                      'Category created successfully',
+                                    ),
                                     backgroundColor: Colors.green,
                                   ),
                                 );
@@ -786,7 +819,9 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Text(

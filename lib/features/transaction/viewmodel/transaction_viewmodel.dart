@@ -1,9 +1,9 @@
-import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
-import 'package:finguard_app/features/transaction/data/model/update_transaction_request.dart';
-import 'package:finguard_app/features/transaction/data/transaction_repository.dart';
+import 'package:finguard/features/transaction/data/model/create_transaction_request.dart';
+import 'package:finguard/features/transaction/data/model/update_transaction_request.dart';
+import 'package:finguard/features/transaction/data/transaction_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:finguard_app/features/auth/data/auth_repository.dart';
-import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard/features/auth/data/auth_repository.dart';
+import 'package:finguard/core/storage/local_storage.dart';
 
 class TransactionViewModel extends ChangeNotifier {
   final TransactionRepository repository;

@@ -1,13 +1,13 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/ui/bounce_wrapper.dart';
-import 'package:finguard_app/core/utils/category_visual_resolver.dart';
-import 'package:finguard_app/core/utils/currency_formatter.dart';
-import 'package:finguard_app/core/utils/insight_resolver.dart';
-import 'package:finguard_app/features/dashboard/data/model/dashboard_response.dart';
-import 'package:finguard_app/features/dashboard/viewmodel/dashboard_viewmodel.dart';
-import 'package:finguard_app/features/risk/view/widget/risk_trend_card.dart';
-import 'package:finguard_app/features/risk/viewmodel/risk_trend_viewmodel.dart';
-import 'package:finguard_app/features/transaction/data/model/transaction_model.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/bounce_wrapper.dart';
+import 'package:finguard/core/utils/category_visual_resolver.dart';
+import 'package:finguard/core/utils/currency_formatter.dart';
+import 'package:finguard/core/utils/insight_resolver.dart';
+import 'package:finguard/features/dashboard/data/model/dashboard_response.dart';
+import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:finguard/features/risk/view/widget/risk_trend_card.dart';
+import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard/features/transaction/data/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -107,8 +107,9 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
   }
 
   Widget _buildMonthSelector(DashboardViewmodel dashboardVM) {
-    final monthLabel =
-        DateFormat('MMMM yyyy').format(dashboardVM.selectedMonth);
+    final monthLabel = DateFormat(
+      'MMMM yyyy',
+    ).format(dashboardVM.selectedMonth);
     final disableNavigation = dashboardVM.isMonthChanging;
 
     return Container(
@@ -188,8 +189,11 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        child:
-            Icon(icon, size: 16, color: enabled ? Colors.black87 : Colors.grey),
+        child: Icon(
+          icon,
+          size: 16,
+          color: enabled ? Colors.black87 : Colors.grey,
+        ),
       ),
     );
   }
@@ -579,10 +583,12 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                       children: [
                         BounceWrapper(
                           onTap: () async {
-                            final dashboardVM =
-                                context.read<DashboardViewmodel>();
+                            final dashboardVM = context
+                                .read<DashboardViewmodel>();
                             final previousLastDetectedAt = dashboardVM
-                                .dashboardData?.financialHealth?.lastDetectedAt;
+                                .dashboardData
+                                ?.financialHealth
+                                ?.lastDetectedAt;
                             final model = TransactionModel(
                               id: tx.id,
                               type: tx.type,
@@ -646,8 +652,9 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color:
-                                        isExpense ? Colors.red : Colors.green,
+                                    color: isExpense
+                                        ? Colors.red
+                                        : Colors.green,
                                   ),
                                 ),
                               ],

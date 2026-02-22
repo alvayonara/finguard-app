@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/activity/data/model/activity_response.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/activity/data/model/activity_response.dart';
 
 class ActivityRepository {
   final ApiClient apiClient;

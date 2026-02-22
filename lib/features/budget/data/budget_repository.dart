@@ -1,6 +1,6 @@
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/budget/data/model/budget_usage_page_response.dart';
-import 'package:finguard_app/features/budget/data/model/budget_usage_model.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/budget/data/model/budget_usage_page_response.dart';
+import 'package:finguard/features/budget/data/model/budget_usage_model.dart';
 
 class BudgetRepository {
   final ApiClient apiClient;
@@ -52,10 +52,7 @@ class BudgetRepository {
   }) async {
     await apiClient.dio.post(
       '/v1/budgets',
-      data: {
-        'categoryId': categoryId,
-        'monthlyLimit': monthlyLimit,
-      },
+      data: {'categoryId': categoryId, 'monthlyLimit': monthlyLimit},
     );
   }
 

@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
 
 class CurrencyFormatter {
   static String format({

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
 import 'package:intl/intl.dart';
 
 class AppSettings extends ChangeNotifier {

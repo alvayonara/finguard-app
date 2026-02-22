@@ -1,4 +1,4 @@
-import 'package:finguard_app/features/budget/data/model/budget_usage_model.dart';
+import 'package:finguard/features/budget/data/model/budget_usage_model.dart';
 
 class BudgetUsagePageResponse {
   final List<BudgetUsageModel> items;
@@ -12,11 +12,13 @@ class BudgetUsagePageResponse {
   });
 
   factory BudgetUsagePageResponse.fromJson(Map<String, dynamic> json) {
-    final rawItems = (json['items'] ??
-        json['data'] ??
-        json['budgets'] ??
-        json['content'] ??
-        const []) as List;
+    final rawItems =
+        (json['items'] ??
+                json['data'] ??
+                json['budgets'] ??
+                json['content'] ??
+                const [])
+            as List;
 
     return BudgetUsagePageResponse(
       items: rawItems
@@ -25,8 +27,8 @@ class BudgetUsagePageResponse {
           .toList(),
       nextCursorTime:
           json['nextCursorTime']?.toString() ?? json['cursorTime']?.toString(),
-      nextCursorId:
-          ((json['nextCursorId'] ?? json['cursorId']) as num?)?.toInt(),
+      nextCursorId: ((json['nextCursorId'] ?? json['cursorId']) as num?)
+          ?.toInt(),
     );
   }
 

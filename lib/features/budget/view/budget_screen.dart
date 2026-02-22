@@ -1,12 +1,12 @@
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/utils/category_icon_mapper.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
-import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
-import 'package:finguard_app/features/category/data/model/category_model.dart';
-import 'package:finguard_app/features/category/view/category_picker_screen.dart';
-import 'package:finguard_app/features/category/viewmodel/category_viewmodel.dart';
-import 'package:finguard_app/features/budget/view/budget_card.dart';
-import 'package:finguard_app/features/budget/viewmodel/budget_viewmodel.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/utils/category_icon_mapper.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
+import 'package:finguard/core/utils/thousand_separator_formatter.dart';
+import 'package:finguard/features/category/data/model/category_model.dart';
+import 'package:finguard/features/category/view/category_picker_screen.dart';
+import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard/features/budget/view/budget_card.dart';
+import 'package:finguard/features/budget/viewmodel/budget_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -51,8 +51,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final vm = context.watch<BudgetViewmodel>();
     final settings = context.watch<AppSettings>();
     final categoryVM = context.watch<CategoryViewModel>();
-    final expenseCategories =
-        categoryVM.categories.where((c) => c.type == "EXPENSE").toList();
+    final expenseCategories = categoryVM.categories
+        .where((c) => c.type == "EXPENSE")
+        .toList();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
@@ -78,9 +79,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
     final now = DateTime.now();
     final nowMonth = DateTime(now.year, now.month);
     final previousMonth = DateTime(now.year, now.month - 1);
-    final selectedMonth =
-        DateTime(vm.selectedMonth.year, vm.selectedMonth.month);
-    final isCurrentMonth = selectedMonth.year == nowMonth.year &&
+    final selectedMonth = DateTime(
+      vm.selectedMonth.year,
+      vm.selectedMonth.month,
+    );
+    final isCurrentMonth =
+        selectedMonth.year == nowMonth.year &&
         selectedMonth.month == nowMonth.month;
     final canGoPrev = selectedMonth.isAfter(previousMonth);
     final canGoNext = selectedMonth.isBefore(nowMonth);
@@ -118,7 +122,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 onPressed: !isCurrentMonth || expenseCategories.isEmpty
                     ? null
                     : () =>
-                        _showBudgetForm(expenseCategories: expenseCategories),
+                          _showBudgetForm(expenseCategories: expenseCategories),
                 icon: const Icon(Icons.add_circle_outline, size: 18),
                 label: const Text("Add"),
               ),
@@ -136,11 +140,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 IconButton(
                   onPressed: canGoPrev
                       ? () => vm.loadBudgets(
-                            month: DateTime(
-                              vm.selectedMonth.year,
-                              vm.selectedMonth.month - 1,
-                            ),
-                          )
+                          month: DateTime(
+                            vm.selectedMonth.year,
+                            vm.selectedMonth.month - 1,
+                          ),
+                        )
                       : null,
                   icon: const Icon(Icons.chevron_left),
                 ),
@@ -164,11 +168,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 IconButton(
                   onPressed: canGoNext
                       ? () => vm.loadBudgets(
-                            month: DateTime(
-                              vm.selectedMonth.year,
-                              vm.selectedMonth.month + 1,
-                            ),
-                          )
+                          month: DateTime(
+                            vm.selectedMonth.year,
+                            vm.selectedMonth.month + 1,
+                          ),
+                        )
                       : null,
                   icon: const Icon(Icons.chevron_right),
                 ),
@@ -186,7 +190,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
     List<CategoryModel> expenseCategories,
   ) {
     final now = DateTime.now();
-    final isCurrentMonth = vm.selectedMonth.year == now.year &&
+    final isCurrentMonth =
+        vm.selectedMonth.year == now.year &&
         vm.selectedMonth.month == now.month;
 
     if (vm.isLoading) {
@@ -246,7 +251,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
           }
 
           final budget = vm.budgets[index];
-          final categoryId = budget.categoryId ??
+          final categoryId =
+              budget.categoryId ??
               _resolveCategoryId(
                 categoryName: budget.category,
                 categories: expenseCategories,
@@ -258,10 +264,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
             onEdit: !isCurrentMonth || categoryId == null
                 ? null
                 : () => _showBudgetForm(
-                      expenseCategories: expenseCategories,
-                      initialCategoryId: categoryId,
-                      initialAmount: budget.monthlyLimit,
-                    ),
+                    expenseCategories: expenseCategories,
+                    initialCategoryId: categoryId,
+                    initialAmount: budget.monthlyLimit,
+                  ),
             onDelete: !isCurrentMonth || categoryId == null
                 ? null
                 : () => _confirmDelete(categoryId: categoryId),
@@ -320,10 +326,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -371,7 +374,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
               break;
             }
           }
-          final canSubmit = !vm.isSubmitting &&
+          final canSubmit =
+              !vm.isSubmitting &&
               selectedCategoryId != null &&
               parsedAmount != null &&
               parsedAmount > 0;

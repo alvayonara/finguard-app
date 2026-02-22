@@ -1,6 +1,6 @@
 import 'package:alice/alice.dart';
 import 'package:dio/dio.dart';
-import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard/core/storage/local_storage.dart';
 import 'dart:async';
 
 class ApiClient {

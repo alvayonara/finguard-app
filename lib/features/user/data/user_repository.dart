@@ -1,6 +1,6 @@
-import 'package:finguard_app/core/network/api_client.dart';
-import 'package:finguard_app/features/user/data/model/user_preference.dart';
-import 'package:finguard_app/features/user/data/model/user_preference_response.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/features/user/data/model/user_preference.dart';
+import 'package:finguard/features/user/data/model/user_preference_response.dart';
 
 class UserRepository {
   final ApiClient apiClient;

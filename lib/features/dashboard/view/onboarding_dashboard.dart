@@ -4,17 +4,17 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'package:finguard_app/core/app_settings.dart';
-import 'package:finguard_app/core/storage/local_storage.dart';
-import 'package:finguard_app/core/utils/currency_symbol.dart';
-import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
-import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
-import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
-import 'package:finguard_app/features/transaction/viewmodel/transaction_viewmodel.dart';
-import 'package:finguard_app/features/user/data/user_repository.dart';
-import 'package:finguard_app/main_navigation.dart';
-import 'package:finguard_app/features/auth/viewmodel/auth_viewmodel.dart';
-import 'package:finguard_app/core/network/api_client.dart';
+import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/storage/local_storage.dart';
+import 'package:finguard/core/utils/currency_symbol.dart';
+import 'package:finguard/core/utils/thousand_separator_formatter.dart';
+import 'package:finguard/features/transaction/data/enum/transaction_type_enum.dart';
+import 'package:finguard/features/transaction/data/model/create_transaction_request.dart';
+import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.dart';
+import 'package:finguard/features/user/data/user_repository.dart';
+import 'package:finguard/main_navigation.dart';
+import 'package:finguard/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:finguard/core/network/api_client.dart';
 
 class OnboardingFlowScreen extends StatefulWidget {
   final int initialStep;
