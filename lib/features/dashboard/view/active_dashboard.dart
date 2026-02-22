@@ -30,20 +30,60 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
     final riskTrendVM = context.watch<RiskTrendViewmodel>();
     final dashboardVM = context.watch<DashboardViewmodel>();
     final summary = widget.data.monthSummary;
+    final isMonthEmpty = _isMonthEmpty(widget.data);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
       children: [
-        if (widget.data.financialHealth != null)
-          _buildFinancialHero(
-            context,
-            widget.data.financialHealth!,
-            dashboardVM.isFinancialHealthUpdating,
+        _buildMonthSelector(dashboardVM),
+        const SizedBox(height: 16),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 180),
+          opacity: dashboardVM.isMonthChanging ? 0.65 : 1,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              final beginOffset = Offset(
+                dashboardVM.monthSlideDirection > 0 ? 0.12 : -0.12,
+                0,
+              );
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: beginOffset,
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: Column(
+              key: ValueKey(dashboardVM.selectedMonthApiKey),
+              children: [
+                if (isMonthEmpty) ...[
+                  _buildEmptyMonthState(context, dashboardVM.selectedMonth),
+                  const SizedBox(height: 12),
+                  _buildFinancialScoreHint(),
+                ] else ...[
+                  if (widget.data.financialHealth != null) ...[
+                    _buildFinancialHero(
+                      context,
+                      widget.data.financialHealth!,
+                      dashboardVM.isFinancialHealthUpdating,
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  _buildNetBalance(summary, settings),
+                  const SizedBox(height: 20),
+                  if (summary != null) _buildIncomeExpense(summary, settings),
+                ],
+              ],
+            ),
           ),
-        const SizedBox(height: 20),
-        _buildNetBalance(summary, settings),
-        const SizedBox(height: 20),
-        if (summary != null) _buildIncomeExpense(summary, settings),
+        ),
         const SizedBox(height: 28),
         _buildTabChips(),
         const SizedBox(height: 20),
@@ -63,6 +103,94 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                 ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMonthSelector(DashboardViewmodel dashboardVM) {
+    final monthLabel =
+        DateFormat('MMMM yyyy').format(dashboardVM.selectedMonth);
+    final disableNavigation = dashboardVM.isMonthChanging;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          _monthArrowButton(
+            icon: Icons.arrow_back_ios_new_rounded,
+            enabled: dashboardVM.canGoPreviousMonth && !disableNavigation,
+            onTap: dashboardVM.goToPreviousMonth,
+          ),
+          Expanded(
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    monthLabel,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: dashboardVM.isMonthChanging
+                        ? const Padding(
+                            key: ValueKey('month_loader'),
+                            padding: EdgeInsets.only(left: 8),
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF5E5CE6),
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink(key: ValueKey('no_loader')),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          _monthArrowButton(
+            icon: Icons.arrow_forward_ios_rounded,
+            enabled: dashboardVM.canGoNextMonth && !disableNavigation,
+            onTap: dashboardVM.goToNextMonth,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _monthArrowButton({
+    required IconData icon,
+    required bool enabled,
+    required Future<void> Function() onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: enabled
+          ? () async {
+              await onTap();
+            }
+          : null,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled ? Colors.white : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child:
+            Icon(icon, size: 16, color: enabled ? Colors.black87 : Colors.grey),
+      ),
     );
   }
 
@@ -451,6 +579,8 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                       children: [
                         BounceWrapper(
                           onTap: () async {
+                            final dashboardVM =
+                                context.read<DashboardViewmodel>();
                             final model = TransactionModel(
                               id: tx.id,
                               type: tx.type,
@@ -466,11 +596,8 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                               arguments: model,
                             );
 
-                            if (result == true && context.mounted) {
-                              context
-                                  .read<DashboardViewmodel>()
-                                  .loadDashboard();
-                            }
+                            if (!mounted || result != true) return;
+                            await dashboardVM.loadDashboard(showLoading: false);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -514,9 +641,8 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 15,
-                                    color: isExpense
-                                        ? Colors.red
-                                        : Colors.green,
+                                    color:
+                                        isExpense ? Colors.red : Colors.green,
                                   ),
                                 ),
                               ],
@@ -537,7 +663,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
               const SizedBox(height: 20),
             ],
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -557,6 +683,83 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
           colors: [Color(0xFF56AB2F), Color(0xFFA8E063)],
         );
     }
+  }
+
+  Widget _buildEmptyMonthState(BuildContext context, DateTime selectedMonth) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            DateFormat('MMMM yyyy').format(selectedMonth),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "No transactions yet",
+            style: TextStyle(fontSize: 15, color: Colors.grey),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () async {
+              final dashboardVM = context.read<DashboardViewmodel>();
+              final created = await Navigator.pushNamed(
+                context,
+                '/create-transaction',
+              );
+              if (!mounted || created != true) return;
+              await dashboardVM.loadDashboard(showLoading: false);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF5E5CE6),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              elevation: 0,
+            ),
+            child: const Text("Add first transaction"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinancialScoreHint() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        "Financial score will appear after activity",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.grey,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  bool _isMonthEmpty(DashboardResponse data) {
+    final summary = data.monthSummary;
+    final totalIncome = summary?.totalIncome ?? 0;
+    final totalExpense = summary?.totalExpense ?? 0;
+    return data.recentTransactions.isEmpty &&
+        totalIncome == 0 &&
+        totalExpense == 0;
   }
 }
 

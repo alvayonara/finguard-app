@@ -5,8 +5,11 @@ class DashboardRepository {
   final ApiClient apiClient;
   DashboardRepository({required this.apiClient});
 
-  Future<DashboardResponse> fetchDashboard() async {
-    final response = await apiClient.dio.get('/v1/dashboard');
+  Future<DashboardResponse> fetchDashboard({String? month}) async {
+    final response = await apiClient.dio.get(
+      '/v1/dashboard',
+      queryParameters: month != null ? {'month': month} : null,
+    );
     return DashboardResponse.fromJson(response.data);
   }
 }
