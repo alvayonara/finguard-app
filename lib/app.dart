@@ -1,4 +1,8 @@
+import 'dart:io' show Platform;
+
 import 'package:alice/alice.dart';
+import 'package:finguard/features/app_version/data/app_version_repository.dart';
+import 'package:finguard/features/app_version/data/model/app_version_response.dart';
 import 'package:finguard/features/activity/data/activity_repository.dart';
 import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
 import 'package:finguard/features/budget/data/budget_repository.dart';
@@ -19,7 +23,9 @@ import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.da
 import 'package:finguard/l10n/app_localizations.dart';
 import 'package:finguard/main_navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'core/ui/app_colors.dart';
 import 'core/app_settings.dart';
 import 'core/network/api_client.dart';
@@ -52,7 +58,6 @@ class FinguardApp extends StatelessWidget {
           create: (context) =>
               ApiClient(context.read<LocalStorage>(), alice: alice),
         ),
-
         Provider(
           create: (context) => AuthRepository(context.read<ApiClient>()),
         ),
@@ -63,6 +68,10 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) =>
               DashboardRepository(apiClient: context.read<ApiClient>()),
+        ),
+        Provider(
+          create: (context) =>
+              AppVersionRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
           create: (context) =>
@@ -80,15 +89,9 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) => BudgetRepository(context.read<ApiClient>()),
         ),
-
         ChangeNotifierProvider(create: (_) => settings),
-        ChangeNotifierProxyProvider4<
-          AuthRepository,
-          UserRepository,
-          LocalStorage,
-          AppSettings,
-          AuthViewmodel
-        >(
+        ChangeNotifierProxyProvider4<AuthRepository, UserRepository,
+            LocalStorage, AppSettings, AuthViewmodel>(
           create: (context) => AuthViewmodel(
             context.read<AuthRepository>(),
             context.read<UserRepository>(),
@@ -119,13 +122,8 @@ class FinguardApp extends StatelessWidget {
               CategoryViewModel(context.read<CategoryRepository>()),
           update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
         ),
-
-        ChangeNotifierProxyProvider3<
-          TransactionRepository,
-          AuthRepository,
-          LocalStorage,
-          TransactionViewModel
-        >(
+        ChangeNotifierProxyProvider3<TransactionRepository, AuthRepository,
+            LocalStorage, TransactionViewModel>(
           create: (context) => TransactionViewModel(
             context.read<TransactionRepository>(),
             context.read<AuthRepository>(),
@@ -134,7 +132,6 @@ class FinguardApp extends StatelessWidget {
           update: (context, repo, authRepo, storage, previous) =>
               previous ?? TransactionViewModel(repo, authRepo, storage),
         ),
-
         ChangeNotifierProxyProvider<ActivityRepository, ActivityViewmodel>(
           create: (context) => ActivityViewmodel(
             activityRepository: context.read<ActivityRepository>(),
@@ -142,14 +139,12 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) =>
               previous ?? ActivityViewmodel(activityRepository: repo),
         ),
-
         ChangeNotifierProxyProvider<BudgetRepository, BudgetViewmodel>(
           create: (context) =>
               BudgetViewmodel(repository: context.read<BudgetRepository>()),
           update: (_, repo, previous) =>
               previous ?? BudgetViewmodel(repository: repo),
         ),
-
         ChangeNotifierProvider(create: (context) => ProfileViewmodel()),
       ],
       child: MaterialApp(
@@ -214,6 +209,15 @@ class _RootDeciderState extends State<_RootDecider> {
   bool isBootstrapping = true;
   bool _hasInitialized = false;
   int? onboardingInitialStep;
+  bool _isVersionBlocked = false;
+  bool _isMaintenanceMode = false;
+  String? _versionMessage;
+  String? _storeUrl;
+  bool _isLaunchingStore = false;
+  bool _showOptionalUpdatePrompt = false;
+  bool _optionalUpdatePromptShown = false;
+  String? _optionalUpdateMessage;
+  String? _optionalUpdateStoreUrl;
 
   @override
   void initState() {
@@ -227,12 +231,20 @@ class _RootDeciderState extends State<_RootDecider> {
   }
 
   Future<void> _initialize() async {
+    final canProceed = await _checkAppVersionGate();
+    if (!mounted) return;
+
+    if (!canProceed) {
+      setState(() {
+        isBootstrapping = false;
+      });
+      return;
+    }
+
     final authVM = context.read<AuthViewmodel>();
     final storage = context.read<LocalStorage>();
 
     await authVM.bootstrap();
-
-    // Wait for bootstrap to complete
     while (!authVM.isBootstrapComplete) {
       await Future.delayed(const Duration(milliseconds: 10));
     }
@@ -242,6 +254,10 @@ class _RootDeciderState extends State<_RootDecider> {
 
     if (mounted) {
       setState(() {
+        _isVersionBlocked = false;
+        _isMaintenanceMode = false;
+        _versionMessage = null;
+        _storeUrl = null;
         isOnboardingCompleted = completed;
         onboardingInitialStep = pendingStep;
         isBootstrapping = false;
@@ -249,8 +265,231 @@ class _RootDeciderState extends State<_RootDecider> {
     }
   }
 
+  Future<bool> _checkAppVersionGate() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return true;
+    }
+
+    final repository = context.read<AppVersionRepository>();
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final response = await repository.checkVersion(
+        platform: Platform.isAndroid ? 'android' : 'ios',
+        version: packageInfo.version,
+      );
+
+      if (!mounted) return false;
+
+      return _applyVersionGateResponse(
+        response,
+        currentVersion: packageInfo.version,
+      );
+    } catch (_) {
+      // Fail-open so temporary API issues do not block app startup.
+      return true;
+    }
+  }
+
+  bool _applyVersionGateResponse(
+    AppVersionResponse response, {
+    required String currentVersion,
+  }) {
+    if (response.maintenanceMode) {
+      setState(() {
+        _isVersionBlocked = true;
+        _isMaintenanceMode = true;
+        _versionMessage = response.maintenanceMessage ??
+            'We are currently under maintenance. Please try again later.';
+        _storeUrl = null;
+      });
+      return false;
+    }
+
+    final needsForceUpdate = response.forceUpdate || response.mustUpdate;
+    if (!needsForceUpdate) {
+      final hasOptionalUpdate = response.latestVersion.isNotEmpty &&
+          _compareVersion(response.latestVersion, currentVersion) > 0;
+
+      if (hasOptionalUpdate) {
+        setState(() {
+          _showOptionalUpdatePrompt = true;
+          _optionalUpdateMessage =
+              'A newer version (${response.latestVersion}) is available. '
+              'Update now for the latest improvements.';
+          _optionalUpdateStoreUrl = response.storeUrl;
+        });
+      }
+      return true;
+    }
+
+    setState(() {
+      _isVersionBlocked = true;
+      _isMaintenanceMode = false;
+      _versionMessage =
+          'A new version is required to continue. Please update the app to '
+          '${response.latestVersion.isEmpty ? response.minSupportedVersion : response.latestVersion}.';
+      _storeUrl = response.storeUrl;
+    });
+    return false;
+  }
+
+  int _compareVersion(String a, String b) {
+    final aParts = _normalizeVersion(a);
+    final bParts = _normalizeVersion(b);
+    final maxLength =
+        aParts.length > bParts.length ? aParts.length : bParts.length;
+
+    for (var i = 0; i < maxLength; i++) {
+      final left = i < aParts.length ? aParts[i] : 0;
+      final right = i < bParts.length ? bParts[i] : 0;
+      if (left > right) return 1;
+      if (left < right) return -1;
+    }
+    return 0;
+  }
+
+  List<int> _normalizeVersion(String value) {
+    final normalized = value
+        .split('+')
+        .first
+        .replaceAll(RegExp(r'[^0-9.]'), '')
+        .split('.')
+        .where((part) => part.isNotEmpty)
+        .map((part) => int.tryParse(part) ?? 0)
+        .toList();
+
+    if (normalized.isEmpty) return [0];
+    return normalized;
+  }
+
+  Future<void> _openStore() async {
+    final rawUrl = _storeUrl;
+    if (rawUrl == null || rawUrl.trim().isEmpty || _isLaunchingStore) {
+      return;
+    }
+
+    setState(() {
+      _isLaunchingStore = true;
+    });
+
+    try {
+      final uri = Uri.tryParse(rawUrl.trim());
+      if (uri != null) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLaunchingStore = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!_isVersionBlocked &&
+        !isBootstrapping &&
+        _showOptionalUpdatePrompt &&
+        !_optionalUpdatePromptShown) {
+      _optionalUpdatePromptShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: true,
+          builder: (dialogContext) {
+            return AlertDialog(
+              title: const Text('Update Available'),
+              content: Text(
+                _optionalUpdateMessage ??
+                    'A newer version of the app is available.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: const Text('Later'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.of(dialogContext).pop();
+                    final previousUrl = _storeUrl;
+                    _storeUrl = _optionalUpdateStoreUrl;
+                    await _openStore();
+                    _storeUrl = previousUrl;
+                  },
+                  child: const Text('Update now'),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
+
+    if (_isVersionBlocked) {
+      return PopScope(
+        canPop: false,
+        child: Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _isMaintenanceMode
+                          ? 'Maintenance Mode'
+                          : 'Update Required',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      _versionMessage ??
+                          (_isMaintenanceMode
+                              ? 'Please try again in a few minutes.'
+                              : 'Please update the app to continue.'),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    if (!_isMaintenanceMode &&
+                        (_storeUrl ?? '').trim().isNotEmpty)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLaunchingStore ? null : _openStore,
+                          child: Text(
+                            _isLaunchingStore
+                                ? 'Opening store...'
+                                : 'Update now',
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          setState(() {
+                            isBootstrapping = true;
+                          });
+                          await _initialize();
+                        },
+                        child: const Text('Check again'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     if (isBootstrapping || isOnboardingCompleted == null) {
       return const SplashScreen();
     }
