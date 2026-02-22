@@ -17,6 +17,7 @@ import 'package:finguard/features/risk/data/risk_repository.dart';
 import 'package:finguard/features/risk/view/risk_detail_screen.dart';
 import 'package:finguard/features/risk/viewmodel/risk_detail_viewmodel.dart';
 import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:finguard/features/subscription/data/subscription_repository.dart';
 import 'package:finguard/features/transaction/data/transaction_repository.dart';
 import 'package:finguard/features/transaction/view/add_transaction_screen.dart';
 import 'package:finguard/features/transaction/view/transaction_detail_screen.dart';
@@ -77,6 +78,10 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) =>
               RiskRepository(apiClient: context.read<ApiClient>()),
+        ),
+        Provider(
+          create: (context) =>
+              SubscriptionRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
           create: (context) => CategoryRepository(context.read<ApiClient>()),
@@ -146,17 +151,24 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) =>
               previous ?? BudgetViewmodel(repository: repo),
         ),
-        ChangeNotifierProxyProvider5<UserRepository, AuthRepository,
-            LocalStorage, ApiClient, AppVersionRepository, ProfileViewmodel>(
+        ChangeNotifierProxyProvider6<
+            UserRepository,
+            AuthRepository,
+            LocalStorage,
+            ApiClient,
+            AppVersionRepository,
+            SubscriptionRepository,
+            ProfileViewmodel>(
           create: (context) => ProfileViewmodel(
             userRepository: context.read<UserRepository>(),
             authRepository: context.read<AuthRepository>(),
             localStorage: context.read<LocalStorage>(),
             apiClient: context.read<ApiClient>(),
             appVersionRepository: context.read<AppVersionRepository>(),
+            subscriptionRepository: context.read<SubscriptionRepository>(),
           ),
           update: (context, userRepo, authRepo, storage, apiClient,
-                  appVersionRepo, previous) =>
+                  appVersionRepo, subscriptionRepo, previous) =>
               previous ??
               ProfileViewmodel(
                 userRepository: userRepo,
@@ -164,6 +176,7 @@ class FinguardApp extends StatelessWidget {
                 localStorage: storage,
                 apiClient: apiClient,
                 appVersionRepository: appVersionRepo,
+                subscriptionRepository: subscriptionRepo,
               ),
         ),
       ],

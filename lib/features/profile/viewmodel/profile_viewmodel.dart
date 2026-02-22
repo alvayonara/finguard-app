@@ -1,13 +1,16 @@
 import 'dart:io' show Platform;
+import 'dart:async';
 
 import 'package:finguard/features/app_version/data/app_version_repository.dart';
 import 'package:finguard/features/app_version/data/model/app_version_response.dart';
+import 'package:finguard/features/subscription/data/subscription_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:finguard/core/network/api_client.dart';
 import 'package:finguard/core/storage/local_storage.dart';
 import 'package:finguard/features/auth/data/auth_repository.dart';
 import 'package:finguard/features/user/data/user_repository.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../data/model/profile_model.dart';
@@ -33,11 +36,15 @@ class ProfileUpdateStatus {
 }
 
 class ProfileViewmodel extends ChangeNotifier {
+  static const _androidProductId = 'TODO';
+  static const _iosProductId = 'TODO';
+
   final UserRepository userRepository;
   final AuthRepository authRepository;
   final LocalStorage localStorage;
   final ApiClient apiClient;
   final AppVersionRepository appVersionRepository;
+  final SubscriptionRepository subscriptionRepository;
 
   ProfileViewmodel({
     required this.userRepository,
@@ -45,12 +52,14 @@ class ProfileViewmodel extends ChangeNotifier {
     required this.localStorage,
     required this.apiClient,
     required this.appVersionRepository,
+    required this.subscriptionRepository,
   });
 
   ProfileModel? profile;
   bool isLoading = false;
   bool isSigningOut = false;
   bool isCheckingUpdate = false;
+  bool isSubscribing = false;
   String? error;
 
   Future<void> loadProfile() async {
@@ -169,5 +178,109 @@ class ProfileViewmodel extends ChangeNotifier {
 
     if (normalized.isEmpty) return [0];
     return normalized;
+  }
+
+  Future<void> subscribeToPro() async {
+    if (isSubscribing) return;
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      throw StateError('In-app purchase is supported on Android/iOS only.');
+    }
+
+    final productId = Platform.isAndroid ? _androidProductId : _iosProductId;
+    final platform = Platform.isAndroid ? 'ANDROID' : 'IOS';
+    final iap = InAppPurchase.instance;
+
+    StreamSubscription<List<PurchaseDetails>>? sub;
+
+    try {
+      isSubscribing = true;
+      notifyListeners();
+
+      final available = await iap.isAvailable();
+      if (!available) {
+        throw StateError('Store is not available right now.');
+      }
+
+      final productResponse = await iap.queryProductDetails({productId});
+      if (productResponse.error != null) {
+        throw StateError(productResponse.error!.message);
+      }
+      if (productResponse.productDetails.isEmpty) {
+        throw StateError('Subscription product is not configured.');
+      }
+
+      final completer = Completer<void>();
+      sub = iap.purchaseStream.listen((purchases) async {
+        for (final purchase in purchases) {
+          if (purchase.productID != productId) continue;
+
+          if (purchase.status == PurchaseStatus.pending) {
+            continue;
+          }
+
+          if (purchase.status == PurchaseStatus.error) {
+            final message = purchase.error?.message ?? 'Purchase failed.';
+            if (!completer.isCompleted) {
+              completer.completeError(StateError(message));
+            }
+            if (purchase.pendingCompletePurchase) {
+              await iap.completePurchase(purchase);
+            }
+            continue;
+          }
+
+          if (purchase.status == PurchaseStatus.canceled) {
+            if (!completer.isCompleted) {
+              completer.completeError(StateError('Purchase cancelled.'));
+            }
+            if (purchase.pendingCompletePurchase) {
+              await iap.completePurchase(purchase);
+            }
+            continue;
+          }
+
+          if (purchase.status == PurchaseStatus.purchased ||
+              purchase.status == PurchaseStatus.restored) {
+            final transactionData =
+                purchase.verificationData.serverVerificationData;
+            if (transactionData.isEmpty) {
+              if (!completer.isCompleted) {
+                completer.completeError(
+                  StateError('Missing purchase verification data.'),
+                );
+              }
+            } else {
+              await subscriptionRepository.purchaseSubscription(
+                platform: platform,
+                productId: purchase.productID,
+                transactionData: transactionData,
+              );
+              if (!completer.isCompleted) {
+                completer.complete();
+              }
+            }
+
+            if (purchase.pendingCompletePurchase) {
+              await iap.completePurchase(purchase);
+            }
+          }
+        }
+      });
+
+      final purchaseParam = PurchaseParam(
+        productDetails: productResponse.productDetails.first,
+      );
+      final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
+      if (!started) {
+        throw StateError('Unable to start purchase flow.');
+      }
+
+      await completer.future.timeout(const Duration(minutes: 2));
+      await loadProfile();
+    } finally {
+      await sub?.cancel();
+      isSubscribing = false;
+      notifyListeners();
+    }
   }
 }

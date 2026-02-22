@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _buildHeader(profile),
           const SizedBox(height: 20),
-          if (!profile.isPro) _buildUpgradeCard(),
+          if (!profile.isPro) _buildUpgradeCard(vm),
           _sectionCard(
             title: "Preferences",
             children: [
@@ -362,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildUpgradeCard() {
+  Widget _buildUpgradeCard(ProfileViewmodel vm) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(18),
@@ -388,7 +388,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: vm.isSubscribing
+                  ? null
+                  : () async {
+                      try {
+                        await vm.subscribeToPro();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Subscription activated successfully.'),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.toString())),
+                        );
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF56AB2F),
                 foregroundColor: Colors.white,
@@ -396,7 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text("Upgrade Now"),
+              child: Text(vm.isSubscribing ? "Processing..." : "Upgrade Now"),
             ),
           ),
         ],
