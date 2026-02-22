@@ -9,6 +9,9 @@ class LocalStorage {
   static const _onboardingCompletedKey = "onboarding_completed";
   static const _firstLoginCoachmarkPendingKey = "first_login_coachmark_pending";
   static const _pendingOnboardingStepKey = "pending_onboarding_step";
+  static const _loggedOutKey = "logged_out";
+  static const _skippedUpdateVersionKey = "skipped_update_version";
+  static const _skippedUpdateUntilEpochMsKey = "skipped_update_until_epoch_ms";
 
   Future<void> saveUserUid(String uid) async {
     final prefs = await SharedPreferences.getInstance();
@@ -121,5 +124,67 @@ class LocalStorage {
     await prefs.remove(_userUidKey);
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
+    await prefs.reload();
+  }
+
+  Future<void> clearOnboardingState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_onboardingCompletedKey);
+    await prefs.remove(_pendingOnboardingStepKey);
+    await prefs.remove(_firstLoginCoachmarkPendingKey);
+    await prefs.reload();
+  }
+
+  Future<void> markLoggedOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_loggedOutKey, true);
+    await prefs.reload();
+  }
+
+  Future<void> clearLoggedOutFlag() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_loggedOutKey);
+    await prefs.reload();
+  }
+
+  Future<bool> wasLoggedOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_loggedOutKey) ?? false;
+  }
+
+  Future<void> snoozeOptionalUpdate({
+    required String latestVersion,
+    required Duration duration,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final until = DateTime.now().add(duration).millisecondsSinceEpoch;
+    await prefs.setString(_skippedUpdateVersionKey, latestVersion);
+    await prefs.setInt(_skippedUpdateUntilEpochMsKey, until);
+    await prefs.reload();
+  }
+
+  Future<void> clearOptionalUpdateSnooze() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_skippedUpdateVersionKey);
+    await prefs.remove(_skippedUpdateUntilEpochMsKey);
+    await prefs.reload();
+  }
+
+  Future<bool> shouldSuppressOptionalUpdate(String latestVersion) async {
+    final prefs = await SharedPreferences.getInstance();
+    final skippedVersion = prefs.getString(_skippedUpdateVersionKey);
+    final untilEpoch = prefs.getInt(_skippedUpdateUntilEpochMsKey);
+    if (skippedVersion == null ||
+        skippedVersion.isEmpty ||
+        untilEpoch == null ||
+        untilEpoch <= 0) {
+      return false;
+    }
+
+    if (skippedVersion != latestVersion) {
+      return false;
+    }
+
+    return DateTime.now().millisecondsSinceEpoch < untilEpoch;
   }
 }

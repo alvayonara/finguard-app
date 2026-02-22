@@ -37,6 +37,7 @@ class AuthViewmodel extends ChangeNotifier {
           uid.isEmpty) {
         final fallback = await _resolvePreferences(
           const UserPreference(language: 'en', currency: 'USD'),
+          preferLocalOverrides: true,
         );
         await _applyPreferences(fallback);
         isBootstrapComplete = true;
@@ -45,12 +46,16 @@ class AuthViewmodel extends ChangeNotifier {
       }
 
       final remotePref = await userRepository.getPreferences();
-      final resolvedPref = await _resolvePreferences(remotePref);
+      final resolvedPref = await _resolvePreferences(
+        remotePref,
+        preferLocalOverrides: false,
+      );
       await _applyPreferences(resolvedPref);
       isBootstrapComplete = true;
     } catch (e) {
       final fallback = await _resolvePreferences(
         const UserPreference(language: 'en', currency: 'USD'),
+        preferLocalOverrides: true,
       );
       await _applyPreferences(fallback);
       isBootstrapComplete = true;
@@ -77,7 +82,14 @@ class AuthViewmodel extends ChangeNotifier {
     await localStorage.saveCurrency(pref.currency);
   }
 
-  Future<UserPreference> _resolvePreferences(UserPreference base) async {
+  Future<UserPreference> _resolvePreferences(
+    UserPreference base, {
+    required bool preferLocalOverrides,
+  }) async {
+    if (!preferLocalOverrides) {
+      return base;
+    }
+
     final localLanguage = await localStorage.getLanguage();
     final localCurrency = await localStorage.getCurrency();
 

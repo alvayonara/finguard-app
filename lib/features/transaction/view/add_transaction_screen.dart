@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard/features/dashboard/view/onboarding_dashboard.dart';
+import 'package:finguard/features/auth/view/login_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -75,8 +75,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     try {
       await context.read<TransactionViewModel>().createTransaction(
-        request: request,
-      );
+            request: request,
+          );
 
       if (mounted) {
         Navigator.pop(context, true);
@@ -87,7 +87,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           // Navigate to onboarding/login flow
           await Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => OnboardingFlowScreen(key: UniqueKey()),
+              builder: (_) => const LoginScreen(),
             ),
           );
         }
@@ -511,18 +511,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               : () {
                   Navigator.of(context)
                       .push(
-                        MaterialPageRoute(
-                          builder: (_) => CategoryPickerScreen(
-                            title: "Manage Categories",
-                            categoryType: _selectedType,
-                            selectedCategoryId: category.id,
-                          ),
-                        ),
-                      )
+                    MaterialPageRoute(
+                      builder: (_) => CategoryPickerScreen(
+                        title: "Manage Categories",
+                        categoryType: _selectedType,
+                        selectedCategoryId: category.id,
+                      ),
+                    ),
+                  )
                       .then((_) {
-                        // Reload categories after returning from picker
-                        context.read<CategoryViewModel>().load();
-                      });
+                    // Reload categories after returning from picker
+                    context.read<CategoryViewModel>().load();
+                  });
                 },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -530,9 +530,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected
-                    ? const Color(0xFF5E5CE6)
-                    : Colors.grey.shade200,
+                color:
+                    isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
                 width: isSelected ? 2.5 : 1,
               ),
               boxShadow: isSelected
@@ -571,9 +570,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         category.name,
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected
                               ? const Color(0xFF5E5CE6)
                               : Colors.black,
@@ -684,9 +682,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => Navigator.pop(context),
+                      onPressed:
+                          isLoading ? null : () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -780,10 +777,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 6,
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 8,
-                          ),
+                        crossAxisCount: 6,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                      ),
                       itemCount: availableEmojis.length,
                       itemBuilder: (context, index) {
                         final emoji = availableEmojis[index];

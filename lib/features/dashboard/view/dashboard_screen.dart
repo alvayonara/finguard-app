@@ -1,5 +1,6 @@
 import 'package:finguard/core/storage/local_storage.dart';
 import 'package:alice/alice.dart';
+import 'package:finguard/features/auth/view/login_screen.dart';
 import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,9 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _showOnboarding = false;
+  bool _goToIncomeSetup = false;
+  bool _showLoggedOutLogin = false;
+  int _onboardingStep = 0;
   bool _checking = true;
 
   @override
@@ -30,10 +34,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _init() async {
     final storage = LocalStorage();
     final completed = await storage.isOnboardingCompleted();
+    final pendingStep = await storage.getPendingOnboardingStep();
+    final wasLoggedOut = await storage.wasLoggedOut();
+    final accessToken = await storage.getAccessToken();
+    final refreshToken = await storage.getRefreshToken();
+    final userUid = await storage.getUserUid();
+    final hasSession = accessToken != null &&
+        accessToken.isNotEmpty &&
+        refreshToken != null &&
+        refreshToken.isNotEmpty &&
+        userUid != null &&
+        userUid.isNotEmpty;
 
     if (mounted) {
       setState(() {
         _showOnboarding = !completed;
+        _goToIncomeSetup = hasSession && !completed;
+        _showLoggedOutLogin = wasLoggedOut && !hasSession && !completed;
+        _onboardingStep = pendingStep ?? 0;
         _checking = false;
       });
     }
@@ -44,10 +62,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadData() async {
-    if (mounted) {
-      await context.read<DashboardViewmodel>().loadDashboard();
-      await context.read<RiskTrendViewmodel>().load();
-    }
+    if (!mounted) return;
+    final dashboardVM = context.read<DashboardViewmodel>();
+    final riskVM = context.read<RiskTrendViewmodel>();
+    await dashboardVM.loadDashboard();
+    if (!mounted) return;
+    await riskVM.load();
   }
 
   void _showErrorBottomSheet(BuildContext context, String errorMessage) {
@@ -157,7 +177,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => OnboardingFlowScreen(key: UniqueKey()),
+            builder: (_) => _goToIncomeSetup
+                ? const OnboardingFlowScreen(initialStep: 2, allowBack: false)
+                : _showLoggedOutLogin
+                    ? const LoginScreen()
+                    : OnboardingFlowScreen(initialStep: _onboardingStep),
           ),
         );
       });

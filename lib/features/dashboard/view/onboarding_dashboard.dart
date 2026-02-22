@@ -18,8 +18,13 @@ import 'package:finguard/core/network/api_client.dart';
 
 class OnboardingFlowScreen extends StatefulWidget {
   final int initialStep;
+  final bool allowBack;
 
-  const OnboardingFlowScreen({super.key, this.initialStep = 0});
+  const OnboardingFlowScreen({
+    super.key,
+    this.initialStep = 0,
+    this.allowBack = true,
+  });
 
   @override
   State<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
@@ -142,6 +147,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       final authVM = context.read<AuthViewmodel>();
       final localStorage = context.read<LocalStorage>();
       final userRepo = context.read<UserRepository>();
+      final apiClient = context.read<ApiClient>();
 
       final googleSignIn = GoogleSignIn();
       final account = await googleSignIn.signIn();
@@ -171,18 +177,20 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
       );
+      await localStorage.clearLoggedOutFlag();
 
       try {
-        await context.read<ApiClient>().refreshCachedSessionFromStorage();
+        await apiClient.refreshCachedSessionFromStorage();
       } catch (_) {}
 
       if (!authResponse.onboardingCompleted) {
         if (!authResponse.initialIncomeSet) {
           await localStorage.setPendingOnboardingStep(2);
+          if (!mounted) return;
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (_) =>
-                  OnboardingFlowScreen(key: UniqueKey(), initialStep: 2),
+                  const OnboardingFlowScreen(initialStep: 2, allowBack: false),
             ),
             (route) => false,
           );
@@ -269,13 +277,14 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           child: Column(
             children: [
               if (step > 0)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: _back,
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                if (widget.allowBack || step != 2)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: _back,
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    ),
                   ),
-                ),
               Expanded(
                 child: IndexedStack(
                   index: step,

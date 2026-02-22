@@ -5,6 +5,7 @@ import 'package:finguard/features/app_version/data/app_version_repository.dart';
 import 'package:finguard/features/app_version/data/model/app_version_response.dart';
 import 'package:finguard/features/activity/data/activity_repository.dart';
 import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
+import 'package:finguard/features/auth/view/login_screen.dart';
 import 'package:finguard/features/budget/data/budget_repository.dart';
 import 'package:finguard/features/budget/viewmodel/budget_viewmodel.dart';
 import 'package:finguard/features/category/data/category_repository.dart';
@@ -145,7 +146,26 @@ class FinguardApp extends StatelessWidget {
           update: (_, repo, previous) =>
               previous ?? BudgetViewmodel(repository: repo),
         ),
-        ChangeNotifierProvider(create: (context) => ProfileViewmodel()),
+        ChangeNotifierProxyProvider5<UserRepository, AuthRepository,
+            LocalStorage, ApiClient, AppVersionRepository, ProfileViewmodel>(
+          create: (context) => ProfileViewmodel(
+            userRepository: context.read<UserRepository>(),
+            authRepository: context.read<AuthRepository>(),
+            localStorage: context.read<LocalStorage>(),
+            apiClient: context.read<ApiClient>(),
+            appVersionRepository: context.read<AppVersionRepository>(),
+          ),
+          update: (context, userRepo, authRepo, storage, apiClient,
+                  appVersionRepo, previous) =>
+              previous ??
+              ProfileViewmodel(
+                userRepository: userRepo,
+                authRepository: authRepo,
+                localStorage: storage,
+                apiClient: apiClient,
+                appVersionRepository: appVersionRepo,
+              ),
+        ),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -205,10 +225,13 @@ class _RootDecider extends StatefulWidget {
 }
 
 class _RootDeciderState extends State<_RootDecider> {
+  static const _optionalUpdateSnooze = Duration(days: 3);
   bool? isOnboardingCompleted;
+  bool _hasActiveSession = false;
+  bool _wasLoggedOut = false;
+  int? onboardingInitialStep;
   bool isBootstrapping = true;
   bool _hasInitialized = false;
-  int? onboardingInitialStep;
   bool _isVersionBlocked = false;
   bool _isMaintenanceMode = false;
   String? _versionMessage;
@@ -218,6 +241,7 @@ class _RootDeciderState extends State<_RootDecider> {
   bool _optionalUpdatePromptShown = false;
   String? _optionalUpdateMessage;
   String? _optionalUpdateStoreUrl;
+  String? _optionalUpdateLatestVersion;
 
   @override
   void initState() {
@@ -251,6 +275,16 @@ class _RootDeciderState extends State<_RootDecider> {
 
     final completed = await storage.isOnboardingCompleted();
     final pendingStep = await storage.getPendingOnboardingStep();
+    final wasLoggedOut = await storage.wasLoggedOut();
+    final accessToken = await storage.getAccessToken();
+    final refreshToken = await storage.getRefreshToken();
+    final userUid = await storage.getUserUid();
+    final hasSession = accessToken != null &&
+        accessToken.isNotEmpty &&
+        refreshToken != null &&
+        refreshToken.isNotEmpty &&
+        userUid != null &&
+        userUid.isNotEmpty;
 
     if (mounted) {
       setState(() {
@@ -260,6 +294,8 @@ class _RootDeciderState extends State<_RootDecider> {
         _storeUrl = null;
         isOnboardingCompleted = completed;
         onboardingInitialStep = pendingStep;
+        _wasLoggedOut = wasLoggedOut;
+        _hasActiveSession = hasSession;
         isBootstrapping = false;
       });
     }
@@ -281,7 +317,7 @@ class _RootDeciderState extends State<_RootDecider> {
 
       if (!mounted) return false;
 
-      return _applyVersionGateResponse(
+      return await _applyVersionGateResponse(
         response,
         currentVersion: packageInfo.version,
       );
@@ -291,10 +327,12 @@ class _RootDeciderState extends State<_RootDecider> {
     }
   }
 
-  bool _applyVersionGateResponse(
+  Future<bool> _applyVersionGateResponse(
     AppVersionResponse response, {
     required String currentVersion,
-  }) {
+  }) async {
+    final storage = context.read<LocalStorage>();
+
     if (response.maintenanceMode) {
       setState(() {
         _isVersionBlocked = true;
@@ -312,13 +350,23 @@ class _RootDeciderState extends State<_RootDecider> {
           _compareVersion(response.latestVersion, currentVersion) > 0;
 
       if (hasOptionalUpdate) {
+        final isSuppressed = await storage.shouldSuppressOptionalUpdate(
+          response.latestVersion,
+        );
+        if (isSuppressed) {
+          return true;
+        }
+
         setState(() {
           _showOptionalUpdatePrompt = true;
           _optionalUpdateMessage =
               'A newer version (${response.latestVersion}) is available. '
               'Update now for the latest improvements.';
           _optionalUpdateStoreUrl = response.storeUrl;
+          _optionalUpdateLatestVersion = response.latestVersion;
         });
+      } else {
+        await storage.clearOptionalUpdateSnooze();
       }
       return true;
     }
@@ -408,7 +456,17 @@ class _RootDeciderState extends State<_RootDecider> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  onPressed: () async {
+                    final latestVersion = _optionalUpdateLatestVersion;
+                    if (latestVersion != null && latestVersion.isNotEmpty) {
+                      await context.read<LocalStorage>().snoozeOptionalUpdate(
+                            latestVersion: latestVersion,
+                            duration: _optionalUpdateSnooze,
+                          );
+                    }
+                    if (!dialogContext.mounted) return;
+                    Navigator.of(dialogContext).pop();
+                  },
                   child: const Text('Later'),
                 ),
                 ElevatedButton(
@@ -495,7 +553,17 @@ class _RootDeciderState extends State<_RootDecider> {
     }
 
     if (!isOnboardingCompleted!) {
+      if (_hasActiveSession) {
+        return const OnboardingFlowScreen(initialStep: 2, allowBack: false);
+      }
+      if (_wasLoggedOut) {
+        return const LoginScreen();
+      }
       return OnboardingFlowScreen(initialStep: onboardingInitialStep ?? 0);
+    }
+
+    if (!_hasActiveSession) {
+      return const LoginScreen();
     }
 
     return const MainNavigationScreen();

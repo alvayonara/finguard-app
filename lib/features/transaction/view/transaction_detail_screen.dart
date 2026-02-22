@@ -12,7 +12,7 @@ import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.da
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard/features/dashboard/view/onboarding_dashboard.dart';
+import 'package:finguard/features/auth/view/login_screen.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
   const TransactionDetailScreen({super.key});
@@ -194,8 +194,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                           if (context.mounted) {
                             await Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    OnboardingFlowScreen(key: UniqueKey()),
+                                builder: (_) => const LoginScreen(),
                               ),
                             );
                           }
@@ -303,13 +302,11 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final categoryVM = context.watch<CategoryViewModel>();
     final settings = context.watch<AppSettings>();
 
-    final categories = categoryVM.categories
-        .where((c) => c.type == widget.tx.type)
-        .toList();
+    final categories =
+        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
     final cleanAmount = amountController.text.replaceAll(',', '');
     final parsedAmount = double.tryParse(cleanAmount);
-    final canSubmit =
-        !txVM.isLoading &&
+    final canSubmit = !txVM.isLoading &&
         selectedCategoryId != null &&
         parsedAmount != null &&
         parsedAmount > 0;
@@ -412,8 +409,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                             if (context.mounted) {
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      OnboardingFlowScreen(key: UniqueKey()),
+                                  builder: (_) => const LoginScreen(),
                                 ),
                               );
                             }

@@ -1,5 +1,4 @@
 class ProfileModel {
-  final String userUid;
   final String? name;
   final String? email;
   final String role;
@@ -9,7 +8,6 @@ class ProfileModel {
   final String createdAt;
 
   ProfileModel({
-    required this.userUid,
     this.name,
     this.email,
     required this.role,
@@ -18,5 +16,18 @@ class ProfileModel {
     required this.preferredLanguage,
     required this.createdAt,
   });
+
+  factory ProfileModel.fromJson(Map<String, dynamic> json) {
+    return ProfileModel(
+      name: json['name']?.toString(),
+      email: json['email']?.toString(),
+      role: (json['role'] ?? 'USER').toString(),
+      plan: (json['plan'] ?? 'FREE').toString(),
+      preferredCurrency: (json['preferredCurrency'] ?? 'USD').toString(),
+      preferredLanguage: (json['preferredLanguage'] ?? 'en').toString(),
+      createdAt: (json['createdAt'] ?? '').toString(),
+    );
+  }
+
   bool get isPro => plan == "PRO";
 }
