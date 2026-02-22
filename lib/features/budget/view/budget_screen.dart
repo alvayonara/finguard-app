@@ -1,5 +1,6 @@
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/utils/category_icon_mapper.dart';
+import 'package:finguard_app/core/utils/currency_symbol.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/features/category/data/model/category_model.dart';
 import 'package:finguard_app/features/category/view/category_picker_screen.dart';
@@ -506,7 +507,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   ],
                   decoration: InputDecoration(
                     labelText: "Monthly limit",
-                    prefixText: _currencySymbol(settings.currency),
+                    prefixText: CurrencySymbol.of(settings.currency),
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
@@ -551,22 +552,5 @@ class _BudgetScreenState extends State<BudgetScreen> {
       amountController.dispose();
       amountFocusNode.dispose();
     });
-  }
-
-  String _currencySymbol(String code) {
-    switch (code.toUpperCase()) {
-      case 'IDR':
-        return 'Rp ';
-      case 'USD':
-        return '\$ ';
-      case 'JPY':
-        return '¥ ';
-      case 'EUR':
-        return '€ ';
-      case 'SGD':
-        return 'S\$ ';
-      default:
-        return '${code.toUpperCase()} ';
-    }
   }
 }

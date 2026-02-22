@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:finguard_app/core/utils/currency_symbol.dart';
 import 'package:intl/intl.dart';
 
 class AppSettings extends ChangeNotifier {
@@ -21,26 +22,9 @@ class AppSettings extends ChangeNotifier {
   String formatCurrency(double value) {
     final format = NumberFormat.currency(
       locale: _locale.toLanguageTag(),
-      symbol: _currencySymbol(_currency),
+      symbol: CurrencySymbol.of(_currency),
       decimalDigits: 2,
     );
     return format.format(value);
-  }
-
-  String _currencySymbol(String code) {
-    switch (code.toUpperCase()) {
-      case 'IDR':
-        return 'Rp ';
-      case 'USD':
-        return '\$ ';
-      case 'JPY':
-        return '¥ ';
-      case 'EUR':
-        return '€ ';
-      case 'SGD':
-        return 'S\$ ';
-      default:
-        return '${code.toUpperCase()} ';
-    }
   }
 }

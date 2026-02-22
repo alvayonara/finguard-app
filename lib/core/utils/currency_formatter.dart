@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:finguard_app/core/utils/currency_symbol.dart';
 
 class CurrencyFormatter {
   static String format({
@@ -9,27 +10,10 @@ class CurrencyFormatter {
   }) {
     final formatter = NumberFormat.currency(
       locale: locale,
-      symbol: _symbol(currencyCode),
+      symbol: CurrencySymbol.of(currencyCode),
       decimalDigits: decimalDigits,
     );
 
     return formatter.format(amount);
-  }
-
-  static String _symbol(String code) {
-    switch (code.toUpperCase()) {
-      case 'IDR':
-        return 'Rp ';
-      case 'USD':
-        return '\$ ';
-      case 'JPY':
-        return '¥ ';
-      case 'EUR':
-        return '€ ';
-      case 'SGD':
-        return 'S\$ ';
-      default:
-        return '${code.toUpperCase()} ';
-    }
   }
 }

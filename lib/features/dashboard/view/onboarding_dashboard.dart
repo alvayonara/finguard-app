@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:finguard_app/core/app_settings.dart';
 import 'package:finguard_app/core/storage/local_storage.dart';
+import 'package:finguard_app/core/utils/currency_symbol.dart';
 import 'package:finguard_app/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard_app/features/transaction/data/enum/transaction_type_enum.dart';
 import 'package:finguard_app/features/transaction/data/model/create_transaction_request.dart';
@@ -36,13 +37,6 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
 
   String selectedCurrency = "USD";
   final List<String> currencies = ["USD", "EUR", "JPY", "SGD", "IDR"];
-  final Map<String, String> currencySymbols = {
-    "USD": "\$",
-    "IDR": "Rp",
-    "JPY": "¥",
-    "EUR": "€",
-    "SGD": "S\$",
-  };
 
   double? get _incomeValue {
     final cleanText = incomeController.text.replaceAll(',', '');
@@ -515,7 +509,10 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        currencySymbols[selectedCurrency] ?? "",
+                        CurrencySymbol.of(
+                          selectedCurrency,
+                          trailingSpace: false,
+                        ),
                         style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
