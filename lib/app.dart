@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:alice/alice.dart';
+import 'package:finguard/features/app_config/app_config_repository.dart';
 import 'package:finguard/features/app_version/data/app_version_repository.dart';
 import 'package:finguard/features/app_version/data/model/app_version_response.dart';
 import 'package:finguard/features/activity/data/activity_repository.dart';
@@ -95,9 +96,17 @@ class FinguardApp extends StatelessWidget {
         Provider(
           create: (context) => BudgetRepository(context.read<ApiClient>()),
         ),
+        Provider(
+          create: (context) => AppConfigRepository(context.read<ApiClient>()),
+        ),
         ChangeNotifierProvider(create: (_) => settings),
-        ChangeNotifierProxyProvider4<AuthRepository, UserRepository,
-            LocalStorage, AppSettings, AuthViewmodel>(
+        ChangeNotifierProxyProvider4<
+          AuthRepository,
+          UserRepository,
+          LocalStorage,
+          AppSettings,
+          AuthViewmodel
+        >(
           create: (context) => AuthViewmodel(
             context.read<AuthRepository>(),
             context.read<UserRepository>(),
@@ -128,8 +137,12 @@ class FinguardApp extends StatelessWidget {
               CategoryViewModel(context.read<CategoryRepository>()),
           update: (_, repo, previous) => previous ?? CategoryViewModel(repo),
         ),
-        ChangeNotifierProxyProvider3<TransactionRepository, AuthRepository,
-            LocalStorage, TransactionViewModel>(
+        ChangeNotifierProxyProvider3<
+          TransactionRepository,
+          AuthRepository,
+          LocalStorage,
+          TransactionViewModel
+        >(
           create: (context) => TransactionViewModel(
             context.read<TransactionRepository>(),
             context.read<AuthRepository>(),
@@ -152,13 +165,14 @@ class FinguardApp extends StatelessWidget {
               previous ?? BudgetViewmodel(repository: repo),
         ),
         ChangeNotifierProxyProvider6<
-            UserRepository,
-            AuthRepository,
-            LocalStorage,
-            ApiClient,
-            AppVersionRepository,
-            SubscriptionRepository,
-            ProfileViewmodel>(
+          UserRepository,
+          AuthRepository,
+          LocalStorage,
+          ApiClient,
+          AppVersionRepository,
+          SubscriptionRepository,
+          ProfileViewmodel
+        >(
           create: (context) => ProfileViewmodel(
             userRepository: context.read<UserRepository>(),
             authRepository: context.read<AuthRepository>(),
@@ -166,18 +180,29 @@ class FinguardApp extends StatelessWidget {
             apiClient: context.read<ApiClient>(),
             appVersionRepository: context.read<AppVersionRepository>(),
             subscriptionRepository: context.read<SubscriptionRepository>(),
+            appConfigRepository: context.read<AppConfigRepository>(),
           ),
-          update: (context, userRepo, authRepo, storage, apiClient,
-                  appVersionRepo, subscriptionRepo, previous) =>
-              previous ??
-              ProfileViewmodel(
-                userRepository: userRepo,
-                authRepository: authRepo,
-                localStorage: storage,
-                apiClient: apiClient,
-                appVersionRepository: appVersionRepo,
-                subscriptionRepository: subscriptionRepo,
-              ),
+          update:
+              (
+                context,
+                userRepo,
+                authRepo,
+                storage,
+                apiClient,
+                appVersionRepo,
+                subscriptionRepo,
+                previous,
+              ) =>
+                  previous ??
+                  ProfileViewmodel(
+                    userRepository: userRepo,
+                    authRepository: authRepo,
+                    localStorage: storage,
+                    apiClient: apiClient,
+                    appVersionRepository: appVersionRepo,
+                    subscriptionRepository: subscriptionRepo,
+                    appConfigRepository: context.read<AppConfigRepository>(),
+                  ),
         ),
       ],
       child: MaterialApp(
@@ -292,7 +317,8 @@ class _RootDeciderState extends State<_RootDecider> {
     final accessToken = await storage.getAccessToken();
     final refreshToken = await storage.getRefreshToken();
     final userUid = await storage.getUserUid();
-    final hasSession = accessToken != null &&
+    final hasSession =
+        accessToken != null &&
         accessToken.isNotEmpty &&
         refreshToken != null &&
         refreshToken.isNotEmpty &&
@@ -350,7 +376,8 @@ class _RootDeciderState extends State<_RootDecider> {
       setState(() {
         _isVersionBlocked = true;
         _isMaintenanceMode = true;
-        _versionMessage = response.maintenanceMessage ??
+        _versionMessage =
+            response.maintenanceMessage ??
             'We are currently under maintenance. Please try again later.';
         _storeUrl = null;
       });
@@ -359,7 +386,8 @@ class _RootDeciderState extends State<_RootDecider> {
 
     final needsForceUpdate = response.forceUpdate || response.mustUpdate;
     if (!needsForceUpdate) {
-      final hasOptionalUpdate = response.latestVersion.isNotEmpty &&
+      final hasOptionalUpdate =
+          response.latestVersion.isNotEmpty &&
           _compareVersion(response.latestVersion, currentVersion) > 0;
 
       if (hasOptionalUpdate) {
@@ -398,8 +426,9 @@ class _RootDeciderState extends State<_RootDecider> {
   int _compareVersion(String a, String b) {
     final aParts = _normalizeVersion(a);
     final bParts = _normalizeVersion(b);
-    final maxLength =
-        aParts.length > bParts.length ? aParts.length : bParts.length;
+    final maxLength = aParts.length > bParts.length
+        ? aParts.length
+        : bParts.length;
 
     for (var i = 0; i < maxLength; i++) {
       final left = i < aParts.length ? aParts[i] : 0;
@@ -473,9 +502,9 @@ class _RootDeciderState extends State<_RootDecider> {
                     final latestVersion = _optionalUpdateLatestVersion;
                     if (latestVersion != null && latestVersion.isNotEmpty) {
                       await context.read<LocalStorage>().snoozeOptionalUpdate(
-                            latestVersion: latestVersion,
-                            duration: _optionalUpdateSnooze,
-                          );
+                        latestVersion: latestVersion,
+                        duration: _optionalUpdateSnooze,
+                      );
                     }
                     if (!dialogContext.mounted) return;
                     Navigator.of(dialogContext).pop();

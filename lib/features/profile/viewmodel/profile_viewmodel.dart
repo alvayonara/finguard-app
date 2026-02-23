@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'dart:async';
 
+import 'package:finguard/features/app_config/app_config_repository.dart';
 import 'package:finguard/features/app_version/data/app_version_repository.dart';
 import 'package:finguard/features/app_version/data/model/app_version_response.dart';
 import 'package:finguard/features/subscription/data/subscription_repository.dart';
@@ -45,6 +46,7 @@ class ProfileViewmodel extends ChangeNotifier {
   final ApiClient apiClient;
   final AppVersionRepository appVersionRepository;
   final SubscriptionRepository subscriptionRepository;
+  final AppConfigRepository appConfigRepository;
 
   ProfileViewmodel({
     required this.userRepository,
@@ -53,6 +55,7 @@ class ProfileViewmodel extends ChangeNotifier {
     required this.apiClient,
     required this.appVersionRepository,
     required this.subscriptionRepository,
+    required this.appConfigRepository,
   });
 
   ProfileModel? profile;
@@ -60,6 +63,7 @@ class ProfileViewmodel extends ChangeNotifier {
   bool isSigningOut = false;
   bool isCheckingUpdate = false;
   bool isSubscribing = false;
+  bool subscriptionEnabled = false;
   String? appVersion;
   String? error;
 
@@ -72,6 +76,12 @@ class ProfileViewmodel extends ChangeNotifier {
 
       final packageInfo = await PackageInfo.fromPlatform();
       appVersion = "${packageInfo.version} (${packageInfo.buildNumber})";
+
+      final config = await appConfigRepository.getConfig(
+        platform: Platform.isAndroid ? 'ANDROID' : 'IOS',
+        version: packageInfo.version,
+      );
+      subscriptionEnabled = config.subscriptionEnabled;
 
       error = null;
     } catch (e) {
@@ -142,7 +152,8 @@ class ProfileViewmodel extends ChangeNotifier {
     AppVersionResponse response,
   ) {
     final forceUpdate = response.forceUpdate || response.mustUpdate;
-    final hasOptionalUpdate = response.latestVersion.isNotEmpty &&
+    final hasOptionalUpdate =
+        response.latestVersion.isNotEmpty &&
         _compareVersion(response.latestVersion, currentVersion) > 0;
 
     return ProfileUpdateStatus(
@@ -159,8 +170,9 @@ class ProfileViewmodel extends ChangeNotifier {
   int _compareVersion(String a, String b) {
     final aParts = _normalizeVersion(a);
     final bParts = _normalizeVersion(b);
-    final maxLength =
-        aParts.length > bParts.length ? aParts.length : bParts.length;
+    final maxLength = aParts.length > bParts.length
+        ? aParts.length
+        : bParts.length;
 
     for (var i = 0; i < maxLength; i++) {
       final left = i < aParts.length ? aParts[i] : 0;

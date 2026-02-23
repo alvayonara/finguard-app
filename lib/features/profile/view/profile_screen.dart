@@ -83,7 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _buildHeader(profile),
           const SizedBox(height: 20),
-          if (!profile.isPro) _buildUpgradeCard(vm),
+          if (!profile.isPro && vm.subscriptionEnabled) _buildUpgradeCard(vm),
           _sectionCard(
             title: "Preferences",
             children: [
