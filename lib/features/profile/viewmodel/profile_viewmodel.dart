@@ -60,6 +60,7 @@ class ProfileViewmodel extends ChangeNotifier {
   bool isSigningOut = false;
   bool isCheckingUpdate = false;
   bool isSubscribing = false;
+  String? appVersion;
   String? error;
 
   Future<void> loadProfile() async {
@@ -68,6 +69,10 @@ class ProfileViewmodel extends ChangeNotifier {
       notifyListeners();
 
       profile = await userRepository.getMe();
+
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion = "${packageInfo.version} (${packageInfo.buildNumber})";
+
       error = null;
     } catch (e) {
       error = "Failed to load profile";

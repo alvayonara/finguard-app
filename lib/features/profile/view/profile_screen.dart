@@ -36,8 +36,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               vm.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : vm.profile == null
-                      ? _buildLoadError(vm)
-                      : _buildBody(vm),
+                  ? _buildLoadError(vm)
+                  : _buildBody(vm),
               if (vm.isSigningOut)
                 Positioned.fill(
                   child: ColoredBox(
@@ -108,6 +108,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _logoutButton(vm),
             ],
           ),
+          const SizedBox(height: 30),
+          _buildAppVersion(vm),
         ],
       ),
     );
@@ -128,8 +130,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFFF2B8B8)),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
@@ -147,8 +150,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         style: OutlinedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
@@ -193,7 +197,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (dialogContext) => AlertDialog(
             title: const Text("Up to date"),
             content: Text(
-                "You are already using the latest version (${result.currentVersion})."),
+              "You are already using the latest version (${result.currentVersion}).",
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
@@ -208,8 +213,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await showDialog<void>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title:
-              Text(result.forceUpdate ? "Update required" : "Update available"),
+          title: Text(
+            result.forceUpdate ? "Update required" : "Update available",
+          ),
           content: Text(
             "Current: ${result.currentVersion}\nLatest: ${result.latestVersion ?? '-'}",
           ),
@@ -237,10 +243,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-          const SnackBar(content: Text("Failed to check for updates.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to check for updates.")),
+      );
     }
   }
 
@@ -327,9 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   profile.email ?? "",
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.85)),
                 ),
               ],
             ),
@@ -368,8 +371,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        border:
-            Border.all(color: const Color(0xFF56AB2F).withValues(alpha: 0.35)),
+        border: Border.all(
+          color: const Color(0xFF56AB2F).withValues(alpha: 0.35),
+        ),
         color: Colors.white,
       ),
       child: Column(
@@ -396,15 +400,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         if (!mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Subscription activated successfully.'),
+                            content: Text(
+                              'Subscription activated successfully.',
+                            ),
                           ),
                         );
                       } catch (e) {
                         if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(e.toString())),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.toString())));
                       }
                     },
               style: ElevatedButton.styleFrom(
@@ -484,4 +489,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+Widget _buildAppVersion(ProfileViewmodel vm) {
+  final version = vm.appVersion;
+  if (version == null) {
+    return const SizedBox.shrink();
+  }
+  return Column(
+    children: [
+      const Divider(height: 40),
+      Text(
+        "Finguard",
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey.shade600,
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        "Version $version",
+        style: const TextStyle(fontSize: 12, color: Colors.grey),
+      ),
+    ],
+  );
 }
