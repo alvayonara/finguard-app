@@ -6,6 +6,7 @@ import 'dart:async';
 class ApiClient {
   static const _retryHeader = 'X-RETRY';
   static const _refreshPath = '/v1/users/refresh';
+  static const String baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'http://localhost:8080');
 
   final Dio dio;
   final LocalStorage localStorage;
@@ -17,7 +18,7 @@ class ApiClient {
   ApiClient(this.localStorage, {required this.alice})
     : dio = Dio(
         BaseOptions(
-          baseUrl: "http://localhost:8080",
+          baseUrl: baseUrl,
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         ),

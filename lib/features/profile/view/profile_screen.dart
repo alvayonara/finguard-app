@@ -81,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
         children: [
-          _buildHeader(profile),
+          _buildHeader(vm),
           const SizedBox(height: 20),
           if (!profile.isPro && vm.subscriptionEnabled) _buildUpgradeCard(vm),
           _sectionCard(
@@ -284,7 +284,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
 
-  Widget _buildHeader(ProfileModel profile) {
+  Widget _buildHeader(ProfileViewmodel vm) {
+    final profile = vm.profile!;
     return Container(
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
@@ -337,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          _planBadge(profile.plan),
+          if (vm.subscriptionEnabled) _planBadge(profile.plan),
         ],
       ),
     );
