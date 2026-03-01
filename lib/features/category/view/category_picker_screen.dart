@@ -2,6 +2,7 @@ import 'package:finguard/core/utils/category_icon_mapper.dart';
 import 'package:finguard/features/category/data/category_repository.dart';
 import 'package:finguard/features/category/data/model/category_model.dart';
 import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -42,16 +43,16 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
         .toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
         title: Text(
           widget.title,
           style: const TextStyle(
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
+            color: AppColors.textPrimary,
           ),
         ),
         actions: [
@@ -88,7 +89,7 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
-                            ? const Color(0xFF5E5CE6)
+                            ? AppColors.primary
                             : Colors.grey.shade200,
                         width: isSelected ? 2 : 1,
                       ),
@@ -128,15 +129,10 @@ class _CategoryPickerScreenState extends State<CategoryPickerScreen> {
                             color: Colors.grey.shade400,
                             size: 20,
                           ),
-                        if (category.isDefault && isSelected)
+                        if (isSelected)
                           const Icon(
                             Icons.check_circle_rounded,
-                            color: Color(0xFF5E5CE6),
-                          ),
-                        if (!category.isDefault && isSelected)
-                          const Icon(
-                            Icons.check_circle_rounded,
-                            color: Color(0xFF5E5CE6),
+                            color: AppColors.primary,
                           ),
                       ],
                     ),

@@ -1,4 +1,6 @@
 import 'dart:io' show Platform;
+
+import 'package:finguard/core/utils/version_utils.dart';
 import 'dart:async';
 
 import 'package:finguard/features/app_config/app_config_repository.dart';
@@ -48,6 +50,8 @@ class ProfileViewmodel extends ChangeNotifier {
   final SubscriptionRepository subscriptionRepository;
   final AppConfigRepository appConfigRepository;
 
+  String get _platformId => Platform.isAndroid ? 'ANDROID' : 'IOS';
+
   ProfileViewmodel({
     required this.userRepository,
     required this.authRepository,
@@ -78,7 +82,7 @@ class ProfileViewmodel extends ChangeNotifier {
       appVersion = "${packageInfo.version} (${packageInfo.buildNumber})";
 
       final config = await appConfigRepository.getConfig(
-        platform: Platform.isAndroid ? 'ANDROID' : 'IOS',
+        platform: _platformId,
         version: packageInfo.version,
       );
       subscriptionEnabled = config.subscriptionEnabled;
@@ -154,7 +158,7 @@ class ProfileViewmodel extends ChangeNotifier {
     final forceUpdate = response.forceUpdate || response.mustUpdate;
     final hasOptionalUpdate =
         response.latestVersion.isNotEmpty &&
-        _compareVersion(response.latestVersion, currentVersion) > 0;
+        compareVersion(response.latestVersion, currentVersion) > 0;
 
     return ProfileUpdateStatus(
       maintenanceMode: response.maintenanceMode,
@@ -167,36 +171,6 @@ class ProfileViewmodel extends ChangeNotifier {
     );
   }
 
-  int _compareVersion(String a, String b) {
-    final aParts = _normalizeVersion(a);
-    final bParts = _normalizeVersion(b);
-    final maxLength = aParts.length > bParts.length
-        ? aParts.length
-        : bParts.length;
-
-    for (var i = 0; i < maxLength; i++) {
-      final left = i < aParts.length ? aParts[i] : 0;
-      final right = i < bParts.length ? bParts[i] : 0;
-      if (left > right) return 1;
-      if (left < right) return -1;
-    }
-    return 0;
-  }
-
-  List<int> _normalizeVersion(String value) {
-    final normalized = value
-        .split('+')
-        .first
-        .replaceAll(RegExp(r'[^0-9.]'), '')
-        .split('.')
-        .where((part) => part.isNotEmpty)
-        .map((part) => int.tryParse(part) ?? 0)
-        .toList();
-
-    if (normalized.isEmpty) return [0];
-    return normalized;
-  }
-
   Future<void> subscribeToPro() async {
     if (isSubscribing) return;
     if (!Platform.isAndroid && !Platform.isIOS) {
@@ -204,7 +178,7 @@ class ProfileViewmodel extends ChangeNotifier {
     }
 
     final productId = Platform.isAndroid ? _androidProductId : _iosProductId;
-    final platform = Platform.isAndroid ? 'ANDROID' : 'IOS';
+    final platform = _platformId;
     final iap = InAppPurchase.instance;
 
     StreamSubscription<List<PurchaseDetails>>? sub;

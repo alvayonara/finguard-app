@@ -1,3 +1,4 @@
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/utils/insight_resolver.dart';
 import 'package:finguard/features/risk/data/model/risk_detail_response.dart';
 import 'package:finguard/features/risk/data/model/risk_insight.dart';
@@ -39,7 +40,7 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light, // white icons
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -215,12 +216,12 @@ class _RiskDetailScreenState extends State<RiskDetailScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFF5E5CE6).withOpacity(0.15),
+              color: AppColors.primary.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
             child: const Icon(
               Icons.lightbulb_outline,
-              color: Color(0xFF5E5CE6),
+              color: AppColors.primary,
               size: 24,
             ),
           ),

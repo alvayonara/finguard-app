@@ -1,6 +1,7 @@
 import 'package:finguard/core/app_settings.dart';
 import 'package:finguard/core/utils/currency_formatter.dart';
 import 'package:finguard/features/budget/data/model/budget_usage_model.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class BudgetCard extends StatelessWidget {
@@ -103,7 +104,7 @@ class BudgetCard extends StatelessWidget {
               minHeight: 10,
               backgroundColor: Colors.grey.shade200,
               valueColor: AlwaysStoppedAnimation<Color>(
-                isOver ? Colors.red : const Color(0xFF5E5CE6),
+                isOver ? Colors.red : AppColors.primary,
               ),
             ),
           ),

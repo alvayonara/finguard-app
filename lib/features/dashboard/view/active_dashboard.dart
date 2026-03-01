@@ -1,4 +1,5 @@
 import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/ui/bounce_wrapper.dart';
 import 'package:finguard/core/utils/category_visual_resolver.dart';
 import 'package:finguard/core/utils/currency_formatter.dart';
@@ -149,7 +150,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
                               height: 14,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Color(0xFF5E5CE6),
+                                color: AppColors.primary,
                               ),
                             ),
                           )
@@ -217,7 +218,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
+          color: isSelected ? AppColors.primary : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -740,7 +741,7 @@ class _ActiveDashboardState extends State<ActiveDashboard> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5E5CE6),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),

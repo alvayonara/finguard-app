@@ -1,4 +1,5 @@
 import 'package:finguard/core/storage/local_storage.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:alice/alice.dart';
 import 'package:finguard/features/auth/view/login_screen.dart';
 import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
@@ -121,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _loadData();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5E5CE6),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

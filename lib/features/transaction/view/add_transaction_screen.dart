@@ -1,4 +1,5 @@
 import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/utils/category_icon_mapper.dart';
 import 'package:finguard/core/utils/currency_symbol.dart';
 import 'package:finguard/core/utils/thousand_separator_formatter.dart';
@@ -12,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard/features/auth/view/login_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
@@ -82,17 +82,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (e is StateError && e.message.contains('Authentication required')) {
-        if (mounted) {
-          // Navigate to onboarding/login flow
-          await Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const LoginScreen(),
-            ),
-          );
-        }
-        return;
-      }
       if (mounted) {
         _showError(e.toString());
       }
@@ -119,7 +108,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF5E5CE6),
+              primary: AppColors.primary,
               onPrimary: Colors.white,
               surface: Colors.white,
             ),
@@ -146,10 +135,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor: const Color(0xFFF5F6FA),
+        statusBarColor: AppColors.background,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         appBar: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           backgroundColor: Colors.transparent,

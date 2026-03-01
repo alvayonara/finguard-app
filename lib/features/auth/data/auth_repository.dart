@@ -7,7 +7,7 @@ import 'model/refresh_token_request.dart';
 class AuthRepository {
   final ApiClient apiClient;
 
-  AuthRepository(this.apiClient);
+  AuthRepository({required this.apiClient});
 
   Future<AuthResponse> loginWithGoogle({required String idToken}) async {
     final response = await apiClient.dio.post(

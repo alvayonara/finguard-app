@@ -1,4 +1,5 @@
 import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/storage/local_storage.dart';
 import 'package:finguard/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:finguard/features/dashboard/view/onboarding_dashboard.dart';
@@ -191,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: isLoading ? null : _handleGoogleSignIn,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF5E5CE6),
+                            backgroundColor: AppColors.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),

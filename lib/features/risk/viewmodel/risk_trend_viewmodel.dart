@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class RiskTrendViewmodel extends ChangeNotifier {
   final RiskRepository riskRepository;
 
-  RiskTrendViewmodel(this.riskRepository);
+  RiskTrendViewmodel({required this.riskRepository});
   bool isLoading = false;
   List<RiskTrendItem> data = [];
   int selectedDays = 7;

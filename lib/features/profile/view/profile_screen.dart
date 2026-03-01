@@ -1,4 +1,4 @@
-import 'package:finguard/features/profile/data/model/profile_model.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/features/profile/viewmodel/profile_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Stack(
             children: [
@@ -290,14 +290,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF5E5CE6), Color(0xFF7A78EE)],
+          colors: [AppColors.primary, Color(0xFF7A78EE)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5E5CE6).withValues(alpha: 0.35),
+            color: AppColors.primary.withValues(alpha: 0.35),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -469,10 +469,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 34,
             width: 34,
             decoration: BoxDecoration(
-              color: const Color(0xFF5E5CE6).withValues(alpha: 0.08),
+              color: AppColors.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 18, color: const Color(0xFF5E5CE6)),
+            child: Icon(icon, size: 18, color: AppColors.primary),
           ),
           const SizedBox(width: 10),
           Expanded(child: Text(label)),

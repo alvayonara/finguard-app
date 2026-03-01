@@ -4,7 +4,7 @@ import 'package:finguard/features/budget/data/model/budget_usage_model.dart';
 
 class BudgetRepository {
   final ApiClient apiClient;
-  BudgetRepository(this.apiClient);
+  BudgetRepository({required this.apiClient});
 
   Future<BudgetUsagePageResponse> getBudgets({
     String? month,

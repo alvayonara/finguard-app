@@ -1,3 +1,4 @@
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/features/risk/data/model/risk_trend_item.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class RiskTrendCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF5E5CE6) : Colors.grey.shade200,
+          color: selected ? AppColors.primary : Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(

@@ -6,7 +6,7 @@ import '../data/model/category_request.dart';
 class CategoryViewModel extends ChangeNotifier {
   final CategoryRepository repository;
 
-  CategoryViewModel(this.repository);
+  CategoryViewModel({required this.repository});
 
   List<CategoryModel> categories = [];
   bool isLoading = false;

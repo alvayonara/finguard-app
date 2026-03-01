@@ -24,7 +24,6 @@ class AuthViewmodel extends ChangeNotifier {
   Future<void> bootstrap() async {
     _setLoading(true);
     try {
-      await _initUser();
       final access = await localStorage.getAccessToken();
       final refresh = await localStorage.getRefreshToken();
       final uid = await localStorage.getUserUid();
@@ -63,17 +62,6 @@ class AuthViewmodel extends ChangeNotifier {
     _setLoading(false);
   }
 
-  Future<void> _initUser() async {
-    final existingId = await localStorage.getUserUid();
-    final existingRefreshToken = await localStorage.getRefreshToken();
-    if (existingId != null &&
-        existingRefreshToken != null &&
-        existingRefreshToken.isNotEmpty) {
-      return;
-    }
-    return;
-  }
-
   Future<void> _applyPreferences(UserPreference pref) async {
     appSettings.setLocale(Locale(pref.language));
     appSettings.setCurrency(pref.currency);
@@ -109,11 +97,6 @@ class AuthViewmodel extends ChangeNotifier {
   }
 
   Future<void> reauthenticate() async {
-    try {
-      await localStorage.clearAuthSession();
-      await _initUser();
-    } catch (e) {
-      rethrow;
-    }
+    await localStorage.clearAuthSession();
   }
 }

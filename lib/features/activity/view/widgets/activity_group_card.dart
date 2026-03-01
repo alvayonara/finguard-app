@@ -1,4 +1,5 @@
 import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/ui/bounce_wrapper.dart';
 import 'package:finguard/core/utils/category_visual_resolver.dart';
 import 'package:finguard/core/utils/currency_formatter.dart';
@@ -156,7 +157,7 @@ class ActivityGroupCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A1A),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -212,7 +213,7 @@ class ActivityGroupCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),

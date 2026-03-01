@@ -4,6 +4,8 @@ import 'package:finguard/features/activity/viewmodel/activity_viewmodel.dart';
 import 'package:finguard/features/activity/view/widgets/insight_card_widget.dart';
 import 'package:finguard/features/activity/view/widgets/date_header_widget.dart';
 import 'package:finguard/features/activity/view/widgets/activity_group_card.dart';
+import 'package:finguard/core/ui/app_colors.dart';
+import 'package:finguard/core/ui/app_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +58,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +83,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 2),
@@ -100,52 +102,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
 
     if (vm.error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.warning_amber_rounded,
-                size: 64,
-                color: Colors.orange[300],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _getErrorTitle(vm.error!),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1A1A1A),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _getErrorMessage(vm.error!),
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => vm.loadActivities(refresh: true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF5E5CE6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        title: _getErrorTitle(vm.error!),
+        message: _getErrorMessage(vm.error!),
+        onRetry: () => vm.loadActivities(refresh: true),
       );
     }
 

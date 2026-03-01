@@ -1,4 +1,6 @@
 import 'package:finguard/core/app_settings.dart';
+import 'package:finguard/core/ui/app_colors.dart';
+import 'package:finguard/core/ui/app_error_view.dart';
 import 'package:finguard/core/utils/category_icon_mapper.dart';
 import 'package:finguard/core/utils/currency_symbol.dart';
 import 'package:finguard/core/utils/thousand_separator_formatter.dart';
@@ -58,7 +60,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: AppColors.background,
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +108,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -199,30 +201,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
     }
 
     if (vm.error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Failed to load budgets",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                vm.error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => vm.loadBudgets(refresh: true),
-                child: const Text("Retry"),
-              ),
-            ],
-          ),
-        ),
+      return AppErrorView(
+        title: 'Failed to load budgets',
+        message: vm.error!,
+        onRetry: () => vm.loadBudgets(refresh: true),
       );
     }
 
@@ -426,7 +408,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       selectedCategoryName ?? "Category",
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A1A1A),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   )
@@ -484,7 +466,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               style: TextStyle(
                                 color: selectedCategoryName == null
                                     ? Colors.grey.shade600
-                                    : const Color(0xFF1A1A1A),
+                                    : AppColors.textPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -536,7 +518,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5E5CE6),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),

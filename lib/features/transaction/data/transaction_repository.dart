@@ -5,7 +5,7 @@ import 'package:finguard/features/transaction/data/model/update_transaction_requ
 class TransactionRepository {
   final ApiClient apiClient;
 
-  TransactionRepository(this.apiClient);
+  TransactionRepository({required this.apiClient});
 
   Future<void> createTransaction(CreateTransactionRequest request) async {
     await apiClient.dio.post("/v1/transactions", data: request.toJson());

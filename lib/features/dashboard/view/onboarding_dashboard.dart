@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/core/app_settings.dart';
 import 'package:finguard/core/storage/local_storage.dart';
 import 'package:finguard/core/utils/currency_symbol.dart';
@@ -319,8 +320,8 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
           width: isActive ? 20 : 8,
           decoration: BoxDecoration(
             color: isActive
-                ? const Color(0xFF5E5CE6)
-                : const Color(0xFF5E5CE6).withOpacity(0.3),
+                ? AppColors.primary
+                : AppColors.primary.withOpacity(0.3),
             borderRadius: BorderRadius.circular(20),
           ),
         );
@@ -406,7 +407,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
             child: ElevatedButton(
               onPressed: isLoading ? null : _handleGoogleSignIn,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5E5CE6),
+                backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -525,7 +526,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         style: const TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF5E5CE6),
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -559,7 +560,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         style: const TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
+                          color: AppColors.textPrimary,
                         ),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
@@ -611,7 +612,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF5E5CE6),
+          backgroundColor: AppColors.primary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),

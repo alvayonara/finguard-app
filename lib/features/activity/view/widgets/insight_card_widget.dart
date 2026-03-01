@@ -1,3 +1,4 @@
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/features/activity/data/model/insight_card.dart';
 import 'package:finguard/core/utils/insight_resolver.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class InsightCardWidget extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+                    color: AppColors.textPrimary,
                     height: 1.3,
                   ),
                 ),

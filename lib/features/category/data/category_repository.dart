@@ -1,5 +1,6 @@
-import 'package:finguard/core/network/api_client.dart';
 import 'package:dio/dio.dart';
+import 'package:finguard/core/network/api_client.dart';
+import 'package:finguard/core/network/dio_error_handler.dart';
 import 'model/category_model.dart';
 import 'model/category_request.dart';
 
@@ -19,7 +20,7 @@ class CategoryNotFoundException implements Exception {
 class CategoryRepository {
   final ApiClient apiClient;
 
-  CategoryRepository(this.apiClient);
+  CategoryRepository({required this.apiClient});
 
   Future<List<CategoryModel>> getAll() async {
     final response = await apiClient.dio.get("/v1/categories");
@@ -41,7 +42,7 @@ class CategoryRepository {
       if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
         throw CategoryNotFoundException();
       }
-      throw Exception(_extractMessage(e));
+      throw Exception(extractDioMessage(e, fallback: 'Category request failed'));
     }
   }
 
@@ -59,7 +60,7 @@ class CategoryRepository {
       if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
         throw CategoryNotFoundException();
       }
-      throw Exception(_extractMessage(e));
+      throw Exception(extractDioMessage(e, fallback: 'Category request failed'));
     }
   }
 
@@ -70,22 +71,7 @@ class CategoryRepository {
       if (e.response?.statusCode == 404 || e.response?.statusCode == 403) {
         throw CategoryNotFoundException();
       }
-      throw Exception(_extractMessage(e));
+      throw Exception(extractDioMessage(e, fallback: 'Category request failed'));
     }
-  }
-
-  String _extractMessage(DioException e) {
-    final data = e.response?.data;
-    if (data is Map<String, dynamic>) {
-      final message = data['message']?.toString();
-      if (message != null && message.isNotEmpty) {
-        return message;
-      }
-      final error = data['error']?.toString();
-      if (error != null && error.isNotEmpty) {
-        return error;
-      }
-    }
-    return e.message ?? 'Category request failed';
   }
 }

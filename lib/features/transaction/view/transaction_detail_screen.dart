@@ -8,11 +8,11 @@ import 'package:finguard/features/category/view/category_picker_screen.dart';
 import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
 import 'package:finguard/features/transaction/data/model/transaction_model.dart';
 import 'package:finguard/features/transaction/data/model/update_transaction_request.dart';
+import 'package:finguard/core/ui/app_colors.dart';
 import 'package:finguard/features/transaction/viewmodel/transaction_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:finguard/features/auth/view/login_screen.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
   const TransactionDetailScreen({super.key});
@@ -56,13 +56,13 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark.copyWith(
-          statusBarColor: const Color(0xFFF5F6FA),
+          statusBarColor: AppColors.background,
         ),
         child: Scaffold(
-          backgroundColor: const Color(0xFFF5F6FA),
+          backgroundColor: AppColors.background,
           appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle.dark,
-            backgroundColor: const Color(0xFFF5F6FA),
+            backgroundColor: AppColors.background,
             elevation: 0,
             centerTitle: true,
             leading: BackButton(
@@ -167,7 +167,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
               });
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5E5CE6),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -189,28 +189,17 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                           Navigator.pop(context, true);
                         }
                       } catch (e) {
-                        if (e is StateError &&
-                            e.message.contains('Authentication required')) {
-                          if (context.mounted) {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                            );
-                          }
-                        } else {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(e.toString())),
-                            );
-                          }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
                         }
                       }
                     }
                   },
             style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF5E5CE6),
-              side: const BorderSide(color: Color(0xFF5E5CE6)),
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: const Text("Delete"),
@@ -404,21 +393,10 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                             );
                           }
                         } catch (e) {
-                          if (e is StateError &&
-                              e.message.contains('Authentication required')) {
-                            if (context.mounted) {
-                              await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const LoginScreen(),
-                                ),
-                              );
-                            }
-                          } else {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
-                            }
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
                           }
                         }
                       }
