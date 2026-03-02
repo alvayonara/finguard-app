@@ -66,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await localStorage.clearLoggedOutFlag();
 
       await apiClient.refreshCachedSessionFromStorage();
+      await authVM.syncPreferences();
 
       if (!authResponse.onboardingCompleted) {
         if (!authResponse.initialIncomeSet) {

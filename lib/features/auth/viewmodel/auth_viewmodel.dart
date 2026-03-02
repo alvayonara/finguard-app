@@ -84,6 +84,16 @@ class AuthViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> syncPreferences() async {
+    try {
+      final access = await localStorage.getAccessToken();
+      if (access == null || access.isEmpty) return;
+
+      final remotePref = await userRepository.getPreferences();
+      await _applyPreferences(remotePref);
+    } catch (_) {}
+  }
+
   Future<void> reauthenticate() async {
     await localStorage.clearAuthSession();
   }

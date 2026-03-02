@@ -2,6 +2,7 @@ import 'package:finguard/core/storage/local_storage.dart';
 import 'package:finguard/core/ui/app_colors.dart';
 import 'package:alice/alice.dart';
 import 'package:finguard/features/auth/view/login_screen.dart';
+import 'package:finguard/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (!mounted) return;
     final dashboardVM = context.read<DashboardViewmodel>();
     final riskVM = context.read<RiskTrendViewmodel>();
-    await dashboardVM.loadDashboard();
+    final authVM = context.read<AuthViewmodel>();
+
+    await Future.wait([
+      dashboardVM.loadDashboard(),
+      authVM.syncPreferences(),
+    ]);
+
     if (!mounted) return;
     await riskVM.load();
   }
