@@ -42,7 +42,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final accessToken = await storage.getAccessToken();
     final refreshToken = await storage.getRefreshToken();
     final userUid = await storage.getUserUid();
-    final hasSession = accessToken != null &&
+    final hasSession =
+        accessToken != null &&
         accessToken.isNotEmpty &&
         refreshToken != null &&
         refreshToken.isNotEmpty &&
@@ -70,10 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final riskVM = context.read<RiskTrendViewmodel>();
     final authVM = context.read<AuthViewmodel>();
 
-    await Future.wait([
-      dashboardVM.loadDashboard(),
-      authVM.syncPreferences(),
-    ]);
+    await Future.wait([dashboardVM.loadDashboard(), authVM.syncPreferences()]);
 
     if (!mounted) return;
     await riskVM.load();
@@ -190,8 +188,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             builder: (_) => _goToIncomeSetup
                 ? const OnboardingFlowScreen(initialStep: 2, allowBack: false)
                 : _showLoggedOutLogin
-                    ? const LoginScreen()
-                    : OnboardingFlowScreen(initialStep: _onboardingStep),
+                ? const LoginScreen()
+                : OnboardingFlowScreen(initialStep: _onboardingStep),
           ),
         );
       });

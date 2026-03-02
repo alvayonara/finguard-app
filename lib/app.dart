@@ -65,7 +65,8 @@ class FinguardApp extends StatelessWidget {
               ApiClient(context.read<LocalStorage>(), alice: alice),
         ),
         Provider(
-          create: (context) => AuthRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              AuthRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
           create: (context) =>
@@ -88,19 +89,24 @@ class FinguardApp extends StatelessWidget {
               SubscriptionRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
-          create: (context) => CategoryRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              CategoryRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
-          create: (context) => TransactionRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              TransactionRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
-          create: (context) => ActivityRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              ActivityRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
-          create: (context) => BudgetRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              BudgetRepository(apiClient: context.read<ApiClient>()),
         ),
         Provider(
-          create: (context) => AppConfigRepository(apiClient: context.read<ApiClient>()),
+          create: (context) =>
+              AppConfigRepository(apiClient: context.read<ApiClient>()),
         ),
         ChangeNotifierProvider(create: (_) => settings),
         ChangeNotifierProxyProvider4<
@@ -127,9 +133,11 @@ class FinguardApp extends StatelessWidget {
               previous ?? DashboardViewmodel(dashboardRepository: repo),
         ),
         ChangeNotifierProxyProvider<RiskRepository, RiskTrendViewmodel>(
-          create: (context) =>
-              RiskTrendViewmodel(riskRepository: context.read<RiskRepository>()),
-          update: (_, repo, previous) => previous ?? RiskTrendViewmodel(riskRepository: repo),
+          create: (context) => RiskTrendViewmodel(
+            riskRepository: context.read<RiskRepository>(),
+          ),
+          update: (_, repo, previous) =>
+              previous ?? RiskTrendViewmodel(riskRepository: repo),
         ),
         ChangeNotifierProvider(
           create: (context) =>
@@ -138,9 +146,13 @@ class FinguardApp extends StatelessWidget {
         ChangeNotifierProxyProvider<CategoryRepository, CategoryViewModel>(
           create: (context) =>
               CategoryViewModel(repository: context.read<CategoryRepository>()),
-          update: (_, repo, previous) => previous ?? CategoryViewModel(repository: repo),
+          update: (_, repo, previous) =>
+              previous ?? CategoryViewModel(repository: repo),
         ),
-        ChangeNotifierProxyProvider<TransactionRepository, TransactionViewModel>(
+        ChangeNotifierProxyProvider<
+          TransactionRepository,
+          TransactionViewModel
+        >(
           create: (context) => TransactionViewModel(
             repository: context.read<TransactionRepository>(),
           ),

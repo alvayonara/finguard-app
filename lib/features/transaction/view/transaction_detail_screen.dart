@@ -191,9 +191,9 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(e.toString())));
                         }
                       }
                     }
@@ -320,11 +320,13 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
     final categoryVM = context.watch<CategoryViewModel>();
     final settings = context.watch<AppSettings>();
 
-    final categories =
-        categoryVM.categories.where((c) => c.type == widget.tx.type).toList();
+    final categories = categoryVM.categories
+        .where((c) => c.type == widget.tx.type)
+        .toList();
     final cleanAmount = amountController.text.replaceAll(',', '');
     final parsedAmount = double.tryParse(cleanAmount);
-    final canSubmit = !txVM.isLoading &&
+    final canSubmit =
+        !txVM.isLoading &&
         selectedCategoryId != null &&
         parsedAmount != null &&
         parsedAmount > 0;
@@ -401,7 +403,9 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                           type: widget.tx.type,
                           amount: parsedAmount,
                           categoryId: selectedCategoryId!,
-                          occurredAt: DateFormat('yyyy-MM-dd').format(_selectedDate),
+                          occurredAt: DateFormat(
+                            'yyyy-MM-dd',
+                          ).format(_selectedDate),
                         );
 
                         try {
@@ -419,7 +423,9 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                                 amount: parsedAmount,
                                 categoryId: selectedCategoryId!,
                                 categoryName: categoryName,
-                                occurredAt: DateFormat('yyyy-MM-dd').format(_selectedDate),
+                                occurredAt: DateFormat(
+                                  'yyyy-MM-dd',
+                                ).format(_selectedDate),
                               ),
                             );
                           }
@@ -470,7 +476,11 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
-            const Icon(Icons.calendar_today, size: 18, color: Color(0xFF5E5CE6)),
+            const Icon(
+              Icons.calendar_today,
+              size: 18,
+              color: Color(0xFF5E5CE6),
+            ),
           ],
         ),
       ),
