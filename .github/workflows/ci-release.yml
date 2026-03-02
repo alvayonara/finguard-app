@@ -1,4 +1,4 @@
-name: CI – Release Build
+name: CI - Release Build
 
 on:
   push:

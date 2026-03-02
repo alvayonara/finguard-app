@@ -1,4 +1,4 @@
-name: CI – Debug Build
+name: CI - Debug Build
 
 on:
   push:
