@@ -10,12 +10,12 @@ class ApiClient {
 
   final Dio dio;
   final LocalStorage localStorage;
-  final Alice alice;
+  final Alice? alice;
   Future<void>? _refreshInFlight;
   String? _cachedAccessToken;
   String? _cachedUserUid;
 
-  ApiClient(this.localStorage, {required this.alice})
+  ApiClient(this.localStorage, {this.alice})
     : dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
@@ -24,7 +24,9 @@ class ApiClient {
         ),
       ) {
     unawaited(_loadCachedSession());
-    dio.interceptors.add(alice.getDioInterceptor());
+    if (alice != null) {
+      dio.interceptors.add(alice!.getDioInterceptor());
+    }
 
     dio.interceptors.add(
       InterceptorsWrapper(

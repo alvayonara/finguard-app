@@ -5,6 +5,7 @@ import 'package:finguard/features/auth/view/login_screen.dart';
 import 'package:finguard/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:finguard/features/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:finguard/features/risk/viewmodel/risk_trend_viewmodel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -146,26 +147,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                OutlinedButton(
-                  onPressed: () {
-                    // Open Alice inspector without dismissing the sheet
-                    try {
-                      final alice = context.read<Alice>();
-                      alice.showInspector();
-                    } catch (_) {}
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 14,
+                if (kDebugMode) ...[
+                  const SizedBox(width: 12),
+                  OutlinedButton(
+                    onPressed: () {
+                      try {
+                        final alice = context.read<Alice>();
+                        alice.showInspector();
+                      } catch (_) {}
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    child: const Text('Inspect'),
                   ),
-                  child: const Text('Inspect'),
-                ),
+                ],
               ],
             ),
           ],

@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:alice/alice.dart';
+import 'package:flutter/foundation.dart';
 import 'package:finguard/features/app_config/app_config_repository.dart';
 import 'package:finguard/features/app_version/data/app_version_repository.dart';
 import 'package:finguard/features/app_version/data/model/app_version_response.dart';
@@ -47,16 +48,18 @@ class FinguardApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = AppSettings();
     final navigatorKey = GlobalKey<NavigatorState>();
-    final alice = Alice(
-      showNotification: true,
-      showInspectorOnShake: true,
-      navigatorKey: navigatorKey,
-    );
+    final Alice? alice = kDebugMode
+        ? Alice(
+            showNotification: true,
+            showInspectorOnShake: true,
+            navigatorKey: navigatorKey,
+          )
+        : null;
 
     return MultiProvider(
       providers: [
         Provider(create: (_) => LocalStorage()),
-        Provider(create: (_) => alice),
+        if (kDebugMode) Provider<Alice>(create: (_) => alice!),
         Provider(
           create: (context) =>
               ApiClient(context.read<LocalStorage>(), alice: alice),
