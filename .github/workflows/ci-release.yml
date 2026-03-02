@@ -15,6 +15,10 @@ jobs:
   android-release:
     name: Android Release APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dkotlin.incremental=false"
 
     steps:
       - name: Checkout
