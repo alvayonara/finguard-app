@@ -3,6 +3,7 @@ import 'package:finguard/core/utils/category_icon_mapper.dart';
 import 'package:finguard/core/utils/thousand_separator_formatter.dart';
 import 'package:finguard/core/utils/currency_formatter.dart';
 import 'package:finguard/core/utils/currency_symbol.dart';
+import 'package:intl/intl.dart';
 import 'package:finguard/features/category/data/model/category_model.dart';
 import 'package:finguard/features/category/view/category_picker_screen.dart';
 import 'package:finguard/features/category/viewmodel/category_viewmodel.dart';
@@ -258,6 +259,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
   late TextEditingController amountController;
   late FocusNode amountFocusNode;
   int? selectedCategoryId;
+  late DateTime _selectedDate;
 
   @override
   void initState() {
@@ -269,13 +271,40 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
       ),
     );
     amountFocusNode = FocusNode();
-
     selectedCategoryId = widget.tx.categoryId;
+    _selectedDate = DateTime.tryParse(widget.tx.occurredAt) ?? DateTime.now();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryViewModel>().load();
       amountFocusNode.requestFocus();
     });
+  }
+
+  Future<void> _pickDate() async {
+    final txDate = _selectedDate;
+    final firstDate = DateTime(txDate.year, txDate.month, 1);
+    final now = DateTime.now();
+    final lastDate = (txDate.year == now.year && txDate.month == now.month)
+        ? now
+        : DateTime(txDate.year, txDate.month + 1, 0);
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: const ColorScheme.light(
+            primary: Color(0xFF5E5CE6),
+            onPrimary: Colors.white,
+            surface: Colors.white,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => _selectedDate = picked);
   }
 
   @override
@@ -327,6 +356,8 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
               ),
             if (!categoryVM.isLoading) _buildCategoryPickerField(categories),
             const SizedBox(height: 16),
+            _buildDatePickerField(),
+            const SizedBox(height: 16),
             TextField(
               controller: amountController,
               focusNode: amountFocusNode,
@@ -370,7 +401,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                           type: widget.tx.type,
                           amount: parsedAmount,
                           categoryId: selectedCategoryId!,
-                          occurredAt: widget.tx.occurredAt,
+                          occurredAt: DateFormat('yyyy-MM-dd').format(_selectedDate),
                         );
 
                         try {
@@ -388,7 +419,7 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                                 amount: parsedAmount,
                                 categoryId: selectedCategoryId!,
                                 categoryName: categoryName,
-                                occurredAt: widget.tx.occurredAt,
+                                occurredAt: DateFormat('yyyy-MM-dd').format(_selectedDate),
                               ),
                             );
                           }
@@ -411,6 +442,35 @@ class _EditTransactionFormState extends State<_EditTransactionForm> {
                     : const Text("Save"),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePickerField() {
+    return InkWell(
+      onTap: _pickDate,
+      borderRadius: BorderRadius.circular(18),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: "Date",
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(18),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                DateFormat('dd MMM yyyy').format(_selectedDate),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            const Icon(Icons.calendar_today, size: 18, color: Color(0xFF5E5CE6)),
           ],
         ),
       ),
